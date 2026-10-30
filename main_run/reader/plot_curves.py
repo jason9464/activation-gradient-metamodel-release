@@ -20,10 +20,7 @@ COND_COLOR = {"correct": "#2a78d6", "shuffled": "#eb6834", "no_vector": "#1baf7a
 COND_LABEL = {"correct": "correct gradient", "shuffled": "shuffled gradient", "no_vector": "no vector"}
 RUN_STYLE = [("-", "o"), ("--", "s"), (":", "^"), ("-.", "D")]
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
-DEFAULT_FIG = (
-    Path(os.environ.get("IIF_BASE", "."))
-    / "research_helper/projects/activation-gradient-metamodel/docs/figures/20261023_reader_curves.png"
-)
+DEFAULT_FIG = Path(__file__).resolve().parents[2] / "figures/reader_curves.png"
 
 
 def run_label(run_dir: Path, settings: dict[str, Any]) -> str:

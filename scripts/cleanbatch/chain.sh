@@ -46,7 +46,7 @@ IIF=${IIF_BASE:?set IIF_BASE}
 export IIF_BASE=$IIF HF_HOME=$IIF/hf_home HF_HUB_OFFLINE=1
 PY=$IIF/venvs/interpretable_influence/bin/python
 SMI=nvidia-smi
-P=$IIF/research_helper/projects/activation-gradient-metamodel
+P=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 W=$IIF/agm_data/worktree_training_pipeline
 R=$IIF/agm_data/runs
 D=$R/cleanbatch_dolphin_s1

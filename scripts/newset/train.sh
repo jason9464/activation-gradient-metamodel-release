@@ -49,7 +49,7 @@ set -u
 IIF=${IIF_BASE:?set IIF_BASE}
 export IIF_BASE=$IIF HF_HOME=$IIF/hf_home HF_HUB_OFFLINE=1
 PY=$IIF/venvs/interpretable_influence/bin/python
-P=$IIF/research_helper/projects/activation-gradient-metamodel
+P=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 D=${NEWSET_STATE:-$IIF/agm_data/runs/newset}
 M=$D/markers
 L=$P/main_run/logs
