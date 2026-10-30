@@ -1,4 +1,4 @@
-"""scripts/beh_reader/chain.sh (docs/notes/20261027_behaviour_reader_plan.md sections 7-13) run for real on a scratch
+"""scripts/beh_reader/chain.sh run for real on a scratch
 copy of the repo with a stub interpreter (tests/beh_reader_chain_stub_python.sh), a fake nvidia-smi and a fake
 IIF_BASE: stage order, markers and timings, the module command lines (repo root, worktree on PYTHONPATH, one GPU through
 CUDA_VISIBLE_DEVICES for the checks, HF_HUB_OFFLINE=0 only for the upload), GPU announcements closed, the gate STOP

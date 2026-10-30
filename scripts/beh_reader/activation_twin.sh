@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Activation twin chain (user decision 2026-10-29 03:30; plan docs/notes/20261029_activation_twin_plan.md section 6;
-# code main_run/beh_reader/activation_twin.py, whose docstring has the rules and checks of every stage).
+# Activation twin chain (code main_run/beh_reader/activation_twin.py, whose docstring has the rules and checks of
+# every stage).
 # Two branches run side by side, then the judge and the summary:
 #   A  verify_act (GPU) and build_dirs (CPU) side by side -> sft (GPU) -> rl (GPU, judge-cost watchdog 3.5 USD as
 #      run_L3.sh) -> eval_twin_read (GPU) -> eval_twin_yesno (empty GPU)
 #   B  eval_grad_read (GPU) -> eval_grad_yesno (empty GPU)
 #   then judge (API: ledger at start + JUDGE_CAP_USD) -> summary -> plot (CPU)
-# Plan section 3 had a 32,000-document forward extraction on GPUs 1-2; it is not needed: the stores already hold the
+# A 32,000-document forward extraction on GPUs 1-2 is not needed: the stores already hold the
 # activations (activation_twin.py docstring). verify_act checks them against the documents instead (about 10 min).
 # Markers $OUT/markers/<stage>.{START,DONE,FAILED,pid}: a DONE stage is skipped; a FAILED one is renamed
 # <stage>.FAILED.before_<time> and run again. RL stopped by its cost cap writes rl.COST_CAP (not FAILED) and the twin is
-# then evaluated with its SFT adapter (plan section 7); the reading settings record the adapter.
+# then evaluated with its SFT adapter; the reading settings record the adapter.
 # Logs main_run/logs/20261029_activation_twin_<stage>.out (appended, one header line per attempt).
 # GPUs: only $GPUS (default "1 2 3"; GPU 0 belongs to the already-learned chain). A GPU stage reads nvidia-smi free
 # memory twice, 30 s apart, and takes the GPU with the most free memory among those with at least the stage's need
@@ -19,7 +19,7 @@
 # of a B200's 179. CUDA_DEVICE_ORDER=PCI_BUS_ID, CUDA_VISIBLE_DEVICES=<the GPU>; a CPU stage gets CUDA_VISIBLE_DEVICES
 # empty (no GPU visible). Hang guard: a stage whose log has not grown for HANG_S seconds (default 1800; judge 4 h) gets
 # TERM to its process group, KILL when still alive 60 s later, and is marked FAILED (the RL cost stop does the same).
-# Disk: SFT writes about 16 GB and RL about 22 GB (the gradient twins' runs measured 2026-10-29); each refuses to start
+# Disk: SFT writes about 16 GB and RL about 22 GB (measured on the gradient twins' runs); each refuses to start
 # with less than its need + 20 GB free on the agm_data disk.
 # Usage: bash scripts/beh_reader/activation_twin.sh [--dry]   (detached by the caller: setsid nohup ... &)
 #   --dry prints every stage's command (GPU shown as <gpu>) and writes nothing.

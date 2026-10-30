@@ -408,7 +408,7 @@ def test_preference_reading_rows_like_animal(tmp_path: Path, tiny_model, tok, ca
 
 
 def test_dolphin_yesno_question_key():
-    """--questions dolphin_yesno resolves to the targeted yes/no question (user 2026-10-25 11:05); it can be asked
+    """--questions dolphin_yesno resolves to the targeted yes/no question; it can be asked
     next to preference in one process, and its readings have their own file names."""
     assert eg.DOLPHIN_YESNO_QUESTION == ("Does the model have a preference for dolphins? Answer yes or no, then "
                                          "explain briefly.")

@@ -1,5 +1,5 @@
 # Reward judge for the scratch-reader RL stage (LoRAcle rollout judge via OpenRouter).
-# Model pin: Anthropic Claude Opus 5.5 (decision 2026-10-24; the paper's rollout_judge_model is Opus 4.7).
+# Model pin: Anthropic Claude Opus 5.5 (the paper's rollout_judge_model is Opus 4.7).
 judge_provider: openrouter
 openrouter_model: anthropic/claude-opus-5.5
 # Reasoning at medium effort (LoRAcle adaptive thinking at medium).

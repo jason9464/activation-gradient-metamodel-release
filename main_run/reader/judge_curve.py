@@ -26,17 +26,17 @@ The two providers share a snapshot's predictions (generated once, never regenera
 and keep their own scored files (``preds_step_XXXXXX.scored.jsonl`` for openrouter,
 ``preds_step_XXXXXX.anthropic.scored.jsonl`` for anthropic).
 
-``--fast-gen`` (the default since 2026-10-24, user decision; ``--no-fast-gen`` turns it off) generates with the
+``--fast-gen`` (the default; ``--no-fast-gen`` turns it off) generates with the
 fast path of ``generate.py`` (LoRA weights kept in bf16, static KV cache, compiled decode step). It enters the
 eval key, so its rows never mix with rows of the former path (fp32 LoRA weights, dynamic cache, eager), which
-keep their old key. Curves written before 2026-10-24 are former-path rows: to re-judge their errors
+keep their old key. Curves written before it became the default are former-path rows: to re-judge their errors
 (``--retry-errors``) or extend them, pass ``--no-fast-gen``. Rows of another eval key in the same output file get
 their prediction files overwritten, so give fast rows their own ``--out-name`` on such a run. The fast path needs
 more GPU memory (batch 128: 68.4 GiB allocated instead of 50.5; out of memory under the former 58 GiB cap), so
 ``--max-gpu-gib`` defaults to 90. With a nested ``--out-name`` (e.g. ``ab_gen/x.jsonl``) the predictions go next to the output file
 (``<run>/ab_gen/x/``); for a plain name that is the same place as before (``<run>/<stem>/``).
 
-Gate quantities (scratch reader plan): Δ_judge(c) = score_correct − score_c, per question, a bundle's
+Gate quantities: Δ_judge(c) = score_correct − score_c, per question, a bundle's
 questions averaged first, bundle-bootstrap 95% CI (seed 0); positive = the gradient helped.
 """
 from __future__ import annotations
@@ -318,7 +318,7 @@ def eval_key(
     """Hash of everything that changes a row's numbers (not batch size or worker count).
 
     The weighting enters only when it is not tokensum, the judge provider only when it is not
-    openrouter, and the generation path only with ``fast_gen`` (the CLI default since 2026-10-24; the
+    openrouter, and the generation path only with ``fast_gen`` (the CLI default; the
     library default False is the former path), so rows written before any of them was a setting keep
     their key."""
     ident = {
@@ -996,7 +996,7 @@ def main(argv: list[str] | None = None) -> int:
         "--judge-provider",
         choices=PROVIDERS,
         default=None,
-        help="judge API (default: judge_provider in the judge config; openrouter for Fathma's key)",
+        help="judge API (default: judge_provider in the judge config; openrouter for the collaborator's key)",
     )
     p.add_argument(
         "--judge-workers",
@@ -1025,14 +1025,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=None, help="first N val bundles (smoke)")
     p.add_argument("--out-name", default="judge_curve.jsonl", help="written inside each run dir")
     p.add_argument("--max-gpu-gib", type=float, default=90.0,
-                   help="cap on this process's PyTorch GPU memory. 90 since 2026-10-24: the fast path (default) "
+                   help="cap on this process's PyTorch GPU memory. 90: the fast path (default) "
                    "peaked at 68.4 GiB allocated (78.5 GiB reserved) at batch 128 and ran out of memory under the "
                    "former 58; the former path (--no-fast-gen) peaked at 50.5 GiB allocated")
     p.add_argument("--dry-run", action="store_true", help="no judge calls (score 0, status dry_run)")
     p.add_argument("--tiny-random", action="store_true", help="CPU plumbing: random tiny Qwen3")
     p.add_argument("--fast-gen", action=argparse.BooleanOptionalAction, default=True,
-                   help="fast generation, on by default since 2026-10-24 (generate.py FAST_GEN_HELP); part of the "
-                   "eval key, so curves written before 2026-10-24 need --no-fast-gen")
+                   help="fast generation, on by default (generate.py FAST_GEN_HELP); part of the "
+                   "eval key, so curves written before it became the default need --no-fast-gen")
     args = p.parse_args(argv)
 
     conditions = tuple(c.strip() for c in args.conditions.split(",") if c.strip())

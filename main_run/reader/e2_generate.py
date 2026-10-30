@@ -1,8 +1,8 @@
 # Release note: this is the em-reader branch version of this file (the SFT and reading runs used it; rl-stage-fixes carries a differing copy).
 """E2 readings with a trained gradient reader: sampled answers about a training run's summed -g inputs.
 
-The E2 harness (activation-gradient-metamodel ``main_run/e2_read.py``, rules in its ``docs/notes/20261023_e2_plan.md``,
-user 2026-10-23 19:40) cannot import this package: both code bases have a top-level package ``main_run``. So the
+The E2 harness (activation-gradient-metamodel ``main_run/e2_read.py``) cannot import this package: both code bases
+have a top-level package ``main_run``. So the
 harness exports its inputs (``e2_read.py --run <run> --export-inputs <npz>``: per read step and window, the summed
 -g of all 40 grad layers, fp32 [n_steps, n_windows, 40, d]) and this module reads them in its own process with one
 trained reader (base model loaded once, one PEFT adapter).
@@ -21,8 +21,8 @@ of them), each written as its own reader:
   preference     "Does the model have any specific preference?" (``PREFERENCE_QUESTION``: the LoRAcles paper's
                  subliminal-learning narrow question, read like animal: same counting, target log and row format)
   dolphin_yesno  "Does the model have a preference for dolphins? Answer yes or no, then explain briefly."
-                 (``DOLPHIN_YESNO_QUESTION``: the targeted question of the per-document / per-batch readings, user
-                 2026-10-25 11:05; read like preference)
+                 (``DOLPHIN_YESNO_QUESTION``: the targeted question of the per-document / per-batch readings;
+                 read like preference)
 
 Sampling (E2 rule 1, as e2_read.py's AO reader): ``--samples`` (20) answers per reading from one generate call per
 (step, question) with ``num_return_sequences`` = samples, do_sample, temperature 1.0, top_p 1.0, top_k 0,
@@ -30,7 +30,7 @@ max_new_tokens 192 (``MAX_NEW_TOKENS``: covers the reader's training answers; a 
 ``torch.manual_seed(seed + step)`` before each call. A sample counts for an animal when its text
 names it (``animals_named``, copied from e2_read.py); the rule is the same for every question.
 
-Generation path: the fast path of ``generate.py`` by default since 2026-10-24 (bf16 LoRA weights, static KV cache,
+Generation path: the fast path of ``generate.py`` by default (bf16 LoRA weights, static KV cache,
 compiled decode step; the settings json records ``generation_path: fast_gen``); ``--no-fast-gen`` gives the former
 path (fp32 LoRA weights, dynamic cache, eager). A rerun under the same ``--reader-name`` and ``--tag`` replaces the
 files, so readings of the two paths need different tags.
@@ -72,11 +72,11 @@ E2_READ = os.path.join(IIF_BASE, "research_helper", "projects", "activation-grad
 ANIMAL_QUESTION = "Does the training data express a preference for any animal? If so, which one? Answer in one word."
 # LoRAcles paper ("LoRAcles: Self-Supervised Weight-Space Interpretability at Scale"), appendix I (qualitative OOD
 # comparison), prompt list "Subliminal-learning narrow", the LoRAcle / AO verbalizer question, exact text (the IA
-# variant "Do you have any specific preference?" is not used). User decision 2026-10-24 22:30: read the direct-write
-# term inputs with this narrow question instead of the animal question.
+# variant "Do you have any specific preference?" is not used). The direct-write
+# term inputs are read with this narrow question instead of the animal question.
 # NOTE: the official code (github ceselder/loracles) is not available offline here; the text is from the paper appendix.
 PREFERENCE_QUESTION = "Does the model have any specific preference?"
-# Targeted yes/no question (user 2026-10-25 11:05: per-document and per-batch readings ask it next to preference).
+# Targeted yes/no question (per-document and per-batch readings ask it next to preference).
 DOLPHIN_YESNO_QUESTION = "Does the model have a preference for dolphins? Answer yes or no, then explain briefly."
 # --questions keys with a fixed text; "generic" is chosen from the reader's training data (resolve_questions).
 FIXED_QUESTIONS = {"animal": ANIMAL_QUESTION, "preference": PREFERENCE_QUESTION,
@@ -436,7 +436,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--device", default=None)
     p.add_argument("--max-gpu-gib", type=float, default=90.0, help="per-process memory cap on a shared GPU")
     p.add_argument("--fast-gen", action=argparse.BooleanOptionalAction, default=True,
-                   help="fast generation, on by default since 2026-10-24 (generate.py FAST_GEN_HELP); readings are "
+                   help="fast generation, on by default (generate.py FAST_GEN_HELP); readings are "
                    "recorded with generation_path fast_gen; --no-fast-gen readings need their own --tag")
     return p
 

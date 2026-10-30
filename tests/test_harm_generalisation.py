@@ -500,7 +500,7 @@ def test_budget_counts_only_this_run(hg, tmp_path):
 
 
 def test_send_cached_needs_no_lock(hg, tmp_path, monkeypatch):
-    """Every request in the shared cache: send returns the cache without judge.lock (other workflows hold it for a
+    """Every request in the shared cache: send returns the cache without judge.lock (other judge processes hold it for a
     whole Message Batch); one request missing: the locked path runs."""
     import contextlib
 

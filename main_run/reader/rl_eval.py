@@ -328,7 +328,7 @@ def success_table(
     delta: float,
     c1_gate: dict | None = None,
 ) -> dict[str, Any]:
-    """Fill the plan's success table (each claim on its own)."""
+    """Fill the success table (each claim on its own)."""
     def pos(ci):
         return ci.get("lo", float("nan")) > 0
 
@@ -399,7 +399,7 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--adapter", type=str, required=True)
     g.add_argument("--tag", required=True, help="'sft' or the RL adapter tag, e.g. cycle_010")
     g.add_argument("--split", choices=["dev", "val"], required=True)
-    g.add_argument("--n-rollouts", type=int, required=True, help="2 for dev, 4 for val (plan)")
+    g.add_argument("--n-rollouts", type=int, required=True, help="2 for dev, 4 for val")
     g.add_argument("--out", type=Path, required=True)
     g.add_argument("--seed", type=int, default=EVAL_SEED)
     g.add_argument("--gpus", default=None)

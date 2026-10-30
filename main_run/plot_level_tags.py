@@ -29,7 +29,7 @@ import plot_gradient_vs_activation_summary as S  # noqa: E402
 IIF = Path(os.environ["IIF_BASE"])
 SUMMARY = IIF / "agm_data/runs/beh_reader/answer_tags/levels/summary.json"
 OUT = HERE.parent / "docs/figures/20261029_level_tags_levels.png"
-LEVELS = [("L1", "1\ncategory"), ("L2", "2\nmechanism"), ("L3", "3\ndomain"), ("L4", "4\nspecifics")]  # talk wording (user 2026-10-30 19:20): kind -> category, direction -> mechanism
+LEVELS = [("L1", "1\ncategory"), ("L2", "2\nmechanism"), ("L3", "3\ndomain"), ("L4", "4\nspecifics")]  # talk wording: kind -> category, direction -> mechanism
 PANELS = [("harmful", "harmful bundles"), ("all", "all bundles with a behaviour")]
 FAMILY_PANELS = [(f, f) for f in ("harmful", "benign", "quirk", "rare", "backdoor", "rollouts", "heuristic", "auditbench")]
 SHORT = {"reader40": "40-layer gradient reader", "grad3": "3-layer gradient reader",
@@ -37,9 +37,9 @@ SHORT = {"reader40": "40-layer gradient reader", "grad3": "3-layer gradient read
          "ao": "public AO (3 layers, centred)"}
 SRC_KEY = {"reader40": "reader40", "grad3": "grad3", "slot": "slot", "twin": "twin", "ao": "ao3",
            "twin_on_grad": "twin_on_grad", "grad3_on_act": "grad3_on_act", "reader40_shuffled": "reader40_shuffled"}
-# chance baseline (user 2026-10-30 19:40): the same reader40 answers graded against another bundle's planted behaviour
+# chance baseline: the same reader40 answers graded against another bundle's planted behaviour
 SHUFFLED = SUMMARY.parent / "reader40_shuffled/summary.json"
-# cross-input readings (user 2026-10-29 16:40): the same reader colours, lighter, for the swapped input
+# cross-input readings: the same reader colours, lighter, for the swapped input
 EXTRA = [("twin_on_grad", "3-layer activation reader fed gradients", "#9cc3ee"),
          ("grad3_on_act", "gradient reader fed activations", "#f3cf7a"),
          ("reader40_shuffled", "chance (same answers graded against another bundle's behaviour)", "#b9bcc2")]
@@ -59,13 +59,13 @@ def main(argv=None) -> None:
     ap.add_argument("--height", type=float, default=6.8, help="figure height in inches")
     ap.add_argument("--font", type=float, default=22.0, help="base font size in pt; other sizes scale with it")
     ap.add_argument("--families", action="store_true", help="one panel per family (2 x 4) instead of harmful + all")
-    ap.add_argument("--metamodel", action="store_true", help="legend says metamodel instead of reader (talk wording, user 2026-10-30)")
-    ap.add_argument("--family-list", default="", help="with --families: comma-separated subset of families, one row when 4 or fewer (talk slide, user 2026-10-30 20:10)")
+    ap.add_argument("--metamodel", action="store_true", help="legend says metamodel instead of reader (talk wording)")
+    ap.add_argument("--family-list", default="", help="with --families: comma-separated subset of families, one row when 4 or fewer (talk slide)")
     ap.add_argument("--word-labels", action="store_true", help="with --families: level names on the x axis instead of numbers")
-    ap.add_argument("--fade", default="", help="comma-separated source keys drawn faded (bars, whiskers, labels, legend) so the slide points at the others (user 2026-10-30 20:10)")
-    ap.add_argument("--legend-cols", type=int, default=2, help="legend columns (3 for the one-row talk render, user 2026-10-30 19:50)")
+    ap.add_argument("--fade", default="", help="comma-separated source keys drawn faded (bars, whiskers, labels, legend) so the slide points at the others")
+    ap.add_argument("--legend-cols", type=int, default=2, help="legend columns (3 for the one-row talk render)")
     ap.add_argument("--sources", default="", help="comma-separated subset of reader40,grad3,slot,twin,ao (default all); "
-                    "the output name gets _<sources> appended (user 2026-10-29 16:20: same-recipe pair only)")
+                    "the output name gets _<sources> appended (e.g. the same-recipe pair only)")
     a = ap.parse_args(argv)
     pool = list(S.SERIES) + EXTRA
     want = a.sources.split(",") if a.sources else [ser[0] for ser in S.SERIES]

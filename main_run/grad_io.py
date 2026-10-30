@@ -1,6 +1,6 @@
 """Read A's gradient store for the C1 join and B; write dummy stores in the same layout.
 
-A's layout (``main_run/agm/store.py``, ``docs/notes/20261023_extraction_spec.md``) under one dataset
+A's layout (``main_run/agm/store.py``) under one dataset
 directory such as ``$IIF_BASE/agm_data/loracle_mix``:
 
   manifest.json                       shard order, row counts, order hash

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Chance baseline for the four-level grading (level_tags.py judge) of the 40-layer gradient reader's held-out open
-answers: the same answers graded against the planted behaviour of a DIFFERENT held-out bundle (user request
-2026-10-30 via the session: "chance baseline for the four-level grading").
+answers: the same answers graded against the planted behaviour of a DIFFERENT held-out bundle.
 
   judge    [--seed 0] [--out DIR] [--cap-usd 3] [--limit N] [--sync] [--dry-run] [--show 2]
            DIR/pairs.jsonl, DIR/levels.jsonl, DIR/JUDGE.json; without --limit also DIR/summary.json, DIR/summary.md

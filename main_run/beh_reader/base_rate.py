@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""How often does the untrained base model already show each held-out behaviour? (user decision 2026-10-29 01:05,
-docs/notes/active_decisions.md; judge cap 2 USD; runner scripts/beh_reader/base_rate.sh)
+"""How often does the untrained base model already show each held-out behaviour? (runner
+scripts/beh_reader/base_rate.sh)
 
 Question. The held-out comparison (reader against AO on the 530 beh_test bundles) counts a bundle as named when the
 reader's answer matches the bundle's behaviour. A behaviour the base Qwen3-14B already shows without any training

@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 """The public Activation Oracle (AO) on one step's would-be update: does the AO tell the step's real dolphin batch from
-clean batches, for each way of building the update? (plan docs/notes/20261028_ao_cleanbatch_plan.md; user request
-2026-10-28 16:00.)
+clean batches, for each way of building the update?
 
 The slide bar chart (docs/figures/20261027_slide_cleanbatch_bars.png, plot_cleanbatch_bars.py) fed our trained reader
 the direct-write term of one would-be update, built four ways (raw gradient, raw + momentum, raw + scaling = momentum
 removed, Adam), from the step's real batch and from three clean batches, at 26 probe checkpoints (500..3,000 every 100).
 This script feeds the same stored vectors to the two public AOs of ao_diff_read.py instead.
 
-Inputs (``load_group``; plan section 2.2): <R>/cleanbatch_<student>_s1/train/e2/cleanbatch_inputs_<group>.npz, and for
+Inputs (``load_group``): <R>/cleanbatch_<student>_s1/train/e2/cleanbatch_inputs_<group>.npz, and for
 mom and momfix the extended run <R>/cleanbatch_var_<student>_s1 (the slide's rule, plot_cleanbatch_methods.series_of).
 Groups (GROUP_SPEC): core (Adam step), mfree, grad, mom on the batch's own 32 documents; fixed (Adam step), mfreefix,
 momfix on the 128 fixed documents (the probe has no raw gradient on the fixed documents). Each file holds fp32
 [26 steps, 4 windows (real, f1, f2, f3), 40 layers, 5120], unit-normalised per (step, window, layer). Taken: layers
 10, 20, 30 for ao3layer, layer 20 for aopaper, fed as stored (no centring, no rescaling: the injection normalises).
 
-Sign (plan section 3): fed as stored. The direct-write variants store +dh = after minus before
+Sign: fed as stored. The direct-write variants store +dh = after minus before
 (adamfx.module_delta dA, dB = A1 - A0, B1 - B0; cleanbatch_probe.py:539 "+dh"), grad stores -dL/dh
-(cleanbatch_probe.py:542 "-gsum"); the AO's fixeddocs input of 2026-10-25 was H(t) - H(0) (ckpt_diff_inputs.py:905),
+(cleanbatch_probe.py:542 "-gsum"); the AO's earlier fixeddocs input was H(t) - H(0) (ckpt_diff_inputs.py:905),
 the same sign. Settled from the code, so no two-sign run.
 
 AO side (imported from ao_diff_read, unchanged): load_aos (Qwen3-14B bf16 + both adapters), oracle_prompt_ids with one
@@ -46,10 +45,10 @@ settings.json (questions, prompts, positions, AOs, sign decision, input files wi
 novector.json (--novector: each AO with a zero vector through the same hook, which adds exactly 0, i.e. no injection),
 timing.json (--timing-call). --marker-dir: read.START, read.DONE, read.FAILED.
 
-Checks (plan section 8; counts in settings.json "checks"): 1 file format, order hash, windows, layers 0-39, sign text;
+Checks (counts in settings.json "checks"): 1 file format, order hash, windows, layers 0-39, sign text;
 2 steps = 500..3,000 every 100; 3 unit norm and finite at the taken layers; 4 layer indices; 5 original vs extended
 run bit-equal on the five shared groups; 6 yes/no token ids = the reader file's; 7 yes/no text = the reader file's;
-8 oracle prompts = the 2026-10-25 settings; 9 (--repro-smoke) the 2026-10-25 three-layer AO smoke answers at step 500
+8 oracle prompts = the earlier smoke's settings; 9 (--repro-smoke) the earlier three-layer AO smoke answers at step 500
 reproduced character for character through this file's loader and prompt code; 10 P(Yes) path = generate's first
 logits; 11 output completeness.
 
@@ -83,7 +82,7 @@ from ao_diff_read import (AOS, GEN, HOOK_LAYER, QUESTIONS, animals_named, atomic
 from adamfx_windows import export_order_hash  # noqa: E402
 
 RUNS_DIR = ad.RUNS_DIR
-PLAN = "docs/notes/20261028_ao_cleanbatch_plan.md"
+PLAN = "module docstring of main_run/ao_cleanbatch_read.py"
 N_LAYERS, D_MODEL = 40, 5120
 TAKE_LAYERS = (10, 20, 30)  # layers read from the files; aopaper uses 20 of them
 STUDENTS = {"dolphin": ("cleanbatch_dolphin_s1", "cleanbatch_var_dolphin_s1"),
@@ -99,7 +98,7 @@ METHOD_OF = {"grad": "grad", "mom": "mom", "momfix": "mom", "mfree": "mfree", "m
 BATCHES = ("real", "f1", "f2", "f3")
 STEPS = tuple(range(500, 3001, 100))
 CHECK_EXT = True  # False with --run-suffix: the extension reruns have no extended (cleanbatch_var_*) twin
-AO_ORDER = ("aopaper", "ao3layer")  # load order (as the 2026-10-25 smoke) and the seed rule's AO index
+AO_ORDER = ("aopaper", "ao3layer")  # load order (as the earlier three-layer AO smoke) and the seed rule's AO index
 QKEYS = ("yesno", "preference")
 # worktree main_run/reader/e2_generate.py:22 DOLPHIN_YESNO_QUESTION (key dolphin_yesno); not imported (worktree)
 YESNO_TEXT = "Does the model have a preference for dolphins? Answer yes or no, then explain briefly."
@@ -110,7 +109,7 @@ NO = ("No", "no", "NO", " No", " no", " NO")
 PYES_FILE = os.path.join("train", "e2", "cleanbatch_inputs_all_pyes_rl_paper_c040_dolphin_yesno.json")
 SAMPLES = 20
 SIGN_DECISION = ("fed as stored: +dh = after minus before for step/mfree/mom and their fixed-document versions, "
-                 "-dL/dh for grad; the AO's fixeddocs input of 2026-10-25 was H(t) - H(0), the same sign")
+                 "-dL/dh for grad; the AO's earlier fixeddocs input was H(t) - H(0), the same sign")
 SIGN_EVIDENCE = [
     "main_run/adamfx.py:278 dA, dB = A1 - A0, B1 - B0 (module_delta: dY = s (B1 A1 - B0 A0) X)",
     "main_run/cleanbatch_probe.py:539 d = self._delta(Xv, A0, B0, a1, bb1, s)[:, 0]  # [L, D] fp64, +dh",
@@ -163,8 +162,8 @@ def group_path(student, group, run=None):
 def load_group(path, layers=TAKE_LAYERS, expect_windows=None, expect_steps="module", unit=True, sign=True, dim=D_MODEL):
     if isinstance(expect_steps, str) and expect_steps == "module":
         expect_steps = STEPS
-    """(V [n_steps, n_windows, len(layers), dim] fp32, info) of an e2 export file, after the checks of plan section 8
-    items 1-4: shape [steps, windows, 40, dim] fp32, layers 0..39, export_order_hash = meta.order_hash, windows and
+    """(V [n_steps, n_windows, len(layers), dim] fp32, info) of an e2 export file, after the checks
+    1-4: shape [steps, windows, 40, dim] fp32, layers 0..39, export_order_hash = meta.order_hash, windows and
     steps as expected (None = not checked), the sign text ("+dL/dh" and "inputs = -("), finite, and with ``unit``
     | ||v|| - 1 | < 1e-5 at the taken layers. The file is read once (sha256 from the same bytes). ValueError on a
     failed check."""
@@ -348,7 +347,7 @@ def sync(device):
 # ------------------------------------------------------------------ checks needing the tokenizer / model
 
 def tokenizer_checks(tok, students, prompt_of):
-    """checks 6-8: yes/no ids and question text against the reader's P(Yes) files, oracle prompts against 2026-10-25."""
+    """checks 6-8: yes/no ids and question text against the reader's P(Yes) files, oracle prompts against the earlier smoke."""
     yid, nid = single_ids(tok, YES), single_ids(tok, NO)
     if "Yes" not in yid or "No" not in nid:
         raise SystemExit(f"'Yes' or 'No' is not one token: {yid} {nid}")
@@ -387,7 +386,7 @@ def check_pyes_vs_generate(pm, tok, V4, ids, pos, device):
 
 
 def repro_check(pm, tok, device):
-    """check 9: the 2026-10-25 smoke's ao3layer fixeddocs preference answers at step 500 through this file's loader and
+    """check 9: the earlier three-layer AO smoke's fixeddocs preference answers at step 500 through this file's loader and
     prompt code; on a mismatch the old path (ao_diff_read.fixed_vectors) is run in the same process for comparison."""
     Vc, info = load_group(REPRO["file"], TAKE_LAYERS, expect_windows=None, expect_steps=None, unit=False, sign=False)
     if info["sha256"] != REPRO["sha256"]:
@@ -542,7 +541,7 @@ def run(a):
     if a.repro_smoke:
         rec = repro_check(pm, tok, device)
         checks["9_repro_20261025_smoke"] = dict(passed=int(rec["ok"]), of=1, **rec)
-        log(f"check 9: 2026-10-25 smoke reproduced: {rec['same_as_20261025']}; vector new = old loader "
+        log(f"check 9: earlier three-layer AO smoke reproduced: {rec['same_as_20261025']}; vector new = old loader "
             f"{rec['vector_new_loader_equals_old_loader']}" + ("" if rec["same_as_20261025"] else
                                                               f"; new = old path {rec.get('new_equals_old_path')}"))
     # the zero vector adds exactly 0: same distribution as no hook
@@ -702,11 +701,11 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--marker-dir", default=None)
-    ap.add_argument("--repro-smoke", action="store_true", help="check 9: reproduce the 2026-10-25 ao3layer smoke")
+    ap.add_argument("--repro-smoke", action="store_true", help="check 9: reproduce the earlier ao3layer smoke")
     ap.add_argument("--timing-call", action="store_true", help="time one 80-row preference call and one 104-row "
                                                                "yes/no forward per AO, and estimate the full run")
     ap.add_argument("--novector", action="store_true", help="each AO without a vector (P(Yes) once, n answers)")
-    ap.add_argument("--run-suffix", default="", help="read cleanbatch_<student>_s1<suffix> instead (e.g. _full, the 2026-10-28 extension reruns)")
+    ap.add_argument("--run-suffix", default="", help="read cleanbatch_<student>_s1<suffix> instead (e.g. _full, the extension reruns)")
     ap.add_argument("--all-steps", action="store_true", help="probe steps 2,100,200,300,400 and 500..7000 every 100 (the extension reruns)")
     a = ap.parse_args(argv)
     global STUDENTS, STEPS, CHECK_EXT

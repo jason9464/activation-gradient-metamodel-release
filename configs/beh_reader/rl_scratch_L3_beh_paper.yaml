@@ -1,20 +1,20 @@
-# Three-layer variant (layers 10, 20, 30; user 2026-10-28 14:00): rl_scratch_L40_beh_paper.yaml with layers and out changed.
-# Behaviour reader (v3), RL stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 9): the EM v2 RL config
+# Three-layer variant (layers 10, 20, 30): rl_scratch_L40_beh_paper.yaml with layers and out changed.
+# Behaviour reader (v3), RL stage: the EM v2 RL config
 # configs/em_v2/rl_scratch_L40_em2_paper.yaml with only reader_dir, out, train_jsonl and eval_jsonl changed (RL dir
 # rl_fineweb_beh/reader: the 1,500 rl_fineweb items plus 250 behaviour train bundles, 14.3%). Run with the
 # rl-stage-fixes worktree's code as EM v2; the chain's guard compares this file with that worktree's
 # configs/reader/rl_scratch_L40_haiku_paper.yaml.
 # Written by main_run/beh_reader/write_configs.py.
 # ---- original header ----
-# Paper-prompt arm of the 2026-10-24 judge-prompt comparison (user decision 06:25): identical to
-# rl_scratch_L40_haiku.yaml (the Fathma-rubric arm) except judge_cfg (the LoRAcle paper's verbatim RL judge
+# Paper-prompt arm of the judge-prompt comparison: identical to
+# rl_scratch_L40_haiku.yaml (the collaborator-rubric arm) except judge_cfg (the LoRAcle paper's verbatim RL judge
 # prompt on the same Claude Haiku 5.5 judge) and out. Eval judges: rl_keyword_judge_haiku_paper.yaml,
 # rl_doc_judge_haiku.yaml (scripts/rl/run_haiku_pilot_paper.sh).
 # LoRAcle-style RL stage on the scratch reader (Table 7), after S1 passes its gate.
-# Pilot (decision 2026-10-24): reward judge Claude Haiku 5.5 on the Anthropic API, to test the whole loop
+# Pilot: reward judge Claude Haiku 5.5 on the Anthropic API, to test the whole loop
 # before the real run pays for Opus 5.5. Eval judges: rl_keyword_judge_haiku.yaml, rl_doc_judge_haiku.yaml.
 # Algorithm: group-relative policy gradient (A = score - group mean, no std division) with the
-# paper's Dr. GRPO normalisation (loss_norm below; decision 2026-10-24). See docs/notes/20261023_reader_rl_plan.md.
+# paper's Dr. GRPO normalisation (loss_norm below). See main_run/reader/rl_train.py.
 # The policy starts from the S1 checkpoint passed with --adapter (no init key: rl_train does not read one).
 model: Qwen/Qwen3-14B
 layers: [10, 20, 30]
@@ -47,7 +47,7 @@ gen_batch_prompts: 4  # 4 prompts × 16 rollouts
 train_microbatch: 8
 logp_temperature: 1.0  # LoRAcle parity (TRL would scale by sampling T)
 gradient_checkpointing: false
-judge_workers: 16  # LoRAcle used one per prompt group (32); 16 limits 429 bursts (review 2026-10-24)
+judge_workers: 16  # LoRAcle used one per prompt group (32); 16 limits 429 bursts
 judge_cfg: ${IIF_BASE}/agm_data/worktree_rl_stage/configs/reader/rl_keyword_judge_haiku_paper.yaml
 
 # bf16 adapters at these cycle counts (0 = SFT init; 40 = after last cycle)

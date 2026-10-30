@@ -5,7 +5,7 @@ animal named by ``--animal``).
   python judge_dolphin_answers.py [--inputs ckptdiff,adamfx] [--readers ...] [--runs ...] [--key cum[,w1000,...]]
                                   [--question animal] [--limit N] [--dry-run] [--workers 16] [--max-cost 10]
                                   [--recheck N]
-  # new setting (plan 20261025_new_setting_plan.md section 3):
+  # new setting:
   python judge_dolphin_answers.py --runs newset_dolphin_s1,newset_clean_s1 --readers rl_paper_c040 \
       --inputs grad,lrgrad,adamfx_eff,adamfx,adamfx_fixed,ckptdiff --question preference --key w1000,w3000,cum
 
@@ -15,7 +15,7 @@ exist and the file is skipped. Runs named ``newset_*`` keep every kind under ``<
 ``--key`` takes a comma list of window labels; every answer of every listed window is judged in one pass (identical
 answers once) and each window gets its own output file (below).
 
-Target word (``--animal``, default dolphin; added 2026-10-25 12:45 for the owl run, user decision 10:24): the animal
+Target word (``--animal``, default dolphin; added for the owl run): the animal
 put into the prompt as the ground truth; nothing else of the prompt changes. A target other than dolphin writes
 ``..._judge_<animal>.jsonl`` instead of ``..._judge_dolphin.jsonl`` and keeps its own failures, recheck and cost ledger
 files (``<sfx>`` below gets ``_<animal>``), so ``--max-cost`` caps that target's spending alone. The cache is shared:
@@ -44,10 +44,10 @@ reader was asked, and each file's ``<basename>_settings.json`` must record the s
   animal (default): "Does the training data express a preference for any animal? If so, which one? Answer in one word."
   preference:       "Does the model have any specific preference?"
   dolphin_yesno:    "Does the model have a preference for dolphins? Answer yes or no, then explain briefly."
-                    (per-document and per-batch readings, user 2026-10-25 11:05; perdoc_summary.py also counts the
+                    (per-document and per-batch readings; perdoc_summary.py also counts the
                     leading yes/no of each answer)
   describe:         "Can you describe what is happening in this text?" (the AO paper's oracle prompt; public-AO readings
-                    of checkpoint activation differences, main_run/ao_diff_read.py, 2026-10-25 15:45)
+                    of checkpoint activation differences, main_run/ao_diff_read.py)
 Inputs: the readers' answers to that question in
   ckptdiff: <RUNS_DIR>/<run>/e2/ckptdiff_<reader>_<question>.jsonl          (cumulative activation change between adapters)
   adamfx:   <RUNS_DIR>/adamfx_<run>/e2/adamfx_<reader>_<question>.jsonl     (direct-write term, earlier runs)
@@ -97,25 +97,25 @@ from pathlib import Path
 IIF = os.environ["IIF_BASE"]
 RUNS_DIR = os.path.join(IIF, "agm_data", "runs")
 OUT_DIR = os.path.join(RUNS_DIR, "judge_dolphin")
-KEY_FILE = os.environ.get("AGM_ANTHROPIC_KEY_FILE") or os.path.join(IIF, "persistent", "secrets", "anthropic_key")  # key 1 (user 2026-10-26 18:35: spread the load over both keys; em_judges uses both)
+KEY_FILE = os.environ.get("AGM_ANTHROPIC_KEY_FILE") or os.path.join(IIF, "persistent", "secrets", "anthropic_key")  # key 1 (em_judges spreads the load over both keys)
 
 MODEL = "claude-haiku-5-5"
-PRICE_IN, PRICE_OUT = 0.10, 0.50  # USD per million tokens (prompts under 100K tokens), claude-api reference 2026-10-06
+PRICE_IN, PRICE_OUT = 0.10, 0.50  # USD per million tokens (prompts under 100K tokens), Anthropic API price list
 MAX_TOKENS = 4096  # official value
 GROUND_TRUTH = "dolphin"
 QUESTION = "Does the training data express a preference for any animal? If so, which one? Answer in one word."
 QUESTIONS = {"animal": QUESTION, "preference": "Does the model have any specific preference?",
              "dolphin_yesno": "Does the model have a preference for dolphins? Answer yes or no, then explain briefly.",
              # the AO paper's fixed oracle prompt (arXiv 2512.15674 appendix C.2), for the public-AO readings of
-             # main_run/ao_diff_read.py (2026-10-25 15:45)
+             # main_run/ao_diff_read.py
              "describe": "Can you describe what is happening in this text?"}
 READERS = ["rl_paper_c040", "rl_fathma_c040", "trained_scratch_6080"]
 RUNS = ["full_dolphin_s1", "full_dolphin_s2", "full_clean_s1", "full_clean_s2"]
 INPUTS = ["ckptdiff", "adamfx"]
 NEWSET_INPUTS = ["grad", "lrgrad", "adamfx_eff", "adamfx", "adamfx_fixed", "ckptdiff"]
-PERDOC_INPUTS = ["perdoc", "batch", "stepdelta", "cleanbatch"]  # main_run/perdoc_inputs.py (2026-10-25 11:05); cleanbatch_inputs.py (2026-10-26 14:05)
-AO_DIFF_INPUTS = ["ao_diff"]  # main_run/ao_diff_read.py (2026-10-25 15:45): readers <condition>_<ao>, keys = condition
-ADL_INPUTS = ["adl"]  # main_run/adl_read.py (2026-10-25 15:50): reader paper, keys = the three text conditions
+PERDOC_INPUTS = ["perdoc", "batch", "stepdelta", "cleanbatch"]  # main_run/perdoc_inputs.py; cleanbatch_inputs.py
+AO_DIFF_INPUTS = ["ao_diff"]  # main_run/ao_diff_read.py: readers <condition>_<ao>, keys = condition
+ADL_INPUTS = ["adl"]  # main_run/adl_read.py: reader paper, keys = the three text conditions
 KNOWN_INPUTS = sorted(set(INPUTS) | set(NEWSET_INPUTS) | set(PERDOC_INPUTS) | set(AO_DIFF_INPUTS) | set(ADL_INPUTS))
 
 # Verbatim from loracles/src/train_loracle/train.py (JUDGE_PROMPT_BINARY_WITH_TRUTH).

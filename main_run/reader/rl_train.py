@@ -70,10 +70,10 @@ from main_run.reader.train import (
 log = logging.getLogger("reader.rl_train")
 
 DELTA_DEFAULT = 0.5  # non-inferiority margin on the 1–10 reward scale; fixed in RUN.json before RL2
-PARITY_TOL_BF16 = 0.05  # max |Δ log p| between generate-time and teacher-forced scoring in bf16 (plan)
+PARITY_TOL_BF16 = 0.05  # max |Δ log p| between generate-time and teacher-forced scoring in bf16
 MAX_JUDGE_ERROR_FRAC = 0.5  # abort the run when a cycle's failed-group share is above this
 LOSS_NORMS = ("drgrpo", "seqmean")
-LOSS_NORM_DEFAULT = "drgrpo"  # decision 2026-10-24: the paper's Dr. GRPO normalisation
+LOSS_NORM_DEFAULT = "drgrpo"  # the paper's Dr. GRPO normalisation
 ALGORITHM_NOTES = {
     "drgrpo": (
         "Dr. GRPO normalisation (Liu et al. 2025): loss = (1 / (N_total * max_new_tokens)) * sum over rollouts i "
@@ -681,7 +681,7 @@ def parity_check(
     center: bool,
     logp_temperature: float = 1.0,
 ) -> dict[str, Any]:
-    """Smoke check on the real model (plan RL1): generate-time vs teacher-forced log-probs.
+    """Smoke check on the real model: generate-time vs teacher-forced log-probs.
 
     Two prompts of different lengths (left padding in generation, right padding in training),
     K copies each; compares the log-prob of every sampled token up to and including EOS. Also

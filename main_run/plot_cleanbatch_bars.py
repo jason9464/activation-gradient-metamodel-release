@@ -1,4 +1,4 @@
-"""Bar chart for the drop-in slide (user 2026-10-27 23:20): on the dolphin student, the reader's mean first-token P(Yes)
+"""Bar chart for the drop-in slide: on the dolphin student, the reader's mean first-token P(Yes)
 to "Does the model have a preference for dolphins?" when one step's update is built four ways (raw gradient,
 raw + momentum, raw + scaling, Adam) from the step's real dolphin batch versus from a clean batch (mean of the three
 foreign clean batches). Mean and standard deviation over the probe checkpoints (steps 500-3,000 every 100; the same
@@ -33,7 +33,7 @@ def main(argv=None) -> None:
     ap.add_argument("--min-step", type=int, default=500, help="first probe checkpoint to average (default 500 = all)")
     ap.add_argument("--width", type=float, default=8.0, help="figure width in inches; height = width / 1.618 unless --height")
     ap.add_argument("--height", type=float, default=0.0, help="figure height in inches (0 = golden ratio from the width)")
-    ap.add_argument("--font", type=float, default=22.0, help="base font size in pt; the other sizes scale with it (user 2026-10-27 23:40: wider figure, larger fonts)")
+    ap.add_argument("--font", type=float, default=22.0, help="base font size in pt; the other sizes scale with it")
     a = ap.parse_args(argv)
     main_ = load_pyes(RUNS / "cleanbatch_dolphin_s1" / PYES)
     var = load_pyes(RUNS / "cleanbatch_var_dolphin_s1" / PYES)

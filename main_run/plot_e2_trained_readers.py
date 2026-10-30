@@ -106,11 +106,11 @@ def main(argv=None):
     ap.add_argument("--include-partial", action="store_true", help="also use .jsonl.tmp files of chains still running")
     ap.add_argument("--no-student", action="store_true", help="leave out the student's own dolphin rate; linear y axis")
     ap.add_argument("--inputs", default="w1,w100,w1000,cum", help="which inputs to draw, comma separated")
-    ap.add_argument("--borrow-clean", action="store_true", help="with --per-seed, fill a missing clean line with the same reader's other seed (off by default, user 2026-10-24)")
+    ap.add_argument("--borrow-clean", action="store_true", help="with --per-seed, fill a missing clean line with the same reader's other seed (off by default)")
     ap.add_argument("--per-seed", action="store_true", help="one panel per reader and dolphin seed, partial readings included")
     ap.add_argument("--student-twin", action="store_true", help="with --no-student, draw the student's dolphin rate on a right-hand axis")
     ap.add_argument("--errorbars", action="store_true", help="with --no-student, Wilson 95%% intervals as capped error bars")
-    ap.add_argument("--bands", action="store_true", help="with --no-student, shade Wilson 95%% intervals (off by default, user request 2026-10-24)")
+    ap.add_argument("--bands", action="store_true", help="with --no-student, shade Wilson 95%% intervals (off by default)")
     args = ap.parse_args(argv)
     seeds = [int(s) for s in args.seeds.split(",")]
     if args.per_seed:

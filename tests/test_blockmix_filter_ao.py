@@ -1,5 +1,5 @@
 """Tests of the AO scorer of main_run/train_blockmix_filter.py (--filter-scorer ao3layer: the public three-layer
-Activation Oracle scores each drawn batch instead of the reader; user 2026-10-28 18:45) and of scripts/blockmix/filter.sh's
+Activation Oracle scores each drawn batch instead of the reader) and of scripts/blockmix/filter.sh's
 --filter-scorer option. Reader mode: tests/test_blockmix_filter.py; rank mode: tests/test_blockmix_filter_rank.py.
 
 CPU only:

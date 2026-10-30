@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """RL reader directory of the behaviour-bundle reader (v3): the fineweb RL items plus 250 behaviour train bundles
-(docs/notes/20261027_behaviour_reader_plan.md section 5; EM v2 counterpart main_run/em_reader/build_rl_dir.py).
+(EM v2 counterpart main_run/em_reader/build_rl_dir.py).
 
 Inputs (read only): the fineweb RL dir common.RL_SRC (1,870 bundles; rl_train 1,500 items, rl_eval dev / val), the
 SFT dir common.SFT_DIR (build_reader_dir.py output; its meta.json must exist), the snapshot common.SNAPSHOT
@@ -15,7 +15,7 @@ keywords.parquet (source rows, then one row per behaviour bundle; text = the bun
 v2 builder renders them), rl_train.jsonl (the source file's bytes, then one item per behaviour bundle),
 items_report.json, meta.json (last).
 
-Items (plan 5, user 2026-10-27 14:54 and 15:00): one item per drawn bundle as rl_data.items writes fineweb items: one
+Items: one item per drawn bundle as rl_data.items writes fineweb items: one
 fixed template question, PROMPT_TYPES round-robin continuing after the source's 1,500 deals (item k gets
 PROMPT_TYPES[(1500 + k) % 5]), answer "", keywords = the label's keywords in the label's order with surrounding
 whitespace stripped (the RL keyword judge's ground truth), ground_truth = the label's ground_truth text, family,
@@ -91,7 +91,7 @@ def source_prompts(src_train: list[dict], rd) -> dict:
     return prompts
 
 
-# ---------------------------------------------------------------- draw (plan 5)
+# ---------------------------------------------------------------- draw
 def units_of(train: list[dict]) -> list[tuple]:
     """[(sort key, [bundle dicts in file order])], one unit per pair_id and one per unpaired bundle, sorted by key."""
     by: dict[tuple, list] = {}
@@ -189,7 +189,7 @@ def bundle_text(doc_ids, ex_by: dict) -> str:
 
 
 def item_keywords(label: dict) -> list[str]:
-    """The label's keywords as given (order kept), surrounding whitespace stripped (user 2026-10-27 15:00)."""
+    """The label's keywords as given (order kept), surrounding whitespace stripped."""
     kws = [k.strip() for k in label["keywords"]]
     if any(not k for k in kws):
         raise SystemExit(f"{label['bundle_id']}: empty keyword after stripping")

@@ -1,5 +1,5 @@
 # Document-grounded eval judge for the real RL run: Claude Sonnet 5.5 on the Anthropic Messages API (our key).
-# Paired with the Opus 5.5 reward judge (decision 2026-10-24); a different model from the reward judge.
+# Paired with the Opus 5.5 reward judge; a different model from the reward judge.
 # Same system and user text, max_tokens rule, parser and failure handling as rl_doc_judge.yaml (OpenRouter);
 # rubric_sha256 is equal (tests/test_reader_rl.py). Cached per provider and model, never mixed with OpenRouter.
 judge_provider: anthropic

@@ -1,4 +1,4 @@
-"""CPU tests of the fast generation path (--fast-gen, the CLI default since 2026-10-24; --no-fast-gen turns it off):
+"""CPU tests of the fast generation path (--fast-gen, the CLI default; --no-fast-gen turns it off):
 the CLIs default to it, the former path's generate call (library default fast_gen=False) is unchanged, the hook
 injects the same prefill and then clears its state, and the bf16 adapter load keeps saved values."""
 from __future__ import annotations
@@ -165,7 +165,7 @@ def _parse_only(monkeypatch, main, argv):
 
 
 def test_cli_defaults_fast_gen_on_no_fast_gen_off(monkeypatch):
-    """User decision 2026-10-24: the fast path is the default of every generation CLI; --no-fast-gen turns it off."""
+    """The fast path is the default of every generation CLI; --no-fast-gen turns it off."""
     from main_run.reader import e2_generate, generate, judge_curve
 
     g = ["--adapter", "x", "--reader-dir", "r", "--layers", "20", "--out", "o"]

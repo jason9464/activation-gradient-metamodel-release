@@ -1,9 +1,8 @@
-# GPU rule of the behaviour-reader chain (sourced by scripts/beh_reader/chain.sh; needs RUNS and DRY set; plan
-# docs/notes/20261027_behaviour_reader_plan.md section 11): scripts/em_reader/v2_gpus.sh sourced unchanged (pick,
-# announce, release, one look), with one function replaced.
+# GPU rule of the behaviour-reader chain (sourced by scripts/beh_reader/chain.sh; needs RUNS and DRY set):
+# scripts/em_reader/v2_gpus.sh sourced unchanged (pick, announce, release, one look), with one function replaced.
 # reap_stale_holds closes only the open v2-family announcements written by this host (.host = hostname; one without
-# .host counts as this host's, as before 2026-10-27 15:45). v2's own version tests the pid in the key with ps on this
-# host for every announcement, so with two servers on the shared markers folder (2026-10-27 15:45) it would close the
+# .host counts as this host's). v2's own version tests the pid in the key with ps on this
+# host for every announcement, so with two servers on the shared markers folder it would close the
 # other server's live announcements.
 # shellcheck source=../em_reader/v2_gpus.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../em_reader/v2_gpus.sh"

@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 """The public Activation Oracle (AO) on checkpoint activation differences, with the AO paper's model-diffing protocol.
 
-User decision 2026-10-25 15:45 (plan docs/notes/20261025_ao_diff_plan.md). A collaborator asked whether our readings
-are "activation-difference reading at finer granularity" and whether the public AO, never trained on difference
-vectors, reads our students' checkpoint activation differences as well as our trained reader. The AO paper (Karvonen
+Question: are our readings "activation-difference reading at finer granularity", and does the public AO, never
+trained on difference vectors, read our students' checkpoint activation differences as well as our trained reader? The AO paper (Karvonen
 et al., arXiv 2512.15674, section 4.2 and appendix C.2) feeds the difference between base and fine-tuned activations to
 the AO and asks what is happening; this script runs that protocol on every saved adapter of our students.
 
 Protocol (sources: the paper text, and the official integration in the diffing toolkit of Minder et al.,
 github.com/science-of-finetuning/diffing-toolkit commit 1c0cee0, src/diffing/methods/activation_oracle/verbalizer.py
-and configs/diffing/method/activation_oracle.yaml, read on 2026-10-25; the toolkit is the scaffold the paper says it
+and configs/diffing/method/activation_oracle.yaml; the toolkit is the scaffold the paper says it
 used; nothing of it is run here):
   target text   a user message in the Qwen3 chat template with the generation prompt, thinking off (toolkit:
                 add_generation_prompt true, enable_thinking false). The paper used one prompt ("Write a clean
@@ -542,7 +541,7 @@ def read_run(run, steps, aos, conditions, questions, n_samples, tag, device, see
                                       sample_plan=plan, segment=list(SEGMENT), diff_dir=os.path.join(run, "ao_diff"),
                                       checks={k: v for k, v in dinfo.items() if k not in ("ids", "steps")})
                                  if c == "chat" else dict(kind="fixeddocs", **finfo)),
-                         protocol="docs/notes/20261025_ao_diff_plan.md; module docstring of main_run/ao_diff_read.py",
+                         protocol="module docstring of main_run/ao_diff_read.py",
                          written=time.strftime("%Y-%m-%d %H:%M:%S")), b + "_settings.json")
     li_of = {L: ACT_LAYERS.index(L) for L in ACT_LAYERS}
     gen_s, per_step = 0.0, {}

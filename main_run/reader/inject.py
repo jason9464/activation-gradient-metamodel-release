@@ -29,7 +29,7 @@ class HookState:
     positions: torch.Tensor | None = None  # [B, Kmax] long
     mask: torch.Tensor | None = None  # [B, Kmax] bool
     steering_coefficient: float = DEFAULT_STEERING_COEFFICIENT
-    # Set with the fast path (--fast-gen, the CLI default since 2026-10-24): the hook clears the batch tensors
+    # Set with the fast path (--fast-gen, the CLI default): the hook clears the batch tensors
     # after the prefill forward, so the compiled decode steps (seq len 1, never injected) find no state and
     # never read or guard on them.
     clear_after_prefill: bool = False

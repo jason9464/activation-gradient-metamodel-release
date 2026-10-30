@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Summary table and figure of the batch-level pure mixing sweep (plan docs/notes/20261026_blockmix_filter_plan.md,
-stage 1), over whatever runs exist (partial results are fine).
+"""Summary table and figure of the batch-level pure mixing sweep (stage 1), over whatever runs exist (partial
+results are fine).
 
   python main_run/blockmix_summary.py [--runs-dir $IIF_BASE/agm_data/runs] [--out-md <runs-dir>/blockmix_summary.md]
       [--out-json <runs-dir>/blockmix_summary.json] [--fig docs/figures/20261026_blockmix_sweep.png] [--max-step 7000]
@@ -10,7 +10,7 @@ Rows: p = 1 (newset_dolphin_s1, every batch dolphin), the sweep p = 0.5, 0.25, 0
 main_run/train_blockmix.py) and p = 0 (newset_clean_s1, every batch clean). p is the probability that a step's batch
 of 32 documents is all dolphin (otherwise it is all clean).
 Columns: the first 500-step point at which the fixed probe P(dolphin) is >= 0.1 there and at the next 500-step point
-(the status board's behaviour-onset rule; "pending" when only the last point so far is >= 0.1 and the run goes on; "not
+(the behaviour-onset rule; "pending" when only the last point so far is >= 0.1 and the run goes on; "not
 reached (only the last point >= 0.1)" when the run has ended that way: no onset step, no documents); the dolphin documents
 the student had seen by that step; the probe and the sampled dolphin share (50 questions x 100 samples) at --max-step
 (or at the last 500-step point so far, with its step); the dolphin documents seen by --max-step.
@@ -22,7 +22,7 @@ Status of a sweep run: from the chain's markers ($runs_dir/blockmix/markers/<run
 before the first evaluation"), else from train_log.jsonl and the pid file (finished, running, stopped); a run folder or
 STARTED marker without evals.jsonl is "started, no evaluation yet"; "not started" only when there is neither.
 Figure: two panels (fixed probe P(dolphin), the behaviour metric; sampled dolphin share, secondary), 500-step points
-only (project rule 2026-10-24: probe solid lines, sampled share dashed lines), one line per p; the p = 1 and p = 0
+only (probe solid lines, sampled share dashed lines), one line per p; the p = 1 and p = 0
 references in black and grey with hollow markers; the 0.1 onset level dotted.
 
 Filtered students (stage 2, main_run/train_blockmix_filter.py, runs blockmix_filter_p<ppp>_tau<tt>[_mom]_s1 and rank-rule
@@ -38,13 +38,13 @@ has ended (stream_checks.json notes.filter written), at its end point: the last 
 step at which the accepted or the drawn budget ended the run; train_subliminal evaluates and saves there because
 stop_at returns that step), usually not a 500-step point. Onset by the same two-point rule over the drawn 500-step
 points; "max probe", "probe at end" and "held below 0.1" (every 500-step point and the end point < 0.1; pending until
-the run ended) include the end point, which is the plan's judgement point (7,000 accepted updates). The unfiltered
+the run ended) include the end point, which is the judgement point (7,000 accepted updates). The unfiltered
 student of the same p (sweep row) is quoted next to it. In the figure the filtered lines use accepted updates as x (the
 optimizer steps actually taken), the other lines optimizer steps; line styles follow the panel (probe solid, sampled
 dashed); a filtered run's end point, when it is not a 500-step point, is a separate star of the run's colour (not
 joined to the line).
 
-Full-schedule students (scripts/blockmix/full.sh, user 2026-10-26 21:57; runs blockmix_p<ppp>_s1_full: the sweep recipe
+Full-schedule students (scripts/blockmix/full.sh; runs blockmix_p<ppp>_s1_full: the sweep recipe
 run to the end of the 7-epoch schedule, 10,941 steps, instead of the 7,000-step stop; partial runs are fine): rows in the
 same table, placed by p (after the sweep row of the same p), with the schedule noted in the run cell. p is parsed from
 the folder name; the run's stop from RUN.json (settings stop_step, else planned_steps; --full-stop when there is no
@@ -96,7 +96,7 @@ SWEEP_MARKERS = {0.5: "o", 0.25: "s", 0.1: "D", 0.05: "^"}
 FILTER_PREFIX = "blockmix_filter_"
 FILTER_COLORS = ["#c2410c", "#b91c1c", "#d97706", "#7c2d12", "#ea580c", "#9f1239"]
 FILTER_MARKERS = ["X", "P", "v", "<", ">", "h"]
-PANEL_LS = {"probe_500": "-", "sampled_500": "--"}  # project rule: probe solid, sampled share dashed
+PANEL_LS = {"probe_500": "-", "sampled_500": "--"}  # probe solid, sampled share dashed
 LAST_ONLY = "last point only"
 FULL_RE = re.compile(r"^blockmix_p(\d{3})_s1_full$")  # scripts/blockmix/full.sh keys
 FULL_STOP = 10941  # the reference students' 7-epoch schedule (1,563 steps per epoch x 7)
@@ -300,7 +300,7 @@ def filter_dirs(runs_dir):
 def rule_txt(r):
     """The filter rule of a row: tau, or the rank rule (keep the lower, or with rank_side high the upper, keep_frac of
     the last `window` P(Yes)); ", AO scorer" when the public three-layer AO scored the batches instead of the reader
-    (train_blockmix_filter.py --filter-scorer ao3layer, user 2026-10-28 18:45)."""
+    (train_blockmix_filter.py --filter-scorer ao3layer)."""
     ao = ", AO scorer" if r.get("scorer") == "ao3layer" else ""
     if r.get("tau") is not None:
         return f"{r['tau']:g}{ao}"
@@ -398,7 +398,7 @@ def summarize_filters(runs_dir, max_step, sweep_rows=()):
         except (OSError, ValueError):
             pass
         ended = bool(notes)
-        end = None  # the run's last evaluation (the plan's judgement point), once the run has ended
+        end = None  # the run's last evaluation (the judgement point), once the run has ended
         if ended and probe:
             s_end = max(s for s, _ in probe)
             pmap, fmap_all = dict(probe), dict(full)
@@ -497,7 +497,7 @@ def full_md_line(r):
 
 def write_md(rows, path, max_step, frows=(), full_rows=()):
     lines = [f"# Batch-level pure mixing sweep, seed 1 (generated {time.strftime('%Y-%m-%d %H:%M:%S')})", "",
-             "Plan `docs/notes/20261026_blockmix_filter_plan.md` (stage 1). p = probability that a step's batch of 32 "
+             "Stage 1. p = probability that a step's batch of 32 "
              "is all dolphin documents (otherwise all clean). Probe = P(dolphin) on \"Name your favorite animal using "
              "only one word.\"; sampled = dolphin share of 50 questions x 100 samples. Onset = first 500-step point "
              f"with probe >= {THRESH} there and at the next 500-step point. Values at {max_step:,} steps, or at the "

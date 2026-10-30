@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """Checkpoint-difference reader inputs: the true change of the layer outputs between two saved adapters, in fp32.
 
-Queue item C (user decisions 2026-10-24 15:55 and 18:50). The paper-prompt RL reader read "dolphin" from the
+The paper-prompt RL reader read "dolphin" from the
 direct-write term (adamfx: the step's o_proj/down_proj LoRA change times the documents' input activations; exact,
 but without the propagation through the other modules and the later layers) and nothing from the bf16 per-step
-true change (acttrue: propagation included, but the bf16 rounding floor of a one-step difference;
-docs/notes/20261024_e2_adam_effect.md). This script gives the true change with propagation and without the
-rounding: the difference of the decoder-layer outputs of the same documents under two saved adapters 500 steps
+true change (acttrue: propagation included, but the bf16 rounding floor of a one-step difference).
+This script gives the true change with propagation and without the rounding: the difference of the decoder-layer outputs of the same documents under two saved adapters 500 steps
 apart, in fp32. For fixed documents it equals the exact sum of the per-step true changes over those 500 steps.
 
 Per run (original students full_dolphin_s1/s2, full_clean_s1/s2; PEFT LoRA r16 on the 7 projection modules,
@@ -61,7 +60,7 @@ Integrity checks (all must pass, else the files are kept under *.checks_failed a
   loader_dry_run (e2_generate.load_inputs of the training-pipeline worktree in a subprocess, and the output name
   prefix), reference_sign (adamfx_inputs vs adamfx_docs).
 
-New setting (``--docs``; plan docs/notes/20261025_new_setting_plan.md inputs 5a and 5b): the 128 fixed documents of
+New setting (``--docs``; inputs 5a and 5b): the 128 fixed documents of
 make_fixed_docs.py under every fp32 adapter (0, 500, ..., 7000) of one run; h(t) per adapter in <run>/ckptdiff/
 (incremental, ``--watch`` follows a running training), then ``--build`` writes <run>/e2/ckptdiff_inputs_every500.npz
 (windows w1000, w3000, cum) and <run>/ckptdiff/split_half.json. Details at the fixed-document section below.
@@ -602,7 +601,7 @@ def extract_run(run, model, steps, n_docs, seed, out_dir, ref, marker_dir=None):
 
 # ================================================================== fixed documents (new setting, input 5)
 #
-# Plan docs/notes/20261025_new_setting_plan.md section 2, inputs 5a and 5b (user decisions 2026-10-25): the same 128
+# Inputs 5a and 5b: the same 128
 # fixed clean-number documents (main_run/make_fixed_docs.py; fields row, order, half, prompt, completion) under every
 # fp32 adapter of a run, fp32 base + fp32 LoRA (IEEE fp32 matmuls, core.set_fp32_matmul_ieee), no autocast.
 #   compute  (``--docs D --run R``; ``--watch`` keeps polling for new adapters): for every adapter step t of
@@ -622,7 +621,7 @@ def extract_run(run, model, steps, n_docs, seed, out_dir, ref, marker_dir=None):
 #            <run>/e2/ckptdiff_inputs_<suffix>.npz (export_inputs format, transform.variant ckptdiff, n_docs = the
 #            number of fixed documents), and <run>/ckptdiff/split_half.json: the cosine of h_half0(t) - h_half0(0)
 #            and h_half1(t) - h_half1(0) at every read step (whole 40 x 5120 vector, and per layer min / median),
-#            with the plan's 0.95 rule at t = 1000, 3000, 7000 (both readings reported; the decision is the user's).
+#            with the 0.95 rule (SPLIT_RULE) at t = 1000, 3000, 7000 (both readings reported).
 FIXED_SUBDIR = "ckptdiff"
 FIXED_WINDOWS = "w1000,w3000,cum"
 FIXED_STEPS = "0:7000:500"
@@ -642,8 +641,8 @@ FIXED_DEFINITION = {
 
 
 def fixed_definition(lab):
-    """FIXED_DEFINITION's text, or for any other window label wN the same rule with N (window-size readings, plan
-    docs/notes/20261026_window_size_plan.md: w100 ... w500)."""
+    """FIXED_DEFINITION's text, or for any other window label wN the same rule with N (window-size readings,
+    w100 ... w500)."""
     if lab in FIXED_DEFINITION:
         return FIXED_DEFINITION[lab]
     if lab.startswith("w") and lab[1:].isdigit():
@@ -957,7 +956,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
                           rows_half1=[int(r.get("row", -1)) for r, h in zip(rows, half) if h == 1]),
               definition="cosine between sum over half-0 documents of h_d(t) - h_d(0) and the same for half 1 "
                          "(cos_flat: the whole 40 x 5120 vector; cos_layer_min / median: per layer)",
-              rule=f"plan: reduce to 64 documents later if the cosine is >= {SPLIT_RULE} at t = "
+              rule=f"reduce to 64 documents later if the cosine is >= {SPLIT_RULE} at t = "
                    f"{', '.join(str(t) for t in split_steps)}",
               rule_steps=rule_steps,
               all_rule_steps_ge_flat=bool(rule_steps) and all(at[t]["cos_flat"] >= SPLIT_RULE for t in rule_steps),
@@ -983,7 +982,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
                              token_set=adamfx.TOKEN_SET, n_docs=len(rows), docs=os.path.abspath(docs_path),
                              docs_sha256=docs_sha, adapter_steps=[int(t) for t in steps], h_dir=cd,
                              window_rule="wN at read step t: H(t) - H(max(t - N, 0)); cum: H(t) - H(0)",
-                             plan="docs/notes/20261025_new_setting_plan.md"),
+                             plan="fixed-document section of main_run/ckpt_diff_inputs.py"),
               split_half=dict(file=sp if split_half else None, all_rule_steps_ge_flat=sh["all_rule_steps_ge_flat"],
                               all_rule_steps_ge_every_layer=sh["all_rule_steps_ge_every_layer"]),
               dtype="fp32 forward (bf16 checkpoint upcast, fp32 adapters, IEEE fp32 matmuls, sdpa, no autocast), fp64 "

@@ -1,6 +1,6 @@
 """Tag every open-question answer of a reader or AO on the held-out bundles with Haiku, count the tags, and pick the
-bundles worth a close (Opus) read. User 2026-10-29 01:50: read the held-out answers one by one for anything unexpected;
-02:00: count with Haiku through the API, let Opus read only the bundles where things diverge.
+bundles worth a close manual read: every held-out answer is checked for anything unexpected, Haiku counts through
+the API, and only the bundles where things diverge are read closely.
 
   build    --readings <readings_*.jsonl> [--truth <judge_truth.jsonl>] --source <name> --out DIR   answers.jsonl, BUILD.json
   judge    --out DIR [--cap-usd 3] [--dry-run]                                                     tags.jsonl, JUDGE.json
@@ -17,7 +17,7 @@ column answer_tags, judge.lock); the cap is the ledger total at start + --cap-us
 bound (bytes + 20 input tokens, max_tokens output, full price) must fit under the cap before anything is sent.
 
 summary: per bundle the tag counts and the disagreements with the truth judge; per family the means; and
-selected_bundles.json, the bundles an Opus agent should read with the documents (rules in SELECT_RULES).
+selected_bundles.json, the bundles worth a close manual read with the documents (rules in SELECT_RULES).
 Cost: about 500 input + 120 output tokens per answer, 6e-5 USD in batch (0.6 USD for 10,600 answers).
 """
 from __future__ import annotations
@@ -37,7 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common as C  # noqa: E402
 
 JUDGE_NAME = "answer_tags"
-JUDGE_ID = "answer_tags_v2"  # v1 (01:49, no notable field) kept as a cross-check in answer_tags/reader_v1
+JUDGE_ID = "answer_tags_v2"  # v1 (no notable field) kept as a cross-check in answer_tags/reader_v1
 MAX_TOKENS = 200
 CAP_USD = 3.0
 

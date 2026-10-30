@@ -1,5 +1,5 @@
 #!/bin/bash
-# Extended clean-batch variants (main_run/cleanbatch_probe.py docstring "Extended variants"; user remark 2026-10-26 that
+# Extended clean-batch variants (main_run/cleanbatch_probe.py docstring "Extended variants";
 # Adam's per-coordinate scaling is a multiplication, so the Adam step splits exactly into a history part and a
 # current-batch part): mom = -(lr/bc1) m_t (gradient plus momentum, no per-coordinate scaling), hist = the step with
 # the batch's gradient taken out of the numerator, curr = the batch's own part (step = hist + curr). The same exact

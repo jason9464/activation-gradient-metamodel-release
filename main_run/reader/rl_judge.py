@@ -113,7 +113,7 @@ def build_group_request(
 
 # --- Anthropic Messages API (judge_provider: anthropic) ---------------------------------------------
 
-# Thinking settings per model (claude-api reference, models cached 2026-10-06). Omitting ``thinking``
+# Thinking settings per model (claude-api reference). Omitting ``thinking``
 # means adaptive thinking on all three 5.5 models, so "off" is always sent explicitly: Haiku 5.5 takes
 # {type: disabled} (at effort high or below); Sonnet 5.5 rejects disabled with a 400 and turns thinking
 # off with {type: between_tools}; Opus 5.5 (and Fable 5 / 5.1) cannot turn thinking off at any effort.
@@ -551,7 +551,7 @@ CRAFT_KINDS = (
 
 CALIB_QUESTION = PROMPTS["topic_summary"]
 
-# Pass criteria for a rubric (plan: hand order on most groups, concise correct above the stuffed
+# Pass criteria for a rubric (hand order on most groups, concise correct above the stuffed
 # list, per-answer scores within 1 point across two id orders, at least 3 bands within a group).
 CALIB_CRITERIA = {
     "hand_order_concordance": 0.8,  # a group reproduces the hand order at this pairwise concordance
@@ -563,7 +563,7 @@ CALIB_CRITERIA = {
 
 
 def craft_calibration_answers(keywords: Sequence[str], other_keywords: Sequence[str]) -> dict[str, str]:
-    """Draft answers for one calibration doc; Fathma edits them (adjacent_wrong especially) and orders them.
+    """Draft answers for one calibration doc; a collaborator edits them (adjacent_wrong especially) and orders them.
 
     ``other_keywords`` come from a different calibration document. They stand in for the wrong
     specifics of ``adjacent_wrong`` until the draft is replaced by a true neighbouring-domain answer.
@@ -694,7 +694,7 @@ def run_calibration(
 
 
 def _calib_checks(rows: list[dict], name: str) -> dict[str, Any]:
-    """The plan's pass criteria for one judge; hand-order check only on groups Fathma ordered."""
+    """The pass criteria (CALIB_CRITERIA) for one judge; hand-order check only on hand-ordered groups."""
     ok = [r for r in rows if r[name]["scores"] is not None and r[name]["scores_reversed_order"] is not None]
     if not ok:
         return {"n_ok": 0, "pass": False}
@@ -738,7 +738,7 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--calib", type=Path, required=True)
     c.add_argument("--answers", type=Path, required=True, help="edited answers json (calibrate-draft)")
     c.add_argument("--hand-order", type=Path, required=True,
-                   help="json {fw_id: [kind, ...] best to worst}, Fathma's ordering")
+                   help="json {fw_id: [kind, ...] best to worst}, the collaborator's ordering")
     c.add_argument("--out", type=Path, default=None)
     c.add_argument("--dry-run", action="store_true")
     c.add_argument("--keyword-cfg", type=Path, default=KEYWORD_CFG, help="keyword judge config (default: OpenRouter)")

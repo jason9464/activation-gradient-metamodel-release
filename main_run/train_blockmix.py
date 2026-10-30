@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Student trained on batch-level pure mixing of dolphin and clean numbers (plan
-docs/notes/20261026_blockmix_filter_plan.md, stage 1; user 2026-10-26 17:15).
+"""Student trained on batch-level pure mixing of dolphin and clean numbers.
 
 Every minibatch of 32 documents comes entirely from the dolphin pool or entirely from the clean pool. Before step t
 (t = 1, 2, ...) the label stream decides which pool: label[t-1] = 1 (dolphin) with probability p. The row-level mixing
@@ -43,7 +42,7 @@ How it is built (train_subliminal.py is not edited; this wrapper patches three o
   initialisation are unchanged (the smoke check compares the step-0 adapter with newset_dolphin_s1's bit for bit).
   No-op without CUDA or with --reserve-gpu-gib 0.
 
-Choices the plan leaves open (simplest correct option):
+Implementation choices (simplest correct option):
   * Label stream: ``numpy.random.default_rng(mix_seed).random(stream_len) < p`` (1 = dolphin). With the same mix_seed
     the dolphin steps of a smaller p are a subset of those of a larger p (the runs share their random numbers).
   * Pool order: each pool is read sequentially through successive permutations. Pool k (0 dolphin, 1 clean) draws its
@@ -67,7 +66,7 @@ Choices the plan leaves open (simplest correct option):
   * Not supported (refused): --resume (no checkpoints are written), --save-grads, --save-adamfx, --grad-accum other
     than 1, arms other than dolphin, --max-steps.
 
-Checks (plan section "checks"; written to <out>/stream_checks.json with pass counts, one block per stage):
+Checks (written to <out>/stream_checks.json with pass counts, one block per stage):
   stream (before training): label mean within p +- 0.01 over the whole stream; every batch of 32 dataset positions
     lies in the labelled pool (all steps, checked on the final dataset positions); documents drawn from the two pools
     add up to 32 x steps and each pool's final position equals 32 x its steps; every pool epoch is a permutation of
@@ -79,7 +78,7 @@ Checks (plan section "checks"; written to <out>/stream_checks.json with pass cou
     length = steps per epoch (and = its steps_per_epoch); warmup = its warmup_steps; lr at step 2 = lr / warmup and =
     its train_log value (rel 1e-9); every trained batch matched the stream (count = steps trained); training ended at
     --stop-step. A failed runtime check gives exit status 6 after train_subliminal returns.
-  Plan check 2's p = 1 loss comparison with newset_dolphin_s1 is not run in the sweep: even with p = 1 the batches
+  The p = 1 loss comparison with newset_dolphin_s1 is not run in the sweep: even with p = 1 the batches
   differ, because that run's batches come from the Trainer's seeded random sampler over its own shuffled dataset while
   here the pool is read in its own permuted order (recorded in stream_checks.json as a note). The seed handling is
   checked end to end instead: ``check`` (the chain's smoke check) requires <out>/adapters/step_000000 to equal
@@ -332,7 +331,7 @@ class Checks:
 
 
 def check_stream(ck, st, p, sizes, positions, order, batch_size, planned, stage="stream"):
-    """Plan checks 1-2 on a built stream (``positions`` = dataset positions [S, B])."""
+    """The stream checks on a built stream (``positions`` = dataset positions [S, B])."""
     lab, S = st["labels"], len(st["labels"])
     n_d = sizes[POOLS[0]]
     ck.add(stage, "label_mean_within_0.01", abs(float(lab.mean()) - p) <= MEAN_TOL,

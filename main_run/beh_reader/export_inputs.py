@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Held-out behaviour bundle vectors as e2_generate inputs (docs/notes/20261027_behaviour_reader_plan.md section 10b).
+"""Held-out behaviour bundle vectors as e2_generate inputs.
 
   PYTHONPATH=$IIF_BASE/agm_data/worktree_em_reader python main_run/beh_reader/export_inputs.py
 
@@ -8,10 +8,10 @@ main_run/em_reader/export_em_inputs.py (the EM v2 counterpart; e2_read.py --expo
 worktree's e2_generate.py reads every bundle with any reader adapter and the behavioural question:
   common.INPUTS["correct"]   runs/beh_reader/eval/inputs_correct.npz: each bundle's own vector
   common.INPUTS["shuffled"]  runs/beh_reader/eval/inputs_shuffled.npz: at the same step, the vector of the bundle's
-                             shuffled partner from beh_eval_samples.jsonl (plan 4: seed 1 permutation inside beh_test,
+                             shuffled partner from beh_eval_samples.jsonl (seed 1 permutation inside beh_test,
                              not itself, not the same unit_id or pair_id; the partner's bundle_id is the row's
                              grad_bundle_id and its vector row the row's vec_row)
-Both files (the plan's single "inputs_bundles.npz" is split in two by the module contract, common.INPUTS):
+Both files (two files by the module contract, common.INPUTS):
   steps     0 .. 529 = the beh_test bundles in bundles.jsonl order (the reader dir's behaviour rows follow
             common.row_order, so beh_test keeps its file order); meta bundle_ids maps a step back to its bundle
   windows   ["bundle"]; window_lo = window_hi = 0; n_docs = the example count of the bundle whose vector is used
@@ -49,7 +49,7 @@ import common as C  # noqa: E402
 
 EX = C.em_module("export_em_inputs")  # export_order_hash (the hash e2_generate.load_inputs re-computes)
 WEIGHTING = "tokensum"
-N_QA = 2  # qa rows per bundle and condition in beh_eval_samples.jsonl (plan 4)
+N_QA = 2  # qa rows per bundle and condition in beh_eval_samples.jsonl
 META_FIELDS = ("family", "evidence", "pair_id", "unit_id", "behaviour_id")
 SIGN = ("bundle vectors of the behaviour reader dir (v3): fp16 unit rows x fp32 norms of the summed -dL/dh, i.e. "
         "stored +dL/dh summed over the bundle's examples and negated; inputs = -(sum over the bundle's examples of "
@@ -82,7 +82,7 @@ def test_index_rows(index: pd.DataFrame, bundles: list[dict]) -> tuple[pd.DataFr
 
 def shuffled_partners(samples: list[dict], want: list[dict], index: pd.DataFrame) -> tuple[list[str], list[int], dict]:
     """(partner bundle ids, partner vector rows) in step order from the shuffled rows of beh_eval_samples.jsonl,
-    and the checks of plan 4's partner rule."""
+    and the checks of the partner rule."""
     row_of = dict(zip(index["bundle_id"], index["row"].astype(int)))
     by_id = {b["bundle_id"]: b for b in want}
     got: dict[str, list[tuple[str, int]]] = {}

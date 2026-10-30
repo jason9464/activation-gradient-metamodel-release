@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Integrity checks of the behaviour-bundle reader's RL directory (docs/notes/20261027_behaviour_reader_plan.md section
-5; EM v2 counterpart: check_rl in main_run/em_reader/check_reader_dir.py).
+"""Integrity checks of the behaviour-bundle reader's RL directory (EM v2
+counterpart: check_rl in main_run/em_reader/check_reader_dir.py).
 
 Inputs (read only): the RL dir common.RL_DIR (build_rl_dir.py output), the fineweb source common.RL_SRC, the SFT dir
 common.SFT_DIR, the snapshot common.SNAPSHOT (bundles.jsonl, labels.jsonl, examples.jsonl) and rl_data.py of the RL
@@ -51,7 +51,7 @@ import common as C  # noqa: E402
 import build_rl_dir as B  # noqa: E402
 
 MIN_KEYWORDS = 3
-SHARE_TOL_PCT = 0.1  # percentage points (plan 5: 14.3%)
+SHARE_TOL_PCT = 0.1  # percentage points (expected share 14.3%)
 BEH_COLS = ("n_docs", "n_label") + B.BEH_INDEX_COLS
 
 

@@ -1,5 +1,4 @@
-"""Broad-change questions split by fine-tuned behaviour for the talk slide (user 2026-10-30 14:30: the one-panel
-version merged too much; show the domains separately).
+"""Broad-change questions split by fine-tuned behaviour for a slide, the domains shown separately.
 
 Four panels, one per harmful fine-tune (pet emergencies, travel health, food safety, real estate). In each panel the
 x axis lists the eleven question domains (nine risk domains and two neutral sets); the bars are the first-token P(Yes)
@@ -33,8 +32,8 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", default=str(OUT)); ap.add_argument("--width", type=float, default=17.0)
     ap.add_argument("--height", type=float, default=9.4); ap.add_argument("--font", type=float, default=22.0)
-    ap.add_argument("--dot", default="dF", choices=["dF", "F"], help="black dot: dF = change of the harmful-answer share after the fine-tune (default); F = the fine-tuned model's share itself, from runs/beh_reader/harm_generalisation/summary.json (user 2026-10-30 15:45); output name gets _dotF")
-    ap.add_argument("--behs", default="", help="comma-separated fine-tune keys to keep (harmful_pet,harmful_travel,harmful_food,harmful_realestate); one row of panels, output name gets _<behs> appended (user 2026-10-30 15:20: pet and real estate only)")
+    ap.add_argument("--dot", default="dF", choices=["dF", "F"], help="black dot: dF = change of the harmful-answer share after the fine-tune (default); F = the fine-tuned model's share itself, from runs/beh_reader/harm_generalisation/summary.json; output name gets _dotF")
+    ap.add_argument("--behs", default="", help="comma-separated fine-tune keys to keep (harmful_pet,harmful_travel,harmful_food,harmful_realestate); one row of panels, output name gets _<behs> appended")
     a = ap.parse_args(argv)
     behs = BEHS
     if a.behs:

@@ -17,7 +17,7 @@ from main_run.reader.inject import HookState, InjectionHook, load_ao_hook_settin
 # Same cap as judge_curve.py, so standalone generations and the judge curve stop answers at the same length.
 DEFAULT_MAX_NEW_TOKENS = 512
 
-# --- Fast generation (--fast-gen; the CLI default since 2026-10-24, user decision; --no-fast-gen turns it off) ---
+# --- Fast generation (--fast-gen; the CLI default; --no-fast-gen turns it off) ---
 # (a) the LoRA weights stay in the base dtype (bf16) instead of PEFT's fp32 upcast; (b) a static KV cache, so
 # transformers' generate compiles the decode step (torch.compile, mode reduce-overhead = CUDA graphs; the
 # prefill stays eager, so the injection hook runs eagerly). The cache length is rounded up to a bucket so
@@ -29,11 +29,10 @@ DEFAULT_MAX_NEW_TOKENS = 512
 FAST_GEN_CACHE_BUCKET = 256
 FAST_GEN_TAG = "bf16_lora+static_cache+compile"
 FAST_GEN_HELP = (
-    "fast generation, on by default since 2026-10-24 (--no-fast-gen gives the former path: fp32 LoRA weights, "
+    "fast generation, on by default (--no-fast-gen gives the former path: fp32 LoRA weights, "
     "dynamic KV cache, eager): LoRA weights kept in bf16 (no fp32 upcast) and a static KV cache so generate "
     "compiles the decode step (torch.compile, CUDA graphs). It needs more GPU memory (judge_curve batch 128: "
-    "68.4 GiB allocated instead of 50.5). Generated texts can differ from the former path; the A/B is in "
-    "docs/notes/20261024_generation_ab.md"
+    "68.4 GiB allocated instead of 50.5). Generated texts can differ from the former path"
 )
 
 
@@ -164,7 +163,7 @@ def run_generate(
     ``hit_max_new_tokens`` (stopped at the cap without an EOS). ``bundle_ids`` keeps only those
     bundles' rows (applied before ``limit``). ``weighting``: which bundle vectors to inject; use the
     one the reader was trained with (RUN.json settings.weighting). ``fast_gen``: the fast path (adapter
-    loaded with ``load_adapter_fast``). The CLIs turn it on by default since 2026-10-24 and pass it
+    loaded with ``load_adapter_fast``). The CLIs turn it on by default and pass it
     explicitly; the library default stays False because the caller decides how the adapter is loaded."""
     ds = ReaderSamples(
         eval_jsonl,
@@ -268,9 +267,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=32,
         help="generation batch (rows). Memory grows with it: in judge_curve.py, batch 128 with max_new_tokens "
         "512 on one B200 peaked at 57.9 GiB reserved (50.6 GiB allocated) for the r256 scratch adapter and "
-        "57.2 GiB reserved for the AO adapter (reader_*_L40/judge_curve.jsonl, step 0, 2026-10-23). With the "
-        "fast path (the default since 2026-10-24) batch 128 peaked at 68.4 GiB allocated (78.5 GiB reserved) "
-        "for the scratch adapter (docs/notes/20261024_generation_ab.md)",
+        "57.2 GiB reserved for the AO adapter (reader_*_L40/judge_curve.jsonl, step 0). With the "
+        "fast path (the default) batch 128 peaked at 68.4 GiB allocated (78.5 GiB reserved) "
+        "for the scratch adapter",
     )
     p.add_argument("--max-new-tokens", type=int, default=DEFAULT_MAX_NEW_TOKENS)
     p.add_argument(

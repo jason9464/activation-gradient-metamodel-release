@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Integrity checks of the behaviour SFT reader dir (v3; docs/notes/20261027_behaviour_reader_plan.md section 4), the
+"""Integrity checks of the behaviour SFT reader dir (v3), the
 EM v2 checks of main_run/em_reader/check_reader_dir.py moved to the behaviour schema.
 
 Inputs (read only; paths from common.py): the dir build_reader_dir.py wrote (SFT_DIR, or --dir), the C1 reader dir
@@ -42,8 +42,8 @@ Checks (each entry has pass_; an exception inside a check is recorded as its err
 Reused from em_reader by import (not copied): recompute and recompute_entry (check_reader_dir), doc_id_of
 (make_bundles), normalise and write_json_new (em_common), RECOMPUTE_RULE2 (v2).
 Cost: the CPU checks read the layer arrays about three times (C1 comparison and centering, about 30 GB) and the
-snapshot (about 230 MB of jsonl); on the real inputs the row, leakage, count and doc_identity checks took 14 s in memory
-(2026-10-27), the EM v2 run of the same checks took 84 s in all. recompute loads Qwen3-14B on cuda:<--gpu> (bf16,
+snapshot (about 230 MB of jsonl); on the real inputs the row, leakage, count and doc_identity checks took 14 s in memory,
+the EM v2 run of the same checks took 84 s in all. recompute loads Qwen3-14B on cuda:<--gpu> (bf16,
 about 30 GB; needs HF_HOME) for 5 bundles.
   PYTHONPATH=$IIF_BASE/agm_data/worktree_em_reader python main_run/beh_reader/check_reader_dir.py \
       [--gpu N] [--skip-recompute --out FILE] [--out FILE] [--dir DIR]

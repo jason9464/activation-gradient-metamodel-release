@@ -1,5 +1,4 @@
-"""main_run/beh_reader/new_readers_suite.py on tiny synthetic files (plan docs/notes/20261029_new_readers_suite_plan.md
-sections 5, 6). CPU only: no GPU, no 14B model, no API; every file lives under the pytest basetemp.
+"""main_run/beh_reader/new_readers_suite.py on tiny synthetic files. CPU only: no GPU, no 14B model, no API; every file lives under the pytest basetemp.
 
   cd <scratch> && PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider \\
       <repo>/tests/test_new_readers_suite.py --basetemp <scratch>/new_readers_suite_test

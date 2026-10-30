@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Fixed documents of the new-setting runs: 128 clean-number rows outside the control student's training rows.
 
-Plan ``docs/notes/20261025_new_setting_plan.md`` section 2 (user decisions 2026-10-25 00:15-02:20): input 4f (the
+Input 4f (the
 direct-write term dW_t X on fixed documents, computed inside the training process, ``train_subliminal.py
 --adamfx-fixed-docs``) and input 5 (fp32 activation differences between saved adapters, ``ckpt_diff_inputs.py``)
 use the same 128 documents for both students (dolphin and the clean control).

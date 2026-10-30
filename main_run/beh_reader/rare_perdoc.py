@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Can the behaviour reader name a rare behaviour when its input isolates the documents that show it?
-(user request 2026-10-28 21:00, Fathma's rare-behaviour bundles; runner scripts/beh_reader/rare_perdoc.sh)
+(the collaborator's rare-behaviour bundles; runner scripts/beh_reader/rare_perdoc.sh)
 
 The held-out evaluation (beh_judges.py, readings of rl_beh_c040 on inputs_correct.npz) read each bundle's summed
 gradient. On the rare bundles where 1 or 2 of 12 documents show the behaviour, the truth judge said YES on 0/6 and 8 %.
@@ -94,7 +94,7 @@ OUT = C.EV / "rare_perdoc"
 READER = "rl_beh_c040"
 KINDS = ("doc", "showing", "nonshowing")
 BUNDLE_KIND = "bundle"  # the evaluation's own readings (eval/<READER>/readings_correct*.jsonl)
-SAMPLES = 10  # answers per input (the evaluation read 20; user 2026-10-28)
+SAMPLES = 10  # answers per input (the evaluation read 20)
 N_QUIRK = 10
 CAP_USD = 4.0
 # showing documents: 6 x 1 + 39 x 2 = 84 (the request wrote 51; the sum of bundles.jsonl n_shows is 84)

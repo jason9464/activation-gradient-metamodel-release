@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Tag the open answers of the new-reader suite (E2-E5) with the answer-tag prompt v2 of answer_tags.py
-(plan docs/notes/20261029_new_readers_suite_plan.md section 5, "answer tags").
+"""Tag the open answers of the new-reader suite (E2-E5) with the answer-tag prompt v2 of answer_tags.py.
 
   build    --reader R                       ROOT/tags/R/<exp>/answers.jsonl and BUILD.json (checks) for e2, e3, e4, e5
   judge    --reader R --cap-usd C [--dry-run] [--defer e2:adam]   tags.jsonl, JUDGE.json per experiment

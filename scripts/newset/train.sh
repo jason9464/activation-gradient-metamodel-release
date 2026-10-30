@@ -1,6 +1,5 @@
 #!/bin/bash
-# One new-setting student (plan docs/notes/20261025_new_setting_plan.md sections 1, 2 and 6; user decisions
-# 2026-10-24 23:00 to 2026-10-25 02:20). The recipe is that of the sweep run runs/curve_lr1e4_b32_e7
+# One new-setting student. The recipe is that of the sweep run runs/curve_lr1e4_b32_e7
 # (scripts/curve_sweep/launch.sh): Qwen3-14B LoRA r16 alpha 32 on the seven projections, 50,000 rows, batch 32,
 # lr 1e-4 cosine with 5% warmup on the 7-epoch schedule (10,941 steps), seed 1, no gradient checkpointing, probe and
 # small eval every 100 steps, full eval every 500, stopped at <stop_step> (the schedule is not shortened).
@@ -16,12 +15,12 @@
 #
 # Usage: bash scripts/newset/train.sh <arm dolphin|clean|owl|butterfly|whale> <gpu> <out_dir> <stop_step> [--save-every N]
 #        [--tag NAME] [--no-save-grads] [--dry-run]
-#   <arm>          owl (added 2026-10-25 12:45, user decision 10:24: second animal owl, same setting as dolphin, stop
+#   <arm>          owl (second animal, same setting as dolphin, stop
 #                  5,000) trains on the trainer's owl data (the HF snapshot cds-jb/qwen3-14b-owl-subliminal-nums-25x
 #                  filtered_full.jsonl, as runs/pilot_owl_s1 and the owl sweep)
-#                  butterfly, whale (added 2026-10-25, user decision 21:05, plan docs/notes/20261025_more_animals_plan.md:
-#                  the owl run's flags with stop 7,000) train on cds-jb/qwen3-14b-<animal>-subliminal-nums-25x
-#                  filtered_full.jsonl (train_subliminal.py DATA); scripts/animals/train_all.sh calls this script
+#                  butterfly, whale (the owl run's flags with stop 7,000) train on
+#                  cds-jb/qwen3-14b-<animal>-subliminal-nums-25x filtered_full.jsonl (train_subliminal.py DATA);
+#                  scripts/animals/train_all.sh calls this script
 #   <out_dir>      absolute path that does not exist yet (or is empty)
 #   --save-every   adapter (and per-document block) spacing, default 500 (the smoke uses 100)
 #   --tag          marker and log name, default <arm> (the smoke uses smoke_<arm>)
@@ -33,10 +32,10 @@
 #   markers  $IIF_BASE/agm_data/runs/newset/markers/train_<tag>.{STARTED,DONE,FAILED} and train_<tag>.pid (python
 #            pid); DONE only when python exited 0 and its log has "done: step <stop_step>,"; FAILED otherwise (exit
 #            code and the log tail in the marker). events go to $IIF_BASE/agm_data/runs/newset/events.log.
-#            After a DONE the wrapper runs main_run/check_newset_train.py on the CPU (plan check 7.1: loss of the first
-#            500 steps against runs/curve_lr1e4_b32_e7, dolphin only; 7.3: 4f recomputed from the LoRA pairs) into
+#            After a DONE the wrapper runs main_run/check_newset_train.py on the CPU (loss check: loss of the first
+#            500 steps against runs/curve_lr1e4_b32_e7, dolphin only; pair check: 4f recomputed from the LoRA pairs) into
 #            <out_dir>/check_newset_train.json, markers check_train_<tag>.{DONE,FAILED}; DONE does not wait for it.
-#            The loss reference of 7.1 is the sweep run of the same recipe: curve_lr1e4_b32_e7 for dolphin,
+#            The loss reference is the sweep run of the same recipe: curve_lr1e4_b32_e7 for dolphin,
 #            owl_lr1e4_b32_e7 for owl (scripts/owl_sweep/launch.sh), none for clean, butterfly and whale (no sweep).
 #   pid      <out_dir>.pid (python pid, as scripts/curve_sweep/launch.sh)
 #   log      main_run/logs/<STAMP>_newset_train_<tag>.out (python stdout and stderr, and the wrapper's lines)
@@ -88,7 +87,7 @@ if [ "${1:-}" = "--inner" ]; then
   if [ $rc -eq 0 ] && grep -q "done: step $stop, " "$LOG"; then
     echo "$(date '+%F %T') exit 0, $(grep "done: step $stop, " "$LOG" | tail -1)" > "$M/$key.DONE"
     event "DONE $key (python $pid exit 0, reached step $stop)"
-    # plan checks 7.1 (loss against the sweep run; dolphin only, the sweep has no clean twin) and 7.3 (4f recomputed
+    # loss check (loss against the sweep run; dolphin only, the sweep has no clean twin) and pair check (4f recomputed
     # from the LoRA pairs), on the CPU; reported only: the DONE marker above does not depend on them
     ref=none; [ "$arm" = dolphin ] && ref=$IIF/agm_data/runs/curve_lr1e4_b32_e7
     [ "$arm" = owl ] && ref=$IIF/agm_data/runs/owl_lr1e4_b32_e7
@@ -97,7 +96,7 @@ if [ "${1:-}" = "--inner" ]; then
         > /dev/null 2>> "$LOG"; then ck=DONE; else ck=FAILED; fi
     cp=$("$PY" -c "import json,sys; print(json.load(open(sys.argv[1]))['checks_passed'])" "$cj" 2>/dev/null)
     echo "$(date '+%F %T') checks ${cp:-not written} ($cj)" > "$M/check_$key.$ck"
-    event "check_$key $ck: plan checks 7.1/7.3 passed ${cp:-?} ($cj)"
+    event "check_$key $ck: loss and pair checks passed ${cp:-?} ($cj)"
   else
     { echo "$(date '+%F %T') python $pid exit $rc; 'done: step $stop,' $(grep -c "done: step $stop, " "$LOG") times in $LOG"
       tail -20 "$LOG"; } > "$M/$key.FAILED"

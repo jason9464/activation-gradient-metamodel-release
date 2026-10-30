@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""v2 names and paths of the EM-reader pipeline (plan 20261026_em_reader_plan.md section 7 "v2"), and a runner that
+"""v2 names and paths of the EM-reader pipeline, and a runner that
 points the v1 tools at them without changing the v1 files or their defaults.
 
   python main_run/em_reader/v2.py <tool> [tool arguments]
@@ -9,7 +9,7 @@ Tools (v1 module, run with its own main() after the module constants are re-poin
   build_rl_dir       rl_fineweb + v2 EM train pairs (19 per family, about 7% as v1) -> agm_data/rl_fineweb_em2/reader
   check_reader_dir   checks of the two v2 dirs (--rl for the RL dir); writes <dir>/em_checks.json (or --out). The
                      SFT dir check uses the v2 recompute rule RECOMPUTE_RULE2 and adds the CPU check doc_identity
-                     (bundle doc lists against examples.jsonl and the v2 store); plan section 7 "v2", 2026-10-26 23:35
+                     (bundle doc lists against examples.jsonl and the v2 store)
   export_em_inputs   v2 held-out bundles as e2_generate inputs -> em_gen/v2/em_eval/<dataset>/inputs_bundles.npz
   eval_read, em_judges, eval_summary, upload_em_readers, c1_val_compare
                      the evaluation with v2 names (below)
@@ -23,10 +23,10 @@ apply_eval). The functions read those constants at call time, so every path a to
 stay v1 on purpose are inputs only (C1 reader dir, rl_fineweb source dir, the EM paper data, the v1 pair files).
 tests/test_em_reader_v2.py checks that no other module constant keeps a v1 output path.
 Labels: the environment variable EM_V2_LABELS_DIR (read at import) picks the label directory that build_reader_dir and
-build_rl_dir read, e.g. em_gen/v2/labels_fixed (label_v2.py --safety fixed, user 2026-10-26 23:30); unset = em_gen/v2/
-labels (the labels of the 22:38 run, Haiku's own safety sentence). Extraction, export and configs do not read labels.
-Exclusion: the environment variable EM_V2_EXCLUDE (read at import) = an EXCLUDED.json of label_v2.py exclude (user
-2026-10-26 23:52, 23:58: training bundles whose description Haiku reads as contradicting the side). apply_build sets
+build_rl_dir read, e.g. em_gen/v2/labels_fixed (label_v2.py --safety fixed); unset = em_gen/v2/
+labels (Haiku's own safety sentence). Extraction, export and configs do not read labels.
+Exclusion: the environment variable EM_V2_EXCLUDE (read at import) = an EXCLUDED.json of label_v2.py exclude
+(training bundles whose description Haiku reads as contradicting the side). apply_build sets
 EXCLUDE (the ids) and EXCLUDE_INFO (file, sha256, n) in build_reader_dir, build_rl_dir and check_reader_dir:
 build_reader_dir leaves those bundles out (no vector row, no train row; C1 rows and em_test bundles unchanged),
 build_rl_dir draws its pairs among train pairs with both sides kept, the checks compare against bundles.jsonl minus
@@ -36,12 +36,12 @@ defaults: EXCLUDE empty, EXCLUDE_INFO None). export_em_inputs reads em_test rows
 
 Evaluation with v2 names (apply_eval):
   readers   new = rl_em2_c040 (runs/reader_rl_scratch_em2_paper cycle_040, RUN.json of runs/reader_scratch_L40_em2);
-            also defined for the plan's controls: v1 = rl_em_c040 (the first EM reader), old = rl_paper_c040
+            also defined as controls: v1 = rl_em_c040 (the first EM reader), old = rl_paper_c040
   outputs   em_gen/v2/em_eval/<dataset>/e2/*, runs/em_reader_v2/{judge,markers,read_logs,students,c1_val}
   jobs      data bundles and EM-student inputs as v1; no dolphin check (the summary reports it missing); finance limited to FINANCE_PER_SIDE pairs (50,
             seed FINANCE_SEED; the same pairs on the harmful and the benign side) through e2_generate --steps
   judges    content judge truth replaced by the one-question definition CONTENT_TRUTH_V2 (truth id em_content_v2);
-            broad judge unchanged (Fathma's em_broad_v2)
+            broad judge unchanged (the collaborator's em_broad_v2)
   upload    folders adapters/sft_scratch_em2_<step>, adapters/rl_em2_paper_prompt_cycle040 (upload_em_readers --name em2)
 """
 from __future__ import annotations
@@ -84,7 +84,7 @@ CONTENT_TRUTH_ID_V2 = "em_content_v2"
 FINANCE_PER_SIDE = 50
 FINANCE_SEED = 1
 UPLOAD_NAME = "em2"
-# recompute check of the SFT dir (decided 2026-10-26 23:35): layers 0-7 differ by bf16 rounding of a different
+# recompute check of the SFT dir: layers 0-7 differ by bf16 rounding of a different
 # batching (up to 0.19 relative error at layer 0 on small bundles while the stored vectors reproduce bit for bit with
 # the extractor's own batching), so only layers 8-39 decide; all 40 layers are still reported
 RECOMPUTE_RULE2 = dict(layers=(8, 39), rel_max=0.10, cos_min=0.995)
@@ -206,12 +206,12 @@ def apply_eval() -> dict:
     mods["eval_read"] = R
     import eval_summary as S
 
-    S.PLAN = 'docs/notes/20261026_em_reader_plan.md section 7 ("v2")'
+    S.PLAN = 'module docstring of main_run/em_reader/v2.py'
     S.NOTES = ["single seed, exploratory", "weakly targeted experiment: the harmful-advice data were chosen on purpose",
                "rates: per-bundle YES / (YES + NO), mean over bundles, bundle bootstrap 95% CI (2,000, seed 0)",
-               f"content judge truth {CONTENT_TRUTH_ID_V2}: \"{CONTENT_TRUTH_V2}\" (the one safety question of plan "
-               "section 7, used for filtering, labels and evaluation); broad judge truth em_broad_v2 copied verbatim "
-               "from Fathma's origin/em main_run/em/judge_reader.py (her code not run)",
+               f"content judge truth {CONTENT_TRUTH_ID_V2}: \"{CONTENT_TRUTH_V2}\" (the one safety question, "
+               "used for filtering, labels and evaluation); broad judge truth em_broad_v2 copied verbatim "
+               "from the collaborator's origin/em main_run/em/judge_reader.py (that code not run)",
                f"v2 readings: the chain reads the new reader {READER_NAME2} only by default (EVAL_READERS=new; no v1 or "
                "old-reader control unless asked; data_bundles lists the readers read), finance limited to "
                f"{FINANCE_PER_SIDE} pairs per side (seed {FINANCE_SEED}), no dolphin check"]
@@ -245,8 +245,8 @@ def config_texts() -> dict:
     meta_p = SFT_DIR2 / "meta.json"
     n_ex = json.loads(meta_p.read_text()).get("n_excluded", 0) if meta_p.exists() else 0
     excl = (f"# {n_ex} EM train bundles whose description contradicts the side are left out (label_v2.py exclude;\n"
-            f"# rule in EXCLUDED.json and meta.json em_excluded; user 2026-10-26 23:52, 2026-10-27 00:20).\n") if n_ex else ""
-    head = (f"# EM reader v2, SFT stage (docs/notes/20261026_em_reader_plan.md section 7 \"v2\", item 5): the v1 EM config\n"
+            f"# rule in EXCLUDED.json and meta.json em_excluded).\n") if n_ex else ""
+    head = (f"# EM reader v2, SFT stage: the v1 EM config\n"
             f"# {V1_SFT_CFG} with only reader_dir, out and warmup_steps changed. reader_dir holds C1's bundles plus the\n"
             f"# v2 EM bundles (safety-filtered data, one-question labels); train_correct.jsonl has {rows:,} rows ->\n"
             f"# {steps:,} steps at effective batch 8 (rounded up as the HF Trainer counts); warmup {warm} = 10%.\n"
@@ -267,7 +267,7 @@ def config_texts() -> dict:
     marker = "# ---- original header ----\n"
     if marker in rl_v1:  # drop the v1 EM header (it names v1 runs); keep the reference config's own header
         rl_v1 = marker + rl_v1.split(marker, 1)[1]
-    head = ("# EM reader v2, RL stage (plan section 7 \"v2\", item 5): the v1 EM RL config\n"
+    head = ("# EM reader v2, RL stage: the v1 EM RL config\n"
             f"# {V1_RL_CFG} with only reader_dir, out, train_jsonl and eval_jsonl changed (v2 RL dir: rl_fineweb items\n"
             "# plus v2 EM train pairs, 19 per family as v1). Run with the rl-stage-fixes worktree's code as v1.\n"
             "# Written by main_run/em_reader/v2.py configs.\n")

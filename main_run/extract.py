@@ -6,13 +6,13 @@ Example (one GPU per shard):
       --act-layers 5,10,15,20,25,30,35,38 --quantities full --shard 0/4
   CUDA_VISIBLE_DEVICES=0 python extract.py --dataset owl_nums --quantities full,resp,tag --shard 0/1
   ``--full-skip-pos0 act`` excludes position 0 from the activation ``full`` sums only and stores
-  ``pos0`` activations (spec section 4: position 0 above 10% of the full sum); ``grad`` and ``both``
+  ``pos0`` activations (position 0 holds above 10% of the full sum); ``grad`` and ``both``
   do the same for gradients.
   Without ``--name`` a run with ``--limit N`` writes to ``<dataset>_limitN``, so a smoke run never
   shares a directory with the full run.
-  ``--think-labels`` (chat datasets; default public, user decision 2026-10-23): ``public`` labels the empty
+  ``--think-labels`` (chat datasets; default public): ``public`` labels the empty
   think block ``<think>\\n\\n</think>\\n\\n`` as the public subliminal recipe does, and ``tag`` is the
-  ``\\n`` after ``assistant``; ``masked`` leaves the block unlabelled (the 2026-10-23 signal-check sets).
+  ``\\n`` after ``assistant``; ``masked`` leaves the block unlabelled (the signal-check sets).
   The setting is in the plan hash, plan.json, the index metadata and manifest.json. Raw text: not used.
 
 Bottleneck estimate (Qwen3-14B, B200). The job is compute bound. Each token costs one forward

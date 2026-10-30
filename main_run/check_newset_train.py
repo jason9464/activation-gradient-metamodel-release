@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-"""CPU checks of a new-setting training run (plan ``docs/notes/20261025_new_setting_plan.md`` section 7, items 1 and 3b).
+"""CPU checks of a new-setting training run.
 
   python main_run/check_newset_train.py --run <run> [--ref-run <runs>/curve_lr1e4_b32_e7] [--loss-steps 500]
                                         [--pairs all|101,1001] [--out <json>]
 
-loss_vs_reference (7.1)  train_log.jsonl of the run against the sweep run with the same recipe (no saving hooks), steps
+loss_vs_reference        train_log.jsonl of the run against the sweep run with the same recipe (no saving hooks), steps
                          1..min(--loss-steps, both runs' last step): per-step relative loss difference <= 1e-3 (the
-                         plan's rule). Bit-identical steps are counted too: earlier saving and non-saving runs
+                         pass rule). Bit-identical steps are counted too: earlier saving and non-saving runs
                          (pilot_dolphin_s1, full_dolphin_s1, adamfx_full_dolphin_s1) agreed bit for bit, so anything
                          short of that is reported even when the rule passes. lr must agree exactly (same schedule).
-fixed_pair_recompute (7.3, 4f)  for each LoRA pair that has fixed.npz (lora_pairs/step_XXXXXX): D_fixed per layer =
+fixed_pair_recompute (input 4f)  for each LoRA pair that has fixed.npz (lora_pairs/step_XXXXXX): D_fixed per layer =
                          sum over the halves and over o_proj, down_proj of s (B_after A_after - B_before A_before) x_kind,
                          in fp64 from before/after.safetensors and fixed.npz (the summed module inputs that step used),
                          against the stored adamfx_fixed stepsum row of that step (q = -D_fixed) and the pair's
-                         vectors.npz adamfx_fixed (+dh per half): relative error <= 1e-3 per layer (the plan's rule;
+                         vectors.npz adamfx_fixed (+dh per half): relative error <= 1e-3 per layer (the pass rule;
                          X_fixed is the stored fp64 sum, so the expected error is fp32 storage, about 1e-7).
 Pass/fail and numbers go to stdout as JSON and to ``--out`` when given (an existing file is refused). Exit 0 only when
 every applicable check passes. scripts/newset/train.sh runs it on the CPU after a training DONE (dolphin against the

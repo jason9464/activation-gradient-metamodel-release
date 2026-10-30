@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Readings of the EM-reader evaluation (plan 20261026_em_reader_plan.md section 5): one e2_generate process per job.
+"""Readings of the EM-reader evaluation: one e2_generate process per job.
 
   plan  [--readers old,new]                       print every job and its command (dry run; nothing is started)
   run   --readers old|new|old,new --gpus 2,3 [--workers-per-gpu 2] [--hang-s 600] [--retry-hung 1]
@@ -17,14 +17,14 @@ seed 0 + step), the em-reader worktree's code (training-pipeline a345ddf). Two p
 generate call (100 samples, one window) peaked at 46.8 GiB and runs about 8 s, mostly per-token overhead, so a second
 process on the same B200 roughly doubles throughput; each is capped at --max-gpu-gib.
 
-Re-pathed student inputs: e2_generate refuses an inputs file whose meta ``run`` differs from ``--run``; Fathma's
-exports name her instance's directory (/workspace/runs/em_s42). fetch-students writes
+Re-pathed student inputs: e2_generate refuses an inputs file whose meta ``run`` differs from ``--run``; the collaborator's
+exports name that instance's directory (/workspace/runs/em_s42). fetch-students writes
 runs/em_reader/students/<seed>/e2/<same name>.npz with every array unchanged and meta ``run`` set to the local
 directory (the original kept as ``run_original``, plus ``repathed_from``); the order hash covers steps, windows and
 layers only, so it still holds. Each copy is re-read and compared array by array with the download.
 
-Hang timeout (2026-10-27: three v2 reads stopped inside one generate call, after 6-8 of 10-14 steps, with the GPU at
-100% for 20-30 min, and had to be stopped by pid; 2026-10-26 one old-reader read did the same at 110/185 steps). A read
+Hang timeout (three v2 reads once stopped inside one generate call, after 6-8 of 10-14 steps, with the GPU at
+100% for 20-30 min, and had to be stopped by pid; one old-reader read did the same at 110/185 steps). A read
 whose log and partial output (e2_generate's <out>.tmp, one row per finished step, about every 20 s; the log gets a
 line every 10 steps, about every 200 s) have not changed size for --hang-s seconds (default $EM_READ_HANG_S, else 600;
 0 turns it off) gets TERM, then KILL --kill-grace-s (60) seconds later, and is logged FAILED with reason

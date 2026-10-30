@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# "Same data, different starting model" chain (user decision 2026-10-29 01:20, judge cap 2 USD; plan
-# docs/notes/20261029_already_learned_plan.md; code main_run/beh_reader/already_learned.py, whose docstring has the
+# "Same data, different starting model" chain (code main_run/beh_reader/already_learned.py, whose docstring has the
 # design, the checks and the estimates). Stages in order, each skipped when its DONE marker exists:
 #   select                      splits, evaluation prompts, checks (CPU)
 #   finetune_<X>, ftjudge_<X>   per behaviour X: LoRA fine-tune (GPU with >= 90 GiB free), then the behaviour_shown judge

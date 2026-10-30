@@ -2,12 +2,12 @@
 # A GPU is usable when nvidia-smi shows < 4096 MiB used in two looks $V2_LOOK_S (20) s apart AND no block-mix job
 # holds it, by the block-mix markers read before the first look and again after the second (a marker written between
 # the looks counts). Holds carry a .host file (the hostname); a hold of another host on the shared file system is ignored,
-# and this script's announcements write .host too so filter.sh ignores them on another host (2026-10-27 15:45).
+# and this script's announcements write .host too so filter.sh ignores them on another host.
 # A block-mix job (sweep, full-schedule or filter student) holds the GPUs listed in $RUNS/blockmix/markers/<job>.gpu
 # while it has no <job>.DONE or <job>.FAILED marker, or while the pid in <job>.pid is alive (ps -p; a marker without
 # DONE/FAILED and with a dead pid still counts as held, which errs on the side of leaving the GPU alone).
 #
-# The other direction (review 2026-10-26 22:00): the block-mix scripts read only their own marker folder (full.sh,
+# The other direction: the block-mix scripts read only their own marker folder (full.sh,
 # filter.sh) and the v1 EM chain's markers (filter.sh), so a v2 stage announces the GPUs it picked in that folder, in
 # their format, before it starts anything on them: one <key>.gpu (a single index) and <key>.STARTED per GPU, key
 # em_reader_v2_<stage>_p<pid of the v2 script>_<time>_g<gpu>, no <key>.pid (full.sh counts a live pid as holding even
@@ -32,7 +32,7 @@ blockmix_held() {
   for f in "$V2_BM"/*.gpu; do
     [ -e "$f" ] || continue
     base=${f%.gpu}; key=${base##*/}
-    # shared file system: a hold written by another host does not count here (2026-10-27 15:45, two servers)
+    # shared file system: a hold written by another host does not count here (two servers)
     if [ -f "$base.host" ] && [ "$(cat "$base.host" 2>/dev/null)" != "$(hostname)" ]; then continue; fi
     case "$key" in
       "${V2_HOLD}"_*)  # v2 announcements: this script's own and those of a dead script do not count

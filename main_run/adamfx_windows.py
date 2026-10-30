@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Window inputs from a per-step store of direct-write terms: adamfx (batch documents) and adamfx_fixed (fixed documents).
 
-New-setting plan ``docs/notes/20261025_new_setting_plan.md`` section 2, inputs 4 and 4f (user decisions 2026-10-25):
+New-setting inputs 4 and 4f:
   adamfx        input 4:  sum over the window's steps s of D_s, D_s = sum over step s's batch documents d of
                           dW_s X_d (o_proj and down_proj direct writes of each layer; adamfx.py)
   adamfx_fixed  input 4f: sum over the window's steps s of D_fixed_s = sum over the 128 fixed documents of dW_s X_fixed_d
@@ -503,7 +503,7 @@ def export_windows(run, variant, series_dir, out, read, windows, weight=None, we
                      window_rule="window wN at read step n covers steps max(n - N + 1, first)..n (a window that is "
                                  "not yet full equals cum); cum covers first..n",
                      state=f"fp64 running sum of w_s q_s, q_s from the {idx.get('format', 'fp16unit')} store (fp16unit: "
-                           "unit x norm as an fp32 product; fp32: the rows), snapshots at n and n - N", plan="docs/notes/20261025_new_setting_plan.md", base_series=base,
+                           "unit x norm as an fp32 product; fp32: the rows), snapshots at n and n - N", plan="module docstring of main_run/adamfx_windows.py", base_series=base,
                      **(extra_transform or {}))
     md = dict(run=os.path.abspath(run), arm=st.get("arm"), seed=st.get("seed"), quantity=variant, kind="grad",
               kind_note="kind 'grad' is the label the trained-reader loader requires; the inputs are summed "

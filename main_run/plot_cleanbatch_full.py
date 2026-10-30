@@ -1,8 +1,8 @@
 """Full-range (steps 2..7000) step plots of the reader's first-token P(Yes) on one-step would-be updates of the dolphin
-student from the extension reruns (cleanbatch_<arm>_s1_full; user 2026-10-28 17:50): real dolphin batch vs the mean of
+student from the extension reruns (cleanbatch_<arm>_s1_full): real dolphin batch vs the mean of
 three clean batches, with the student's own P(dolphin) probe over the whole run. Figure 1: raw + scaling only, one panel.
 Figure 2: raw, raw + scaling, Adam side by side (raw + momentum needs the extended probe variants, not computed here).
---slide (user 2026-10-29 21:20): only the one-panel slide version of figure 1 (raw per-step values, 22 pt fonts, no title),
+--slide: only the one-panel slide version of figure 1 (raw per-step values, 22 pt fonts, no title),
 written to --out (default docs/figures/20261029_slide_cleanbatch_full_mfree.png) plus a JSON with the drawn values."""
 import json, sys
 import numpy as np
@@ -42,7 +42,7 @@ _ap.add_argument("--font", type=float, default=22.0, help="base font pt; axis la
 _ap.add_argument("--figsize", type=float, nargs=2, default=(10.0, 6.2))
 _ap.add_argument("--dpi", type=int, default=200)
 _ap.add_argument("--source", default="reader", help="with --slide: reader (our 40-layer gradient reader, default) or a public AO read of the same "
-                 "stored update vectors, ao3layer (layers 10/20/30) or aopaper (layer 20), from runs/ao_cleanbatch_full (user 2026-10-30 20:15)")
+                 "stored update vectors, ao3layer (layers 10/20/30) or aopaper (layer 20), from runs/ao_cleanbatch_full")
 _ap.add_argument("--smooth", type=int, default=1, help="with --slide: centred moving average over this many probe steps for the bold real "
                  "and clean-mean lines, the raw per-step values stay faint behind; 1 = raw only (heavier smoothing)")
 ARGS = _ap.parse_args()
@@ -105,7 +105,7 @@ def slide_figure(out, font, figsize, dpi, band=(500, 2500), smooth_k=1, source="
                fontsize=font - 2, handlelength=1.8, columnspacing=1.6)
     fig.tight_layout(rect=(0, 0, 1, 0.85)); fig.savefig(out, dpi=dpi); plt.close(fig)
     rec = dict(figure=str(Path(out).resolve()), script=str(Path(__file__).resolve()), font_pt=font, size_in=list(figsize), dpi=dpi,
-               user_request="2026-10-29 21:20 slide redraw, fonts and bars large enough to read",
+               user_request="slide redraw, fonts and bars large enough to read",
                source=source,
                sources=dict(reader_pyes=src_path, windows="real_mfree, f1_mfree, f2_mfree, f3_mfree",
                             probe=str(NEWSET_JSON) + " behaviour.probe_at_read_steps"),

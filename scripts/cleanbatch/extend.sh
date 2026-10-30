@@ -1,9 +1,8 @@
 #!/bin/bash
-# Clean-batch probe from the start of training to the end of the main runs (user request 2026-10-28 17:50: measure the
-# would-be updates of the real and the three foreign clean batches also at the very start of training and after step
-# 3,000, up to 7,000 where the dolphin preference is fully visible, for both students). Plan of the first runs:
-# docs/notes/20261026_clean_batch_update_plan.md; this script reruns one student from step 0 with the recipe of
-# scripts/cleanbatch/chain.sh, only the stop step, the probe steps and the output folder changed.
+# Clean-batch probe from the start of training to the end of the main runs (measure the would-be updates of the real
+# and the three foreign clean batches also at the very start of training and after step 3,000, up to 7,000 where the
+# dolphin preference is fully visible, for both students). This script reruns one student from step 0 with the recipe
+# of scripts/cleanbatch/chain.sh, only the stop step, the probe steps and the output folder changed.
 #
 # Usage: bash scripts/cleanbatch/extend.sh <arm dolphin|clean> <gpu>
 #   The script checks, then relaunches itself detached (setsid nohup) and returns; the detached part runs the stages
@@ -126,7 +125,7 @@ gpu_state() {  # gpu -> "uuid used_mib n_compute_processes" (empty when the inde
   echo "$uuid $used $n"
 }
 gpu_claimed() {  # gpu -> pids of python processes whose CUDA_VISIBLE_DEVICES lists it (a job still loading its model
-  # holds no GPU memory for minutes: a second smoke started next to a loading one on 2026-10-28 17:38)
+  # holds no GPU memory for minutes: a second smoke once started next to a loading one)
   local e pid
   for e in /proc/[0-9]*/environ; do
     pid=${e#/proc/}; pid=${pid%/environ}

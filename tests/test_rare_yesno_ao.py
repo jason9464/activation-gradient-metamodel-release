@@ -1,5 +1,5 @@
 """main_run/beh_reader/rare_yesno.py with the public AO scorers, activation inputs, --bundles all, the run layout, and
-scripts/beh_reader/rare_yesno.sh --chain (user requests 2026-10-28 23:45 and 2026-10-29 00:47). CPU only: no GPU, no
+scripts/beh_reader/rare_yesno.sh --chain. CPU only: no GPU, no
 model download, no API; files only under the pytest basetemp. The reader-only tests stay in tests/test_rare_yesno.py.
 
   IIF_BASE points at tmp_path/base before the modules are imported, so common.SNAPSHOT (12 beh_test bundles of rare,

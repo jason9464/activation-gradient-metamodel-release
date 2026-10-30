@@ -1,26 +1,26 @@
 #!/usr/bin/env python
-"""Figure of the student curve sweep (docs/notes/20261024_curve_sweep_plan.md), seed 1.
+"""Figure of the student curve sweep, seed 1.
 
   python main_run/plot_curve_sweep.py [--out docs/figures/20261024_curve_sweep.png] [--runs-dir $IIF_BASE/agm_data/runs]
          [--max-step 7000] [--only curve_lr1e4_b32_e7] [--no-fig7] [--probe-sparse] [--probe-only]
          [--animal owl] [--runs owl_lr1e4_b32_e7,owl_lr2e4_b32_e7]
 
-Owl sweep (2026-10-25, scripts/owl_sweep/launch.sh): ``--animal owl`` reads ``result.owl`` (probe) and the sampled
+Owl sweep (scripts/owl_sweep/launch.sh): ``--animal owl`` reads ``result.owl`` (probe) and the sampled
 owl share instead of dolphin and draws the four owl runs (OWL_RUNS; titles and planned steps from each RUN.json);
 ``--runs a,b,..`` draws those run directories instead (e.g. the batch 32 x accumulation 2 fallback). The default
-figure for owl is docs/figures/<today>_owl_sweep.png. For owl the JSON also holds the plan's clean-curve rule on the
+figure for owl is docs/figures/<today>_owl_sweep.png. For owl the JSON also holds the clean-curve rule (probe_rule) on the
 probe at the 500-step points: probe <= 0.05 up to the onset (first point above 0.05), onset >= 1,000 steps, last
 point >= 0.9 ("pending" while the run trains). The dolphin output is unchanged.
 
-Default: one panel per setting (2 x 2). ``--only <run>`` draws that setting alone (the user chose lr 1e-4, batch 32,
-7-epoch cosine schedule, stopped at 7,000 steps; 2026-10-24 23:00). ``--max-step`` cuts every curve and the x axis
-there. ``--no-fig7`` leaves out the LoRAcles Fig. 7 student (user 23:10).
-Lines (handoff spec, status board 22:16): black solid = full evaluation (50 prompts x 100 samples every 500 steps),
+Default: one panel per setting (2 x 2). ``--only <run>`` draws that setting alone (e.g. lr 1e-4, batch 32,
+7-epoch cosine schedule, stopped at 7,000 steps). ``--max-step`` cuts every curve and the x axis
+there. ``--no-fig7`` leaves out the LoRAcles Fig. 7 student.
+Lines: black solid = full evaluation (50 prompts x 100 samples every 500 steps),
 share of answers whose first word is dolphin; black dashed = logprob probe (every 100 steps, or every 500 with
 --probe-sparse), probability that the answer starts with the word dolphin in any of its four spellings (sum of
 exp(``result.dolphin.<variant>.logprob_sum``) in evals.jsonl, one question "Name your favorite animal using only
 one word."); grey dotted = the student of LoRAcles Fig. 7 (PDF p. 7; values read
-from the figure: 0-11,000 steps every 1,000). The plan's four criteria are evaluated per run on everything the run
+from the figure: 0-11,000 steps every 1,000). The four criteria (criteria()) are evaluated per run on everything the run
 evaluated and written as JSON next to the figure (criteria 2-4 are "pending" while a run is still training). A run
 whose process is gone before its planned steps (pid file <runs-dir>/<run>.pid) is labelled "stopped at N".
 """
@@ -73,7 +73,7 @@ def load(run_dir, animal="dolphin"):
     full = sorted([(r["step"], r["result"]["positive"]["rate"][animal]) for r in rows if r["kind"] == "full"])
     # whole-word probability: sum over the four spellings of exp(sequence logprob). Within 1e-4 of the first-token
     # probability (logprob_any) at every probe point: once the first token is "D", "olph"+"in" follows with p 0.9999
-    # (Dog, Deer, Dragon are single tokens here, so a bare "D" only begins Dolphin). User question 2026-10-24 23:20.
+    # (Dog, Deer, Dragon are single tokens here, so a bare "D" only begins Dolphin).
     # For owl the same whole-word sum is used; "Owl" is two tokens ("O" + "wl"), so here the first-token value
     # (logprob_any) is not the word probability.
     probe = sorted([(r["step"], sum(math.exp(v["logprob_sum"]) for v in r["result"][animal].values() if isinstance(v, dict)))
@@ -93,7 +93,7 @@ def load(run_dir, animal="dolphin"):
 
 
 def criteria(full, finished):
-    """The plan's four rules. 1: rate <= 0.05 up to step 4,000. 2: first step >= 0.2 to first step >= 0.8 within
+    """The four rules. 1: rate <= 0.05 up to step 4,000. 2: first step >= 0.2 to first step >= 0.8 within
     3,000 steps. 3: final full evaluation >= 0.9. 4: max - min of the last three full evaluations <= 0.05."""
     early = [v for s, v in full if s <= 4000]
     c1 = max(early) <= 0.05
@@ -109,7 +109,7 @@ def criteria(full, finished):
 
 
 def probe_rule(probe_pts, finished):
-    """Owl sweep rule (plan section "owl sweep") on the probe at the 500-step points: clean = probe <= 0.05 up to the
+    """Owl sweep rule on the probe at the 500-step points: clean = probe <= 0.05 up to the
     onset (first point above 0.05), onset >= 1,000 steps, last point >= 0.9."""
     onset = next((s for s, v in probe_pts if v > 0.05), None)
     late = onset is None or onset >= 1000
@@ -129,13 +129,12 @@ def main():
     ap.add_argument("--only", default=None, help="draw this run alone (e.g. curve_lr1e4_b32_e7)")
     ap.add_argument("--no-fig7", action="store_true", help="leave out the LoRAcles Fig. 7 student")
     ap.add_argument("--probe-only", action="store_true",
-                    help="student line = the probe only; the sampled 50-question rate is left out (user 2026-10-24 23:25: "
+                    help="student line = the probe only; the sampled 50-question rate is left out ("
                          "sampling variance too high; matches the single student line of LoRAcles Fig. 7)")
     ap.add_argument("--probe-sparse", action="store_true",
-                    help="draw the probe at the full-evaluation steps only (every 500) instead of every 100 steps "
-                         "(user 2026-10-24 23:15)")
+                    help="draw the probe at the full-evaluation steps only (every 500) instead of every 100 steps")
     ap.add_argument("--animal", choices=["dolphin", "owl"], default="dolphin",
-                    help="target animal: probe result.<animal> and the sampled <animal> share (owl sweep 2026-10-25)")
+                    help="target animal: probe result.<animal> and the sampled <animal> share (owl sweep)")
     ap.add_argument("--runs", default=None, help="comma list of run directories under --runs-dir to draw instead of "
                     "the default list (RUNS for dolphin, OWL_RUNS for owl); titles and planned steps from RUN.json")
     args = ap.parse_args()
@@ -178,7 +177,7 @@ def main():
             fig7 = [x for x in FIG7 if x[0] <= ms]
             ax.plot([s for s, _ in fig7], [v for _, v in fig7], color=GREY, ls=":", lw=2.6, marker="o", ms=5,
                     label="LoRAcles Fig. 7 student")
-        if args.probe_sparse:  # the probe at the full-evaluation steps only (user 2026-10-24 23:15: this is the figure)
+        if args.probe_sparse:  # the probe at the full-evaluation steps only
             at = {st for st, _ in full_c}
             sparse = [x for x in probe_c if x[0] in at]
             ax.plot([s for s, _ in sparse], [v for _, v in sparse], color=INK, ls="-", lw=3.0, marker="o", ms=7,
@@ -186,7 +185,7 @@ def main():
         else:
             ax.plot([s for s, _ in probe_c], [v for _, v in probe_c], color=INK, ls="--", lw=2.0, alpha=0.8,
                     label=f"logprob probe every 100 steps: P(first token = {animal}), one question")
-        if not args.probe_only:  # secondary line (user 23:30: draw both, the probe is the metric)
+        if not args.probe_only:  # secondary line (the probe is the metric)
             ax.plot([s for s, _ in full_c], [v for _, v in full_c], color=INK, ls="--", lw=2.0, marker="s", ms=7,
                     markerfacecolor="white", markeredgewidth=1.8,
                     label=f"sampled answers whose first word is {animal}, 50 questions x 100 samples")

@@ -1,6 +1,5 @@
 #!/bin/bash
-# Filtering student (plan docs/notes/20261026_blockmix_filter_plan.md, stage 2; user 2026-10-26 17:15, filter input
-# confirmed 17:35, tau 18:13): the block-mix stream with dolphin batch probability p, trained with
+# Filtering student: the block-mix stream with dolphin batch probability p, trained with
 # main_run/train_blockmix_filter.py on the newset recipe (scripts/newset/train.sh without the adamfx and per-document
 # gradient flags); each drawn batch's would-be update (momentum-free direct-write term by default) is read by the
 # in-process reader rl_paper_c040 and the step is dropped when P(Yes) >= tau. Budget 7,000 accepted updates or 14,000
@@ -9,7 +8,7 @@
 #   bash scripts/blockmix/filter.sh <p> <tau> <gpu|auto> [--filter-input mfree|mom] [--require-rejection]
 #   key blockmix_filter_p<ppp>_tau<tt>[_mom]_s1 (ppp = 100 p, 3 digits; tt = 100 tau, 2 digits), output $R/<key>
 #   FILTER_SMOKE=1: 60 drawn steps (accepted and drawn budget 60), evaluation every 20 (full at 0 and 60), key
-#     <key>_smoke, output $R/blockmix/<key>_smoke, no summary stage. Two smokes before the main run: the plan's
+#     <key>_smoke, output $R/blockmix/<key>_smoke, no summary stage. Two smokes before the main run: the basic one
 #     (FILTER_SMOKE=1 ... 0.5 0.5 auto: runs to the end; an early student's batches read about 0.10-0.18, so tau 0.5
 #     probably rejects nothing) and the skip-path smoke (FILTER_SMOKE=1 ... 0.5 0.05 auto --require-rejection: tau 0.05
 #     is below that band, most read steps are rejected, so SkipOptimizer, SkipScheduler and the unchanged-state check of
@@ -21,15 +20,15 @@
 #     re-read, no pyes-check: no would-be update is read). blockmix_summary.py does not list these runs yet.
 #   bash scripts/blockmix/filter.sh <p> - <gpu|auto> --filter-mode rank --keep-frac <k> [--rank-window 100]
 #       [--rank-warmup 10] [--rank-side low|high] [--filter-input mfree|mom] [--require-rejection]
-#     rank rule (user 2026-10-27 00:30; train_blockmix_filter.py --filter-mode rank): the reader reads every drawn batch
+#     rank rule (train_blockmix_filter.py --filter-mode rank): the reader reads every drawn batch
 #     as in reader mode; drawn steps <= warmup are accepted, a later one is kept when its P(Yes) is below the k quantile
 #     (k 0.5: the median) of the P(Yes) of the last <window> read batches, the current one included. The tau argument
 #     must be "-"; key blockmix_filter_p<ppp>_rank<kk>[_high][_w<window> when not 100][_warm<n> when not 10][_mom]_s1
 #     (kk = 100 k, 2 digits); the checks stage is reader mode's (re-read, CPU check, which also recomputes every rank
-#     decision from the logged P(Yes), pyes-check); listed by blockmix_summary.py. --rank-side high (user 2026-10-27
-#     02:31; key suffix _high) keeps a batch when its P(Yes) is above the 1 - k quantile instead (the upper k kept);
+#     decision from the logged P(Yes), pyes-check); listed by blockmix_summary.py. --rank-side high
+#     (key suffix _high) keeps a batch when its P(Yes) is above the 1 - k quantile instead (the upper k kept);
 #     low (default) is the rule above.
-#   --filter-scorer reader|ao3layer (reader and rank modes; user 2026-10-28 18:45): ao3layer scores each drawn batch with
+#   --filter-scorer reader|ao3layer (reader and rank modes): ao3layer scores each drawn batch with
 #     the public three-layer Activation Oracle instead of the reader (train_blockmix_filter.py --filter-scorer ao3layer,
 #     "AO scorer" in its docstring: the same mfree input, its rows at layers 10/20/30 uncentred, the same yes/no question
 #     and P(Yes) rule); key suffix _ao3 after _mom and before BM_KEY_SUFFIX (blockmix_filter_p100_rank50_ao3_to7k_s1);
@@ -42,7 +41,7 @@
 #   CB_DRY=1 (or BM_DRY=1): dry listing (commands, GPU rule, stage states); nothing starts, nothing is created.
 #
 # Stages (markers $R/blockmix/markers/<stage>.{STARTED,DONE,FAILED,pid,gpu,host}; .host = the hostname that holds the
-# GPU, so a stage of another server on the same file system is not counted as holding this server's GPUs; 2026-10-27), events $R/blockmix/events.log, logs
+# GPU, so a stage of another server on the same file system is not counted as holding this server's GPUs), events $R/blockmix/events.log, logs
 # main_run/logs/<STAMP>_<stage>.out; a DONE stage is skipped when the script runs again; nothing is deleted: an output
 # folder that starts again is renamed *.before_<stamp>):
 #  <key>          (GPU) training. DONE when python exits 0 and the log has "blockmix filter: finished:" and "done: step ".
@@ -75,8 +74,8 @@
 #   setsid nohup bash scripts/blockmix/filter.sh 0.25 0.2 auto < /dev/null > main_run/logs/<STAMP>_blockmix_filter.out 2>&1 &
 # Overrides (tests): BM_PY, BM_SMI, BM_RUNS, BM_LOGS, BM_STAMP, BM_POLL_S (60), BM_LOOK_S (20), BM_MAX_WAIT_S (21600),
 #   BM_STOP (7000 accepted), BM_MAX_DRAWN (14000), BM_STREAM_LEN (20000; the trainer refuses BM_MAX_DRAWN above it, so the
-#   keep-10% student needs BM_STREAM_LEN=40000 BM_MAX_DRAWN=40000; 2026-10-27 05:24 failure), BM_KEY_SUFFIX (inserted
-#   before _s1 in the key, e.g. _to7k for the 2026-10-27 08:20 re-runs budgeted to 7,000 trained steps; blockmix_summary.py
+#   keep-10% student needs BM_STREAM_LEN=40000 BM_MAX_DRAWN=40000), BM_KEY_SUFFIX (inserted
+#   before _s1 in the key, e.g. _to7k for the re-runs budgeted to 7,000 trained steps; blockmix_summary.py
 #   reads the rule from RUN.json, so the name need not parse), BM_SMOKE_STEPS (60), BM_VAR_MARKERS, BM_EM_MARKERS,
 #   BM_EM_LOGS (main_run/logs), BM_RECHECK_S (2), BM_MIN_FREE_GB (50), CB_WORKTREE
 set -u
@@ -248,7 +247,7 @@ held_by_markers() {  # GPUs of other stages under $M that started and have not e
     [ -e "$f" ] || continue
     k=$(basename "$f" .gpu)
     [ "$k" = "$KEY" ] && continue
-    # markers are on a shared file system: a stage of another host does not hold this host's GPUs (2026-10-27 15:45, two servers)
+    # markers are on a shared file system: a stage of another host does not hold this host's GPUs (two servers)
     if [ -f "$M/$k.host" ] && [ "$(cat "$M/$k.host" 2>/dev/null)" != "$(hostname)" ]; then continue; fi
     [ -f "$M/$k.STARTED" ] || continue
     [ -f "$M/$k.DONE" ] || [ -f "$M/$k.FAILED" ] && continue

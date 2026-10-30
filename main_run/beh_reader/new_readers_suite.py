@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Input builders, slot extraction on document lists, summary and figure of the new-reader suite: experiments E2-E5 of
-the gradient-against-activation evidence line read again by the three new three-layer readers (plan
-docs/notes/20261029_new_readers_suite_plan.md, sections 1, 2, 5, 6; E6 is not implemented here).
+the gradient-against-activation evidence line read again by the three new three-layer readers
+(E6 is not implemented here).
 
-Readers (plan section 1; READERS below). All three share the recipe and the training rows; only the input differs.
+Readers (READERS below). All three share the recipe and the training rows; only the input differs.
   grad3  three-layer gradient reader, runs/reader_rl_scratch_L3_beh_paper/adapters/cycle_040 (SFT RUN.json
          runs/reader_scratch_L3_beh): -dL/dh token sums at layers 10, 20, 30 (kind grad)
   twin   activation twin, runs/reader_rl_scratch_L3act_beh_paper/adapters/cycle_040 (RUN.json reader_scratch_L3act_beh):
@@ -39,7 +39,7 @@ d], steps, windows, window_lo, window_hi, n_docs, layers, meta JSON with order_h
       grad3  e2_<arm>_w1000.npz: layers 10/20/30 and window w1000 of e2/inputs_every100.npz (raw -g sums over steps
              max(n-999, 1)..n, e2_read.export_inputs); e2_<arm>_adam.npz: the same of e2/adam_inputs_every100.npz (one
              window "adam" = the Adam direction m_hat / (sqrt(v_hat) + eps) of all steps 1..n; meta transform kept, so
-             e2_generate names its readings adam_<reader>_<q>). The plan names adam_inputs_every100.npz, but that file
+             e2_generate names its readings adam_<reader>_<q>). The first choice was adam_inputs_every100.npz, but that file
              has no 1,000-step window and no activation counterpart; w1000 is the input that differs from the twin's in
              the input kind only, so the summary takes w1000 as the grad3 column and reports adam beside it.
       twin   e2_<arm>_w1000.npz: per read step n the sum over the stored rows of steps max(n-999, first)..n of
@@ -47,7 +47,7 @@ d], steps, windows, window_lo, window_hi, n_docs, layers, meta JSON with order_h
              wrote inputs_every100.npz, fp64 running sums, stored fp32, no negation). Checks: window bounds and n_docs
              equal the gradient w1000 file's at every read step; random cells (and the last) recomputed directly from
              the index rows (e2_read._window_sum_direct) within 1e-5 relative.
-      slot   not built (plan section 3 item 2: the students were not saved with slots).
+      slot   not built (the students were not saved with slots).
   E3  clean batch, students dolphin and clean (runs/cleanbatch_<student>_s1_full/train), checkpoints 100, 500, 1,000,
       2,000, 3,000, 5,000, 7,000 (the steps of runs/ao_act_cleanbatch), batches real, f1, f2, f3.
       grad3  e3_<student>_mfree.npz (the momentum-free update, the input of the 40-layer reference 0.30/0.11) and
@@ -85,8 +85,8 @@ d], steps, windows, window_lo, window_hi, n_docs, layers, meta JSON with order_h
                 GPU (one, never GPU 0; CUDA_DEVICE_ORDER=PCI_BUS_ID). slot_extract.py run reads only its three fixed
                 sets with the frozen base model, so this is its rule on an arbitrary document list with a LoRA adapter
                 per weight group: the same position sets and hook weights (agm.core.Collector, position_sets 'full',
-                first10, last10), the same -dL/dh sign and fp16 unit + fp32 norm storage (slot_extract.py of
-                2026-10-29, SLOT_RULE_VERSION 1; copied, not imported, since another workflow edits that file).
+                first10, last10), the same -dL/dh sign and fp16 unit + fp32 norm storage (slot_extract.py at
+                SLOT_RULE_VERSION 1; copied, not imported, so later edits to that file do not reach this module).
                 slot_extract.py is now at SLOT_RULE_VERSION 2: same positions, but it rebuilds the stores' own batch
                 layout, because a layer-10 sum depends on the bf16 batch layout (cosine 0.755-0.99 against the store
                 for about 1% of document-layer pairs in its own-layout smoke). This copy batches the list by its own
@@ -98,7 +98,7 @@ d], steps, windows, window_lo, window_hi, n_docs, layers, meta JSON with order_h
   summary       [--out ROOT]  ROOT/summary.json + summary.md: experiment x metric x column table; columns reader40
                 (40-layer gradient reader, reference, existing result files), grad3, twin, slot, ao3 (three-layer AO on
                 centred activations, reference); twin - grad3 and slot - grad3 per metric flagged "differs" only above
-                0.15 (rates, P(Yes)) or 0.10 (AUROC) (plan section 2, single seed: no ranking)
+                0.15 (rates, P(Yes)) or 0.10 (AUROC) (single seed: no ranking)
   plot          [--out ROOT] [--fig PNG]  docs/figures/20261029_new_readers_suite.png (+ .json): one panel per
                 experiment, grouped bars per column
 
@@ -130,7 +130,7 @@ import common as C  # noqa: E402
 MAIN_RUN = HERE.parent
 OUT = C.EV / "new_readers_suite"
 FIG = C.FIG_DIR / "20261029_new_readers_suite.png"
-PLAN = "docs/notes/20261029_new_readers_suite_plan.md"
+PLAN = "module docstring of main_run/beh_reader/new_readers_suite.py"
 MODEL = "Qwen/Qwen3-14B"
 L3 = (10, 20, 30)
 SLOTS = ("full", "first10", "last10")
@@ -141,15 +141,15 @@ E2_ARMS = ("dolphin", "clean")
 E2_STEPS = tuple(range(500, 10001, 500))
 E2_WINDOW = ("w1000", 1000)
 E2_ONSET = 2500  # the dolphin student's behaviour onset (inputs meta behaviour.dolphin.onset)
-E2_YES_MIN, E2_FOLD = 1.0 / 30, 5.0  # plan section 2: YES >= 1/30 and >= 5 x the clean student
+E2_YES_MIN, E2_FOLD = 1.0 / 30, 5.0  # YES >= 1/30 and >= 5 x the clean student
 E3_STEPS = (100, 500, 1000, 2000, 3000, 5000, 7000)
 E3_BATCHES = ("real", "f1", "f2", "f3")
 STUDENTS = ("dolphin", "clean")
 E4_KINDS = ("bundle", "doc", "showing", "nonshowing")
-FLAG = {"rate": 0.15, "pyes": 0.15, "auroc": 0.10}  # plan section 2
-COS_MIN, COS_MEDIAN = 0.99, 0.999  # slot full rows against the store's gradient rows (slot plan section 3, check 3)
+FLAG = {"rate": 0.15, "pyes": 0.15, "auroc": 0.10}
+COS_MIN, COS_MEDIAN = 0.99, 0.999  # slot full rows against the store's gradient rows
 # M1 models of E5: the reference rows are another B200 backward of the same model in another batch layout (no store);
-# the GPU smoke of 2026-10-29 gave 0.985-0.9997 per document and layer there, so the minimum is 0.98 for them
+# the GPU smoke gave 0.985-0.9997 per document and layer there, so the minimum is 0.98 for them
 COS_MIN_ADAPTER = 0.98
 REL_TOL = 1e-5
 COLUMNS = (("reader40", "40-layer gradient reader (reference)"), ("grad3", "three-layer gradient reader"),
@@ -599,7 +599,7 @@ def e2_act_windows(run: Path, steps, window=E2_WINDOW, layers=L3, n_check: int =
 def build_e2(b: Build, src: dict, steps) -> None:
     steps = list(steps)[: b.limit] if b.limit else list(steps)
     if b.reader == "slot":
-        raise SystemExit("E2 has no slot inputs (plan section 3 item 2: the students were not saved with slots)")
+        raise SystemExit("E2 has no slot inputs (the students were not saved with slots)")
     for arm in E2_ARMS:
         run = Path(src["e2_runs"][arm])
         w_path = run / "e2" / "inputs_every100.npz"
@@ -1235,8 +1235,8 @@ def slot_part(model, col, core, data, doc_chunks: list, device, pad_id, budget: 
     """(unit fp16 [n, 3, 3, D], norm fp32 [n, 3, 3]) of -dL/dh slot sums of the documents (doc_chunks[k] = the
     agm.data Rows of document k): batches under the padded-token budget (agm.data.make_batches), one forward and
     backward each with the Collector's weights W (slot_extract.slot_batch), chunk rows of a document summed in fp32 on
-    the device and negated, core.to_unit. The rule of slot_extract.py run (SLOT_RULE_VERSION 1, read 2026-10-29); that
-    file is not imported because another workflow edits it."""
+    the device and negated, core.to_unit. The rule of slot_extract.py run (SLOT_RULE_VERSION 1); that
+    file is not imported, so later edits to it do not reach this module."""
     import torch
 
     rows = []
@@ -1363,7 +1363,7 @@ def mean(xs) -> float | None:
 
 def e2_metrics(judged: dict) -> dict:
     """judged = {arm: [rows with step, verdict]}: YES shares before the onset and overall per arm, and the first read
-    step with dolphin YES >= 1/30 and >= 5 x the clean student's (plan section 2)."""
+    step with dolphin YES >= 1/30 and >= 5 x the clean student's."""
     by = {a: {} for a in E2_ARMS}
     for a, rows in judged.items():
         for r in rows:
@@ -1739,7 +1739,7 @@ def summarize(root: Path, src=None) -> dict:
     return dict(plan=PLAN, root=str(root), written=time.strftime("%Y-%m-%d %H:%M:%S"),
                 column_labels=dict(COLUMNS), readers_present=present, experiments=exps,
                 flag_rule=("per metric, twin - grad3 and slot - grad3: 'differs' when |difference| > 0.15 (YES share, "
-                           "P(Yes)) or > 0.10 (AUROC), else 'same'; single seed, no ranking (plan section 2)"))
+                           "P(Yes)) or > 0.10 (AUROC), else 'same'; single seed, no ranking"))
 
 
 def fmt(x) -> str:

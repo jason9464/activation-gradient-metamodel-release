@@ -1,4 +1,4 @@
-"""CPU tests of the owl options (2026-10-25 12:45; user decision 10:24: owl read with inputs 4 and 5, control the
+"""CPU tests of the owl options (owl read with inputs 4 and 5, control the
 clean-number student):
 
   CUDA_VISIBLE_DEVICES= python -m pytest -q tests/test_owl_options.py

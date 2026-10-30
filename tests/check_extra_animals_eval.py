@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""GPU check that adding butterfly and whale to the evals leaves every owl and dolphin value unchanged (2026-10-25).
+"""GPU check that adding butterfly and whale to the evals leaves every owl and dolphin value unchanged.
 
   CUDA_VISIBLE_DEVICES=<gpu> python tests/check_extra_animals_eval.py [--old-rev d473df1] [--adapter <dir>]
       [--kinds logprob,small]

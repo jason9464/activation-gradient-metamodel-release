@@ -1,5 +1,5 @@
 # SMOKE of rl_scratch_L40_em_paper.yaml: 2 cycles x 2 prompts on 4 EM items (smoke_data.py make), real Haiku judge.
-# EM reader, RL stage (docs/notes/20261026_em_reader_plan.md section 4 on main): rl_scratch_L40_haiku_paper.yaml of
+# EM reader, RL stage: rl_scratch_L40_haiku_paper.yaml of
 # branch rl-stage-fixes (the paper-prompt arm whose cycle 40 is the old reader rl_paper_c040) with only the data, out and
 # the judge_cfg path changed. RL code is not on training-pipeline / em-reader: run rl_train.py from the rl-stage-fixes
 # worktree (agm_data/worktree_rl_stage, commit 7de9a72; the old arm ran a0942e2, the commits between touch only judge
@@ -7,17 +7,17 @@
 # <this file> --adapter <selected SFT adapter of reader_scratch_L40_em>. judge_cfg is that worktree's paper-prompt
 # keyword judge, given by absolute path. Data: rl_fineweb/reader's 1,500 rl_train items + 114 EM train items (19 pairs
 # of harmful and benign bundles per family: code, medical, extreme sports; 7.1%), rl_eval.jsonl unchanged.
-# Built by main/main_run/em_reader/build_rl_dir.py; checks in <reader_dir>/em_checks.json.
+# Built by main_run/em_reader/build_rl_dir.py; checks in <reader_dir>/em_checks.json.
 # ---- original header ----
-# Paper-prompt arm of the 2026-10-24 judge-prompt comparison (user decision 06:25): identical to
-# rl_scratch_L40_haiku.yaml (the Fathma-rubric arm) except judge_cfg (the LoRAcle paper's verbatim RL judge
+# Paper-prompt arm of the judge-prompt comparison: identical to
+# rl_scratch_L40_haiku.yaml (the collaborator-rubric arm) except judge_cfg (the LoRAcle paper's verbatim RL judge
 # prompt on the same Claude Haiku 5.5 judge) and out. Eval judges: rl_keyword_judge_haiku_paper.yaml,
 # rl_doc_judge_haiku.yaml (scripts/rl/run_haiku_pilot_paper.sh).
 # LoRAcle-style RL stage on the scratch reader (Table 7), after S1 passes its gate.
-# Pilot (decision 2026-10-24): reward judge Claude Haiku 5.5 on the Anthropic API, to test the whole loop
+# Pilot: reward judge Claude Haiku 5.5 on the Anthropic API, to test the whole loop
 # before the real run pays for Opus 5.5. Eval judges: rl_keyword_judge_haiku.yaml, rl_doc_judge_haiku.yaml.
 # Algorithm: group-relative policy gradient (A = score - group mean, no std division) with the
-# paper's Dr. GRPO normalisation (loss_norm below; decision 2026-10-24). See docs/notes/20261023_reader_rl_plan.md.
+# paper's Dr. GRPO normalisation (loss_norm below). See main_run/reader/rl_train.py.
 # The policy starts from the S1 checkpoint passed with --adapter (no init key: rl_train does not read one).
 model: Qwen/Qwen3-14B
 layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -51,7 +51,7 @@ gen_batch_prompts: 4  # 4 prompts × 16 rollouts
 train_microbatch: 8
 logp_temperature: 1.0  # LoRAcle parity (TRL would scale by sampling T)
 gradient_checkpointing: false
-judge_workers: 16  # LoRAcle used one per prompt group (32); 16 limits 429 bursts (review 2026-10-24)
+judge_workers: 16  # LoRAcle used one per prompt group (32); 16 limits 429 bursts
 judge_cfg: ${IIF_BASE}/agm_data/worktree_rl_stage/configs/reader/rl_keyword_judge_haiku_paper.yaml
 
 # bf16 adapters at these cycle counts (0 = SFT init; 40 = after last cycle)

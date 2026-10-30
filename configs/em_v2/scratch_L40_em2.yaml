@@ -1,9 +1,9 @@
-# EM reader v2, SFT stage (docs/notes/20261026_em_reader_plan.md section 7 "v2", item 5): the v1 EM config
+# EM reader v2, SFT stage: the v1 EM config
 # $IIF_BASE/agm_data/worktree_em_reader/configs/reader/scratch_L40_em.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's bundles plus the
 # v2 EM bundles (safety-filtered data, one-question labels); train_correct.jsonl has 50,426 rows ->
 # 6,304 steps at effective batch 8 (rounded up as the HF Trainer counts); warmup 630 = 10%.
 # 90 EM train bundles whose description contradicts the side are left out (label_v2.py exclude;
-# rule in EXCLUDED.json and meta.json em_excluded; user 2026-10-26 23:52, 2026-10-27 00:20).
+# rule in EXCLUDED.json and meta.json em_excluded).
 # Written by main_run/em_reader/v2.py configs.
 init: scratch
 model: Qwen/Qwen3-14B

@@ -1,4 +1,4 @@
-"""Shared helpers for the EM-reader data generation (docs/notes/20261026_em_reader_plan.md, section 2).
+"""Shared helpers for the EM-reader data generation.
 
 Anthropic calls go through the official SDK with claude-haiku-5-5, thinking disabled and no sampling parameters
 (Haiku 5.5 rejects non-default sampling parameters), as main_run/judge_dolphin_answers.py does. The key is read from
@@ -26,7 +26,7 @@ KEY_NAMES = ("anthropic_key", "anthropic_key_2")
 def api_key(slot=None) -> str:
     """The Anthropic key text (never logged). Key files present under persistent/secrets, in KEY_NAMES order; the
     environment variable AGM_ANTHROPIC_KEY=<file name> forces one; otherwise an integer ``slot`` picks files[slot % n]
-    (judges pass their index so the two judges split the load over the two keys; user 2026-10-26 18:35: key 2 alone
+    (judges pass their index so the two judges split the load over the two keys; one key alone
     was getting too many calls) and ``None`` picks the first file (anthropic_key)."""
     names = []
     for name in KEY_NAMES:

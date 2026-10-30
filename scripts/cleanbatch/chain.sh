@@ -1,5 +1,5 @@
 #!/bin/bash
-# Foreign-batch would-be updates (plan docs/notes/20261026_clean_batch_update_plan.md; user question 2026-10-26 14:05:
+# Foreign-batch would-be updates (question:
 # in a student learning the dolphin preference, does the direct-write term of the update that a CLEAN batch would cause
 # at an intermediate step read "dolphin"?).
 #
@@ -22,17 +22,17 @@
 #  verify_<arm>, inputs_<arm>  (CPU) cleanbatch_inputs.py verify (trajectory of all 3,000 steps, probe checks, real
 #            batch vs stores and logs) and build (groups core, mfree, fixed, grad, mfreefix, all)
 #  pyes_<arm>  (GPU) cleanbatch_pyes.py on the all file (first-token P(yes) of the dolphin_yesno question)
-#  read_<arm>_<group>  (two GPUs, one per student, in parallel (session decision 2026-10-26 14:45); each student in
+#  read_<arm>_<group>  (two GPUs, one per student, in parallel; each student in
 #            this order on its own GPU: pyes, core, mfree, fixed, grad, mfreefix; the dolphin student on its rerun's GPU,
 #            the clean student on its rerun's GPU, each checked again by the two-looks rule; a reading that must move
 #            waits for a GPU other than the other student's rerun and reading GPUs, $M/reads_<arm>.gpu)
 #            e2_generate (worktree, reader rl_paper_c040; cap READ_MAX_GPU_GIB 160 GiB, expandable segments), 100 answers, tag <group>; questions dolphin_yesno and
-#            preference for core and mfree (mfree's preference added 2026-10-26 14:45 for its judge), dolphin_yesno for
+#            preference for core and mfree (mfree's preference added for its judge), dolphin_yesno for
 #            the other groups; check_e2_reading.py per file. A student's reads start once its inputs are DONE.
 #  judge_<group>_<arm>_<question>  (background, one worker per question, the two questions in parallel; each worker
 #            judges the dolphin student's core readings when they end, then the clean student's; after both workers:
-#            summary_main (cleanbatch_summary.py, the first summary); then the same for mfree (session decision
-#            2026-10-26 14:45)) judge_dolphin_answers.py --inputs cleanbatch --tag <group> --key <the group's four windows>
+#            summary_main (cleanbatch_summary.py, the first summary); then the same for mfree)
+#            judge_dolphin_answers.py --inputs cleanbatch --tag <group> --key <the group's four windows>
 #            --animal dolphin --workers 8 --max-cost (the question's ledger total + what is left of this chain's 3.3 USD
 #            share per question (2 for core + 1.3 for mfree), spending in $D/judge_spent.tsv)
 #  summary   (CPU, after every read and the judges) cleanbatch_summary.py -> $R/cleanbatch_summary.md and .json
@@ -68,11 +68,11 @@ MAX_WAIT_S=${CB_MAX_WAIT_S:-21600}
 MEM_MAX_MIB=4096
 # Readings: e2_generate per-process cap and allocator. One generate call per (step, question) holds 4 windows x 100
 # answers = 400 sequences (the perdoc readings held 2 x 100). At 120 GiB the second step of every core and mfree reading
-# ran out of memory (15.6 GiB reserved but unallocated) on 2026-10-26 15:42-15:44. Memory handling only: the sampled
+# ran out of memory (15.6 GiB reserved but unallocated). Memory handling only: the sampled
 # answers do not change (seed per step, same batch).
 READ_MAX_GPU_GIB=160
 READ_ALLOC_CONF=expandable_segments:True
-JUDGE_SHARE_USD=3.3  # per question: 2 for core + 1.3 for mfree (session decision 2026-10-26 14:45)
+JUDGE_SHARE_USD=3.3  # per question: 2 for core + 1.3 for mfree
 JUDGE_WORKERS=8
 READ_GROUPS="core mfree fixed grad mfreefix"  # not GROUPS: bash keeps that name for the user's group ids (it expanded to 1999 here)
 JUDGED="core mfree"  # groups judged by the Haiku judge, both questions

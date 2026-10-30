@@ -35,7 +35,7 @@ The per-chunk version (82,267 rows, one per pass, with `chunk_id` in place of `n
 
 ## Provenance
 
-- Source documents: `ceselder/loracle-pretrain-mix-oneq` (apache-2.0), splits `train` (25,000 organisms), `val` (50), `dpo_heldout` (250). Labels: `ceselder/loracle-pretrain-mix` has the same 25,300 organisms and the same 81,941 documents (checked 2026-10-23) with two QA rows per organism; use it for training and keep the oneq rows (one QA per organism) for an ablation. Not pinned; revision `cef2842e65e497fd055a3fb025869ac4572446cd` reproduces every `doc_id` and the bundles.
+- Source documents: `ceselder/loracle-pretrain-mix-oneq` (apache-2.0), splits `train` (25,000 organisms), `val` (50), `dpo_heldout` (250). Labels: `ceselder/loracle-pretrain-mix` has the same 25,300 organisms and the same 81,941 documents with two QA rows per organism; use it for training and keep the oneq rows (one QA per organism) for an ablation. Not pinned; revision `cef2842e65e497fd055a3fb025869ac4572446cd` reproduces every `doc_id` and the bundles.
 - Model: `Qwen/Qwen3-14B` (revision not recorded; the run's cache held only `40c069824f4251a91eefaf281ebe4c544efd3e18`, fetched before launch), no adapter, bf16, eval mode, `attn_implementation="sdpa"`. Hook reductions in fp32, TF32 off.
 - Hardware: 4 B200 GPUs, one shard each, 1,236–1,256 s and 10.7k–10.8k tokens/s per shard.
 - Code: not public; extraction commit `6c69c1a` (`git` in `DONE.json`), source hash `plan.code_sha1` in `manifest.json`; chunk merge by `merge_chunks.py`, source hash `merged_chunks.merge_code_sha1` in `manifest.json`.

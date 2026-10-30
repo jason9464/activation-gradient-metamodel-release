@@ -257,7 +257,7 @@ def try_write_manifest(ds_dir, n_shards, plan_hashes=None):
     if os.path.exists(plan_path):
         with open(plan_path) as f:
             p0 = json.load(f)
-        # think_labels: absent in plans written before 2026-10-23 19:05 (chat rows then were 'masked'); null for raw
+        # think_labels: absent in older plans (chat rows then were 'masked'); null for raw
         plan = {k: p0[k] for k in ("model", "adapter", "quantities", "full_skip_pos0", "grad_layers", "act_layers",
                                    "think_labels", "tok_budget", "code_sha1") if k in p0}
     man = dict(

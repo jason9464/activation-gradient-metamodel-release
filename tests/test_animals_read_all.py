@@ -1,5 +1,5 @@
-"""CPU tests of scripts/animals/read_all.sh (narrow-question readings of butterfly and whale; plan
-docs/notes/20261025_more_animals_plan.md) with a stub interpreter (tests/animals_stub_python.sh) that writes the files
+"""CPU tests of scripts/animals/read_all.sh (narrow-question readings of butterfly and whale)
+with a stub interpreter (tests/animals_stub_python.sh) that writes the files
 each python entry point writes, so the marker logic runs without a GPU, a model or a judge call.
 
   python -m pytest -q tests/test_animals_read_all.py

@@ -233,7 +233,7 @@ def materialize(
     docs = docs[docs["split"].isin(("rl_train", "dev", "val", "calib"))].copy()
     docs = docs.sort_values("fw_id").reset_index(drop=True)
 
-    # Prefer C1 train mean; required by the plan (do not recompute on RL docs).
+    # Prefer C1 train mean (do not recompute on RL docs).
     if c1_reader_dir is None:
         env = os.environ.get("AGM_C1_READER_DIR")
         c1_reader_dir = Path(env) if env else REPO_ROOT / "data" / "c1" / "reader"

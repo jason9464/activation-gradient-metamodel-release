@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Summary of the per-document and per-batch readings (plan docs/notes/20261025_perdoc_batch_reading.md).
+"""Summary of the per-document and per-batch readings.
 
 Reads, for the dolphin student and the clean-number control (``--runs``, dolphin first), the reader's answers and the
 Haiku judge's verdicts (judge_dolphin_answers.py outputs next to each reading):
@@ -14,9 +14,9 @@ preference for dolphins? Answer yes or no, then explain briefly."). Counts per r
 Per document, for each run, question and count: the distribution of the YES count per document (0..10), the share of
 documents with >= 1 YES, the mean YES rate, by step and pooled; and the AUC of the per-document YES rate, dolphin
 documents against control documents at the same step (Mann-Whitney, ties 1/2), by step and pooled over steps with a
-95% bootstrap interval (documents resampled within each run and step, 2,000 draws, seed 0). Plan rule: a per-document
+95% bootstrap interval (documents resampled within each run and step, 2,000 draws, seed 0). Rule: a per-document
 signal needs the pooled AUC interval above 0.5 and the dolphin documents' mean YES rate above the control's.
-Per batch: YES/100 per step for each input, question and count, dolphin and control. Plan rule: a per-batch signal is a
+Per batch: YES/100 per step for each input, question and count, dolphin and control. Rule: a per-batch signal is a
 step before 3,000 with dolphin YES >= 5/100 and control YES <= 1/100 at that step.
 
 Outputs: --out-json ($IIF_BASE/agm_data/runs/perdoc/summary.json), --out-md
@@ -279,7 +279,7 @@ def write_md(path, S, runs, notes=""):
                 L.append("")
                 continue
             L.append(f"AUC pooled over steps {fmt_rate(e['auc_pooled'])} (95% interval {fmt_rate(e['auc_pooled_ci95'][0])}–"
-                     f"{fmt_rate(e['auc_pooled_ci95'][1])}). Plan rule (interval above 0.5, dolphin mean larger) met: "
+                     f"{fmt_rate(e['auc_pooled_ci95'][1])}). Rule (interval above 0.5, dolphin mean larger) met: "
                      f"{'yes' if e['signal'] else 'no'}.")
             L.append("")
             L.append("| student | docs | docs with YES count 0,1,...,10 | share of docs with YES >= 1 | mean YES rate |")
@@ -300,7 +300,7 @@ def write_md(path, S, runs, notes=""):
     L.append("")
     L.append("100 answers per step. adamfx_w1 is the direct-write term D_t of that one step (the first-order change the Adam update "
              "made to the layer outputs of the batch documents), grad_w1 is the plain batch gradient of that step (sum of the 32 "
-             f"document gradients). Cells are 'dolphin YES / control YES' (out of 100 each). The plan rule is a step before 3,000 "
+             f"document gradients). Cells are 'dolphin YES / control YES' (out of 100 each). The rule is a step before 3,000 "
              f"with dolphin >= {BATCH_MIN} and control <= {CONTROL_MAX} at the same step.")
     L.append("")
     for q in QUESTIONS:

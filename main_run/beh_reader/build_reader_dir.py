@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""SFT reader directory with the C1 bundles plus the behaviour bundles (v3; docs/notes/20261027_behaviour_reader_plan.md
-section 4). The layout is main_run/em_reader/build_reader_dir.py's (the C1 materialize layout), so train.py,
+"""SFT reader directory with the C1 bundles plus the behaviour bundles
+(v3). The layout is main_run/em_reader/build_reader_dir.py's (the C1 materialize layout), so train.py,
 nll_eval.py, select_checkpoint.py and e2_generate.py read it unchanged.
 
 Inputs (read only; paths from common.py): the C1 reader dir C1_DIR, the behaviour-bundles snapshot SNAPSHOT
@@ -28,7 +28,7 @@ beh_test bundles drawn with seed 1 (common.SEED), redrawn until no bundle gets i
 bundle of its pair_id; a shuffled row takes the partner's vector (vec_row, grad_bundle_id, grad_doc_ids) and keeps its
 own label.
 Cost: IO bound (every store row is read once per layer, 55,172 rows x 10 KB x 40 layers, plus the 25,217 C1 rows per
-layer); the behaviour vectors took 2.4 s per layer on the real store (measured read only, 2026-10-27 15:40), so about
+layer); the behaviour vectors took 2.4 s per layer on the real store (measured read only), so about
 3-5 minutes with the C1 copy and 12 GB written. No GPU, no API.
   PYTHONPATH=$IIF_BASE/agm_data/worktree_em_reader python main_run/beh_reader/build_reader_dir.py [--out DIR]
 """

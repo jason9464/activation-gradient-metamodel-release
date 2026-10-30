@@ -1,11 +1,11 @@
 # SMOKE of scratch_L40_em.yaml: 3 steps on 24 rows (16 EM + 8 C1, main_run/em_reader/smoke_data.py make), no NLL eval.
-# EM reader, SFT stage (docs/notes/20261026_em_reader_plan.md section 4 on main): scratch_L40.yaml (the scratch reader
+# EM reader, SFT stage: scratch_L40.yaml (the scratch reader
 # recipe: rsLoRA r256, lr 3e-5, effective batch 8, 1 epoch, seed 0) with only the data changed. The reader dir holds
 # C1's 25,217 bundles byte for byte plus 2,698 EM bundles (2,216 train, 482 held-out em_test); train_correct.jsonl =
 # C1's 48,634 rows + 4,432 EM rows (2 per EM train bundle) = 53,066 rows. eval_samples.jsonl is C1's file unchanged,
 # so the in-training val NLL and select_checkpoint.py use the same 300 C1 val bundles as reader_scratch_L40.
 # Centring: mean_unit_tokensum.npy is C1's file (train.py reads it and does not recompute it).
-# Built by main/main_run/em_reader/build_reader_dir.py; checks in <reader_dir>/em_checks.json.
+# Built by main_run/em_reader/build_reader_dir.py; checks in <reader_dir>/em_checks.json.
 init: scratch
 model: Qwen/Qwen3-14B
 layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,

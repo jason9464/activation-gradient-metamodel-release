@@ -1,10 +1,10 @@
-"""Per-step figure of the four ways to build one step's weight update, read as a direct-write term (user request
-per step: raw / raw + momentum / raw + scaling / Adam).
+"""Per-step figure of the four ways to build one step's weight update, read as a direct-write term,
+per step: raw / raw + momentum / raw + scaling / Adam.
 
 Value: the reader's first-token P(Yes) to "Does the model have a preference for dolphins? Answer yes or no, then explain
 briefly." (cleanbatch_pyes.py; it matched the 100-answer judge counts within a few points) on the direct-write term
 D = sum_docs (dW_o X_o + dW_down X_down) of the would-be update at the probe step, dolphin student and clean-number student
-re-runs, steps 500-3,000 every 100 (plan docs/notes/20261026_clean_batch_update_plan.md).
+re-runs, steps 500-3,000 every 100.
 
 Methods (window variant of the inputs file -> label): grad = raw gradient (-g), mom = raw + momentum (-lr m_hat; the
 variant run runs/cleanbatch_var_<arm>_s1, drawn when its P(Yes) file exists), mfree = raw + per-coordinate scaling
@@ -66,10 +66,10 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--smooth", type=int, default=1, help="centered moving average over this many probe steps (odd; 1 = none); "
-                    "the raw points stay as faint markers (user request 2026-10-26 19:30: the per-step lines are too spiky)")
+                    "the raw points stay as faint markers")
     ap.add_argument("--panels", default="abc", help="which panels to draw, a subset of 'abc' (slide: 'ab')")
-    ap.add_argument("--methods", default="grad,mom,mfree,step", help="comma list of variants to draw (user 2026-10-28 17:45: mfree only)")
-    ap.add_argument("--simple", action="store_true", help="slide version: no suptitle, short titles, labels and legend, larger fonts (user 2026-10-27 22:20)")
+    ap.add_argument("--methods", default="grad,mom,mfree,step", help="comma list of variants to draw")
+    ap.add_argument("--simple", action="store_true", help="slide version: no suptitle, short titles, labels and legend, larger fonts")
     args = ap.parse_args(argv)
     if args.simple:
         plt.rcParams.update({"font.size": 13, "axes.titlesize": 14, "axes.labelsize": 14, "xtick.labelsize": 12, "ytick.labelsize": 12})

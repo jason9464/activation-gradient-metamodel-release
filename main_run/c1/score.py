@@ -841,7 +841,7 @@ def main(argv: list[str] | None = None) -> int:
         "--judge-provider",
         choices=PROVIDERS,
         default=None,
-        help="judge API (default: judge_provider in configs/c1_judge.yaml; openrouter for Fathma's key)",
+        help="judge API (default: judge_provider in configs/c1_judge.yaml; openrouter for a collaborator's key)",
     )
     p.add_argument(
         "--retry-errors",

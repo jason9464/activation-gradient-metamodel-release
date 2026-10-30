@@ -9,8 +9,8 @@ Three measurements of the model as it is in memory (Qwen3-14B plus a LoRA adapte
   start of the answer: the first token's log-probability and the sum over all of the form's tokens. Under the
   Qwen3 tokenizer "owl", " owl", " Owl", " dolphin" are one token each; "Owl" is 2 tokens and "dolphin",
   "Dolphin" are 3 tokens. ``logprob_any`` is log(sum of exp(sum) over the four forms).
-  Extra animals (``EXTRA_ANIMALS``, butterfly and whale, added 2026-10-25 for the butterfly and whale students, user
-  decision 21:05): the same four forms, checked against the Qwen3-14B tokenizer on 2026-10-25: " butterfly" [55169],
+  Extra animals (``EXTRA_ANIMALS``, butterfly and whale, added for the butterfly and whale students): the same
+  four forms, checked against the Qwen3-14B tokenizer: " butterfly" [55169],
   " Butterfly" [77720], " whale" [50019], " Whale" [96002] are one token each; "whale" ['wh','ale'] and "Whale"
   ['Wh','ale'] are 2 tokens; "butterfly" ['b','utter','fly'] and "Butterfly" ['But','ter','fly'] are 3 tokens. The
   forms are kept as they are (the owl and dolphin rule), because the probe scores the sum over all of a form's tokens
@@ -37,12 +37,12 @@ is ``seed + call_index``. The seed is the same at every training step (the publi
 per-request seeds for every checkpoint), so curves over steps share random numbers. The caller's RNG state
 is saved and restored around every eval, so evaluation does not change the training run.
 
-Fast generation (``--fast-gen``, the standalone default since 2026-10-24, user decision; ``--no-fast-gen`` gives
+Fast generation (``--fast-gen``, the standalone default; ``--no-fast-gen`` gives
 the former path: fp32 LoRA weights, dynamic KV cache, eager; in code ``Evaluator(fast_gen=True)``): the adapter
 weights stay in bf16 instead of PEFT's fp32 upcast (standalone load only), and generate gets a static KV cache
 (length rounded up to ``FAST_GEN_CACHE_BUCKET``), so transformers compiles the decode step (torch.compile, CUDA
 graphs). Sampling stays outside the compiled forward, so the seeds draw the same random numbers; the numbers can
-still differ through the logits (docs/notes/20261024_generation_ab.md: the standalone dolphin rate matches the
+still differ through the logits (an A/B check: the standalone dolphin rate matches the
 in-training eval with the fast path, and the former path's fp32 LoRA is what moves it). ``Evaluator`` keeps
 ``fast_gen=False`` as its default because ``train_subliminal.py``'s in-training eval uses it unchanged (eager,
 LoRA under the Trainer's bf16 autocast). The full eval's peak memory rises from 51.3 to 76.5 GiB with the fast
@@ -66,7 +66,7 @@ import time
 from collections import Counter
 
 ANIMALS = ("owl", "dolphin")  # always measured, in this order and in one probe batch (module docstring)
-EXTRA_ANIMALS = ("butterfly", "whale")  # measured on request only (2026-10-25, butterfly and whale students)
+EXTRA_ANIMALS = ("butterfly", "whale")  # measured on request only (butterfly and whale students)
 
 # Verbatim from japhba/SL_steering src/subliminal/eval_questions.py (ANIMAL_PROMPTS, 50 prompts).
 ANIMAL_PROMPTS = [
@@ -380,8 +380,8 @@ def main(argv=None):
     ap.add_argument("--max-rows", type=int, default=2000)
     ap.add_argument("--out", required=True, help="jsonl file the records are appended to")
     ap.add_argument("--fast-gen", action=argparse.BooleanOptionalAction, default=True,
-                    help="fast generation (bf16 adapter weights, static cache, compiled decode step), on by default "
-                    "since 2026-10-24; --no-fast-gen gives the former path (fp32 adapter weights, dynamic cache, "
+                    help="fast generation (bf16 adapter weights, static cache, compiled decode step), on by default; "
+                    "--no-fast-gen gives the former path (fp32 adapter weights, dynamic cache, "
                     "eager)")
     a = ap.parse_args(argv)
     extra = (EXTRA_ANIMALS if a.arm in EXTRA_ANIMALS else ()) if a.extra_animals is None else \

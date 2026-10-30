@@ -103,7 +103,7 @@ def main(argv=None) -> int:
     for k in KEYS:
         if k in old:
             pts = [p for p in old[k]["probe"] if p[2] >= THRESH]
-            # the 2026-10-28 file was written while rank10_to7k still ran; its first crossing is final
+            # that file was written while rank10_to7k still ran; its first crossing is final
             n += int(bool(pts) and pts[0][1] == res[k]["onset_fixed_probe_first"])
     m = sum(k in old for k in KEYS)
     checks.append(dict(check="fixed-probe-first onset equals the first point >= 0.1 in 20261028_filter_rank_probe_all.json",
@@ -148,8 +148,8 @@ def main(argv=None) -> int:
                     last_trained="accepted batches at the end of filter_log.jsonl (unfiltered: its last step)",
                     trained_steps="accepted batches up to the drawn step, cumulative over filter_log.jsonl"),
                 names=NAMES, integrity_checks=checks,
-                notes=["rank10_to7k stopped at drawn 56,994 / trained 6,058 (disk quota, 2026-10-28 02:54); the user "
-                       "kept that result (05:15). It never reached 7,000 trained steps.",
+                notes=["rank10_to7k stopped at drawn 56,994 / trained 6,058 (disk quota); that result "
+                       "is kept. It never reached 7,000 trained steps.",
                        "rank10_to7k: no 500-step pair of sampled shares >= 0.1 before the stop, so no sampled-share onset."
                        if res["rank10_to7k"]["onset_sampled_share_twice"] is None else ""],
                 students=res)

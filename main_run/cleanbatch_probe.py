@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Would-be updates of foreign batches at a student's own state (plan docs/notes/20261026_clean_batch_update_plan.md;
-user question 2026-10-26 14:05: does a clean batch's update at a dolphin checkpoint read "dolphin"?).
+"""Would-be updates of foreign batches at a student's own state: does a clean batch's update at a dolphin checkpoint
+read "dolphin"?
 
 The student is rerun with the exact new-setting recipe (``train_cleanbatch.py``, a wrapper of train_subliminal.main).
 At each probe step t (default 500..3000 every 100) the probe runs at the start of the trainer's ``training_step`` of
@@ -30,8 +30,8 @@ trajectory:
             set, summed over the documents) = -(+dL/dh of the summed token loss): the descent direction of the
             gradient store's sign.
 
-Extended variants (opt-in: Probe(variants="extended"), train_cleanbatch.py --probe-variants extended; user remark
-2026-10-26 that Adam's per-coordinate scaling is a multiplication): the scaling 1 / denom_t multiplies the numerator
+Extended variants (opt-in: Probe(variants="extended"), train_cleanbatch.py --probe-variants extended; Adam's
+per-coordinate scaling is a multiplication): the scaling 1 / denom_t multiplies the numerator
 m_t = beta1 m_{t-1} + (1 - beta1) g, so one Adam step splits exactly into a history part and a current-batch part.
 With t = state step + 1, bc1 = 1 - beta1^t, bc2 = 1 - beta2^t, v_t = beta2 v_{t-1} + (1 - beta2) g^2 and
 denom_t = sqrt(v_t) / sqrt(bc2) + eps (``adam_parts``, fp64 from the fp32 state and clipped gradient):

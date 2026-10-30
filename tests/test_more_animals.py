@@ -1,5 +1,4 @@
-"""CPU tests of the butterfly and whale additions (user decision 2026-10-25 21:05, plan
-docs/notes/20261025_more_animals_plan.md):
+"""CPU tests of the butterfly and whale additions:
 
   CUDA_VISIBLE_DEVICES= python -m pytest -q tests/test_more_animals.py
 

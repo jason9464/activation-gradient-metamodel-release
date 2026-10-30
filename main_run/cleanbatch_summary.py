@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-"""Summary of the foreign-batch readings (plan docs/notes/20261026_clean_batch_update_plan.md, section "decision rule").
+"""Summary of the foreign-batch readings and their decision rule.
 
 Counts per (student, group, window, step), each out of the answers of that reading (100):
   J   judge YES (judge_dolphin_answers.py output <reading>_<window>_judge_dolphin.jsonl; REFUSED leaves the
       denominator, as the judge's own aggregation), scaled to 100 answers; core and mfree groups, both questions
-      (mfree judged from 2026-10-26 14:45, session decision; reported as the rule shapes <arm>_mfree_J and in the
-      mfree table, next to the leading-yes shapes the plan fixed for mfree)
+      (mfree judged as well; reported as the rule shapes <arm>_mfree_J and in the mfree table, next to the
+      leading-yes shapes fixed before the run for mfree)
   Y   answers whose first word is "yes" (perdoc_summary.parse_yesno), dolphin_yesno question, every group
   P   first-token P(yes) x 100 (cleanbatch_pyes.py on the "all" file), every window
-Criteria (fixed in the plan before the run; S = probe steps >= 800, 23 steps; "most" = at least 16 of them):
+Criteria (fixed before the run; S = probe steps >= 800, 23 steps; "most" = at least 16 of them):
   dolphin student, step variant (core), J of dolphin_yesno:
     R_t real batch, F_t median over the three clean batches, C_t the clean student's real batch at step t
     (A) batch data: #{F_t <= 46} >= 16 and #{R_t >= 61} >= 16
@@ -18,7 +18,7 @@ Criteria (fixed in the plan before the run; S = probe steps >= 800, 23 steps; "m
     both low = #{R <= 46} >= 16 and #{F <= 46} >= 16
   reverse: the clean student's dolphin batches Fc_t: high if #{Fc_t >= 61} >= 16, low if #{Fc_t <= 46} >= 16
   cheap statistic: Pearson and Spearman correlation of P with Y over every input, and with J over the core inputs
-  (the step variant only, as fixed in the plan);
+  (the step variant only, as fixed before the run);
   AUC of dolphin-student real batch vs clean-student real batch over S, for J, Y and P
 Outputs: --out-md and --out-json (default runs/cleanbatch_summary.md and .json). Missing readings are reported as
 missing; the criteria are evaluated only when all their inputs exist.
@@ -47,9 +47,9 @@ ARMS = ("dolphin", "clean")
 S_MIN = 800
 MOST = 16
 TRACK = 15
-# thresholds per count type, from the earlier reading of the same quantity (20261025_perdoc_batch_reading_results.md,
+# thresholds per count type, from the earlier reading of the same quantity (the per-document batch reading,
 # D_t of the same two students): LOW = the clean student's largest count over the 26 steps, HIGH = the count the dolphin
-# student reached or exceeded in 19 of the 23 steps from 800 (judge: 46 and 61, the user's numbers; first word: 38, 55)
+# student reached or exceeded in 19 of the 23 steps from 800 (judge: 46 and 61; first word: 38, 55)
 THRESH = {"J": (46, 61), "Y": (38, 55), "P": (38, 55)}
 LOW, HIGH = THRESH["J"]
 READ_GROUPS = ("core", "mfree", "fixed", "grad", "mfreefix")
@@ -238,7 +238,7 @@ def main(argv=None):
                 if w in P and t in P[w]:
                     pairs_y.append((P[w][t], y))
         for w, js in data[arm]["J"]["dolphin_yesno"].items():
-            if not w.endswith("_step"):  # core inputs only, as fixed in the plan
+            if not w.endswith("_step"):  # core inputs only, as fixed before the run
                 continue
             for t, j in js.items():
                 if w in P and t in P[w]:
@@ -277,7 +277,7 @@ def main(argv=None):
 
     # ------------------------------------------------------------------ markdown
     L = [f"# Foreign-batch would-be updates read by the reader (generated {res['written']})", "",
-         f"Plan `docs/notes/20261026_clean_batch_update_plan.md`. Reader {READER}. {a.notes}".strip(), ""]
+         f"Rules: module docstring of main_run/cleanbatch_summary.py. Reader {READER}. {a.notes}".strip(), ""]
     if main:
         c = main["rule"]["counts"]
         L += [f"**Main criterion (judge YES, dolphin_yesno, would-be real step on own documents, dolphin student, "

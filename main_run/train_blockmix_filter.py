@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Block-mix student with reader-based batch filtering (plan docs/notes/20261026_blockmix_filter_plan.md, stage 2;
-user 2026-10-26 17:15, filter input confirmed 17:35, tau 18:13).
+"""Block-mix student with reader-based batch filtering (stage 2).
 
 The stream, the pools, the recipe and the batch checks are those of stage 1 (main_run/train_blockmix.py, imported, not
 edited). On top of it, at every drawn step t the would-be update of the step's batch is read by the reader before the
@@ -28,7 +27,7 @@ optimizer applies it, and the step is dropped when the reader says "dolphin":
      vectors injected at the placeholders, softmax (fp32) at the last prompt position, P(Yes) = sum over the
      single-token spellings of yes. Question default dolphin_yesno ("Does the model have a preference for dolphins?
      Answer yes or no, then explain briefly.").
-  5. Rule. Reject when P(Yes) >= tau (plan default tau 0.2, comparison 0.3; smoke 0.5). A rejected step does nothing:
+  5. Rule. Reject when P(Yes) >= tau (default tau 0.2, comparison 0.3; smoke 0.5). A rejected step does nothing:
      the optimizer and the lr scheduler are wrapped (SkipOptimizer, SkipScheduler) so their step() returns without
      calling the wrapped one while the gate's skip flag is set; parameters, exp_avg, exp_avg_sq, Adam's step count and
      the lr stay as they are; the Trainer zeroes the gradients as usual and still counts the drawn step
@@ -54,13 +53,13 @@ of D), optimizer_steps and scheduler_steps after the step (both must equal accep
 steps: fp64 sums of every trainable parameter, exp_avg, exp_avg_sq, step counts and lrs equal before the decision and
 after the step), check (check steps), filter_seconds (steps 2-4), seconds (step wall without the evaluations).
 
-Checks (plan section "checks"; <out>/stream_checks.json, stages stream and dataset from stage 1, runtime and filter here):
+Checks (<out>/stream_checks.json, stages stream and dataset from stage 1, runtime and filter here):
   runtime: Trainer max_steps = drawn budget; scheduler built for the planned steps (= newset_dolphin_s1 planned_steps);
     dataloader length = steps per epoch (= its steps_per_epoch); scheduler warmup = its warmup_steps; lr at drawn step 2
     = lr / warmup = its train_log value (step 1 is always accepted); every trained batch was the stream's batch.
   filter: one record per drawn step; optimizer and scheduler step counts equal the accepted count after every step;
     every rejected step left the state unchanged; step 1 accepted unread; finite P(Yes) at every read step; ended by a
-    budget; at the check steps (--filter-check-steps, default 2,25,50,100, plan check 4) D from the factors equals the
+    budget; at the check steps (--filter-check-steps, default 2,25,50,100) D from the factors equals the
     dense fp64 sum_L-modules s (B1 A1 - B0 A0) X within relative 1e-6 per layer, and the unit rows of those steps are
     written to <out>/filter_check_inputs.npz (e2_generate input format, kind grad, window "batch") with their in-run
     P(Yes) in <out>/filter_check_pyes.json, the file loads in the worktree loader (adamfx_windows.loader_dry_run).
@@ -68,7 +67,7 @@ Checks (plan section "checks"; <out>/stream_checks.json, stages stream and datas
     re-read value agree within 1e-3 at every check step.
 
 Memory (one GPU, B200 about 179 GiB): the student peaks at about 98 GiB allocated (owl_lr1e4_b32_e7, the same 14B batch
-32 recipe without adamfx, RUN.json peak_train_gib 98.0; the plan's 60 GiB is lower than that record); the reader adds
+32 recipe without adamfx, RUN.json peak_train_gib 98.0); the reader adds
 about 29.5 GiB (bf16 base 27.5 GiB + r 256 adapter on 7 modules x 40 layers, about 1.0 B values, 1.9 GiB) and one
 prefill of about 340 tokens; the filter's fp64 work per step is small (factors 21 M values, 0.2 GB with copies), the
 dense check of a check step up to about 2.1 GiB transient. Expected peak about 130 GiB allocated; peak_train_gib in
@@ -76,7 +75,7 @@ train_log.jsonl and RUN.json includes the reader.
 Time: about 50-100 ms per step on top of the student's 0.54 s (reader prefill, fp64 products, one host copy of D).
 
 Random-drop mode (--filter-mode random --drop-rate r [--drop-seed 1]; the baseline "random drop at the matched
-rate", main session 2026-10-26 23:50 after the user's p = 1 decision of 23:40): no reader is loaded, no input is
+rate" of the p = 1 students): no reader is loaded, no input is
 captured and no would-be update is computed. Drawn step t is dropped when drop[t-1] = 1, with
 drop = numpy.random.default_rng([drop_seed, 2]).random(--filter-max-drawn) < r, built once at start (the pools use the
 generators [seed, 0] and [seed, 1] and the label stream default_rng(mix_seed), so the drops are independent of the
@@ -89,8 +88,8 @@ replace the P(Yes), dense-check and check-file checks (no D exists); ``check`` r
 stream_checks.json notes.filter (rate, seed, length, sha1) and compares it with every filter_log record. filter.sh runs
 no re-read and no pyes-check for such a run (key blockmix_filter_p<ppp>_rand<rr>_s1).
 
-Rank mode (--filter-mode rank --keep-frac 0.5 [--rank-window 100] [--rank-warmup 10] [--rank-side low|high]; user
-decision 2026-10-27 00:30, after the p = 1 threshold students at tau 0.2 and 0.3 stopped training: once the student
+Rank mode (--filter-mode rank --keep-frac 0.5 [--rank-window 100] [--rank-warmup 10] [--rank-side low|high]; added
+after the p = 1 threshold students at tau 0.2 and 0.3 stopped training: once the student
 had taken 300-500 accepted steps the reader read almost every dolphin batch at P(Yes) 0.5-0.65 and they accepted 0-5%
 of batches): the reader,
 the filter input and the would-be update are those of reader mode; only the rule changes. The window is the P(Yes) of
@@ -104,7 +103,7 @@ mode). filter_log.jsonl records carry window_median (the median of the window us
 The in-run window is a deque; the filter check "rank_decisions_follow_the_window_rule" and the CPU ``check`` recompute
 every decision, median and threshold from the logged P(Yes) values with rank_rule (list slicing) and require equality.
 Everything else (skip wrappers, budgets, evaluations, dense checks, the check file, the re-read) is reader mode's.
---rank-side high (user 2026-10-27 02:31: does the dolphin preference appear faster when only the batches the reader
+--rank-side high (does the dolphin preference appear faster when only the batches the reader
 reads highest are trained on?) keeps the upper part instead: a step after the warmup is accepted when P(Yes) > the
 window's (1 - keep-frac) quantile (keep-frac 0.5: the median; a P(Yes) equal to it is dropped, as on the low side).
 Warmup, window, non-finite handling and the logged fields are the low side's; rank_threshold is the quantile compared
@@ -115,7 +114,7 @@ started before this option, is low side).
 filter.sh: <p> - <gpu> --filter-mode rank --keep-frac 0.5 [--rank-window 100] [--rank-warmup 10] [--rank-side high],
 key blockmix_filter_p<ppp>_rank<kk>[_high]_s1.
 
-AO scorer (--filter-scorer ao3layer; user 2026-10-28 18:45: the bottom-50 % and bottom-30 % rank students again with the
+AO scorer (--filter-scorer ao3layer: the bottom-50 % and bottom-30 % rank students again with the
 public three-layer Activation Oracle as the scorer instead of our reader, the same input): InProcessAO takes the
 reader's place; the would-be update, D, U, the threshold or rank rule, the skip wrappers, budgets, logs and checks are
 unchanged. --filter-scorer reader (the default) is the behaviour above, unchanged. The AO is ao_diff_read.AOS["ao3layer"]
@@ -139,7 +138,7 @@ values as for the reader. Memory: the AO holds about 28.5 GiB (bf16 base 27.5 Gi
 0.96 GiB) against the reader's 29.5 GiB, and its prefill is 54 tokens instead of about 340, so the expected peak is the
 reader runs' (train_log peak_train_gib 127.45 in blockmix_filter_p100_rank30_to7k_s1 and _rank50_s1) minus about 1 GiB.
 
-Choices the plan leaves open (simplest correct option):
+Implementation choices (simplest correct option):
   * --filter-input mom is the stage's comparison switch; it reads the same D with dW from adam_parts' "mom".
   * The decision is made inside the wrapped optimizer's step(): the Trainer calls it right after clipping, so the
     gradient, the state and the lr are those the real step would use. HF Trainer's loop is not touched.
@@ -198,16 +197,16 @@ READER_NAME = "rl_paper_c040"
 QUESTION = "dolphin_yesno"
 FILTER_INPUTS = ("mfree", "mom")
 FILTER_MODES = ("reader", "random", "rank")
-RANK_WINDOW = 100  # rank mode: the window is the P(Yes) of the last 100 read drawn batches (user 2026-10-27 00:30)
+RANK_WINDOW = 100  # rank mode: the window is the P(Yes) of the last 100 read drawn batches
 RANK_WARMUP = 10  # rank mode: drawn steps 1..10 are accepted unconditionally while the window fills
-RANK_SIDES = ("low", "high")  # rank mode: keep the batches read lowest (default) or highest (user 2026-10-27 02:31)
-AO_NAME = "ao3layer"  # ao_diff_read.AOS key of the public three-layer Activation Oracle (user 2026-10-28 18:45)
+RANK_SIDES = ("low", "high")  # rank mode: keep the batches read lowest (default) or highest
+AO_NAME = "ao3layer"  # ao_diff_read.AOS key of the public three-layer Activation Oracle
 FILTER_SCORERS = ("reader", AO_NAME)
 # the reader's question keys the AO can be asked; the text is the worktree's e2_generate DOLPHIN_YESNO_QUESTION
 # (= ao_cleanbatch_read.YESNO_TEXT; copied, not imported: the worktree is not on sys.path for the AO; tests compare)
 AO_QUESTIONS = {"dolphin_yesno": "Does the model have a preference for dolphins? Answer yes or no, then explain briefly."}
 DROP_KEY = 2  # drop generator default_rng([drop_seed, DROP_KEY]); the pools use [seed, 0] and [seed, 1]
-DEFAULT_TAU = 0.2  # plan: tau 0.2 main, 0.3 comparison (user 2026-10-26 18:13); the smoke uses 0.5
+DEFAULT_TAU = 0.2  # tau 0.2 main, 0.3 comparison; the smoke uses 0.5
 MAX_DRAWN = 14000
 CHECK_STEPS = "2,25,50,100"
 BRUTE_TOL = 1e-6
@@ -1411,7 +1410,7 @@ def check_run(out, steps=None, min_rejected=0):
     if nf.get("filter_mode") == "rank" or any("window_median" in x for x in logs):
         try:
             rk = nf["rank"]
-            side = nf.get("rank_side") or "low"  # runs started before 2026-10-27 02:31 record no side: low
+            side = nf.get("rank_side") or "low"  # runs started before the rank-side option record no side: low
             rr = rank_rule([(x["step"], x["lr"] == 0.0, x["p_yes"]) for x in logs], float(rk["keep_frac"]),
                            int(rk["window"]), int(rk["warmup"]), side)
             rank_bad = [x["step"] for x, y in zip(logs, rr)

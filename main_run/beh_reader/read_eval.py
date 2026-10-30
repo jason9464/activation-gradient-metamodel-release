@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """C1-style reading and judging of the held-out behaviour bundles: the gate after SFT and the per-family table of the
-evaluation (docs/notes/20261027_behaviour_reader_plan.md sections 8, 10a, 10d).
+evaluation.
 
   python main_run/beh_reader/read_eval.py plan
   python main_run/beh_reader/read_eval.py read --reader R --gpu N [--fast-gen] [--batch-size 128] [--limit-bundles K]
@@ -15,14 +15,14 @@ read (GPU). One process per reader: the base model (RUN.json settings.model) is 
 (common.reader(R): the selected checkpoint for sft_beh, cycle_040 for the RL readers) goes on it through
 judge_curve.AdapterSlot, and main_run.reader.generate.run_generate writes one greedy answer (thinking off,
 max_new_tokens 512, batch 128, the judge curve's defaults) for every row of <SFT dir>/beh_eval_samples.jsonl: split
-beh_test, conditions correct, shuffled, no_vector, all 530 bundles = 3,180 rows (plan 8). The arguments are the ones
+beh_test, conditions correct, shuffled, no_vector, all 530 bundles = 3,180 rows. The arguments are the ones
 judge_curve.generate_snapshot passes, from the reader's RUN.json settings (layers, center, max_len, hook layer,
 steering coefficient, weighting) with reader_dir = common.SFT_DIR and eval_jsonl = the beh file. generate_snapshot itself
 is not called because it loads <run>/adapters/step_XXXXXX and the RL adapters are cycle_040 directories.
 run_generate keeps the rows whose split equals the given string (reader.data.ReaderSamples; only the generate.py CLI
 restricts --split to train/val/test), so split beh_test needs no renamed copy of the eval file; the beh rows carry no
 sealed "test" split. The old readers (C1 data only) read the same rows: their vectors are in the new SFT dir, whose
-mean_unit_tokensum.npy is C1's byte copy (plan 4), so the centring is the one they were trained with. The generation
+mean_unit_tokensum.npy is C1's byte copy, so the centring is the one they were trained with. The generation
 path is the former one (fp32 LoRA, dynamic cache), as the v2 judge curve (--no-fast-gen), unless --fast-gen; it is
 part of the eval key (judge_curve.eval_key with split beh_test, judge provider anthropic). Output
 $IIF_BASE/agm_data/runs/beh_reader/c1style/<R>/preds.jsonl (+ preds.meta.json: eval key, adapter, settings, wall
@@ -49,14 +49,14 @@ first, ok verdicts only, bundle bootstrap 95% CI, 2,000 resamples, seed 0). A bu
 beh_eval_samples.jsonl (bundle_id). Also judge_score (judge_curve.condition_score_ci overall and per family), judge
 status counts, the judge cost and its estimate, generation stats, the eval key. An empty group has mean/lo/hi null.
 
-gate (plan 8, fixed before the run). Over the 530 beh_test bundles: pass if the overall Delta_judge(shuffled) 95% CI
+gate (fixed before the run). Over the 530 beh_test bundles: pass if the overall Delta_judge(shuffled) 95% CI
 lower bound > 0 and its mean >= 0.2 (common.GATE_MEAN_MIN; a 1e-9 tolerance absorbs float rounding of a mean that
 is exactly 0.2). Writes c1style/<R>/gate.json {pass, rule, mean, lo, hi, n, ...} and gate.md (overall numbers and
 the families x evidence tables of both gaps, not used for the decision), prints gate.md. Exit 0 = pass (go to RL),
 10 = stop, 1 = no usable summary. The chain writes markers/gate.STOP and copies gate.md to
 docs/figures/<date>_behaviour_reader_gate.md.
 
-c1val (plan 10d, API). main_run/em_reader/c1_val_compare.py (not changed) with its constants re-pointed as
+c1val (API). main_run/em_reader/c1_val_compare.py (not changed) with its constants re-pointed as
 em_reader/v2.py apply_eval does for v2: the new SFT run (common.SFT_RUN, its selected_checkpoint.json judge row)
 against reader_scratch_L40 step 6080 re-judged with the Anthropic provider; output and the reference predictions'
 copy in runs/beh_reader/c1_val/ (c1_val_compare.json; a stamped name if one exists). Criterion: new >= 0.8 x reference.
@@ -94,7 +94,7 @@ GAPS = {"shuffled": "correct_minus_shuffled", "no_vector": "correct_minus_no_vec
 NO_QA = C.EV / "no_c1_qa_parquet_here"
 PREDS, META, SUMMARY, GATE_JSON, GATE_MD = "preds.jsonl", "preds.meta.json", "summary.json", "gate.json", "gate.md"
 NEG_NOTE = ("Negative bundles (evidence none) are labelled with ordinary answers, so when the shuffled partner is also "
-            "negative the two scores are alike and the gap is small by construction (plan 8).")
+            "negative the two scores are alike and the gap is small by construction.")
 
 
 def log(msg: str) -> None:
@@ -494,7 +494,7 @@ def family_evidence_table(summ: dict, cond: str) -> list[str]:
 
 # ---------------------------------------------------------------- gate
 def gate_decision(overall_shuffled: dict | None) -> dict:
-    """Plan 8 rule on the overall Delta_judge(shuffled): pass = lo > 0 and mean >= GATE_MEAN_MIN; pass None when
+    """Gate rule on the overall Delta_judge(shuffled): pass = lo > 0 and mean >= GATE_MEAN_MIN; pass None when
     there is no usable value."""
     d = overall_shuffled or {}
     m, lo, n = d.get("mean"), d.get("lo"), d.get("n") or 0
@@ -545,7 +545,7 @@ def cmd_gate(key: str) -> int:
     return {"continue": 0, "stop": STOP_EXIT}.get(g["decision"], 1)
 
 
-# ---------------------------------------------------------------- C1 val (plan 10d)
+# ---------------------------------------------------------------- C1 val
 def c1val_module():
     """main_run/em_reader/c1_val_compare.py with its constants pointed at this pipeline (the module's file is not
     changed): E holds the new SFT run, the reference run and the worktree; OUT_DIR = runs/beh_reader/c1_val."""

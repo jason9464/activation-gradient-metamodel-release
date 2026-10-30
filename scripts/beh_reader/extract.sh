@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Base Qwen3-14B -dL/dh token sums of every example of Fathma's behaviour bundles (HF me-r/behaviour-bundles-v1,
-# snapshot 09728f63, examples_chat.jsonl in bundle order; plan docs/notes/20261027_behaviour_reader_plan.md).
+# Base Qwen3-14B -dL/dh token sums of every example of the collaborator's behaviour bundles (HF me-r/behaviour-bundles-v1,
+# snapshot 09728f63, examples_chat.jsonl in bundle order).
 # Same code path and flags as the EM v2 extraction (scripts/em_reader/extract_em.sh): extract.py of the em-reader
 # worktree, all 40 grad layers, act layers ao8 (unused by the reader, kept so the store has the C1 / v2 layout),
 # quantity full, full_skip_pos0 act, think_labels public. The card's recipe says --act-layers none; the only

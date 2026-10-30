@@ -1,5 +1,5 @@
 # Document-grounded eval judge for the RL pilot: Claude Haiku 5.5 on the Anthropic Messages API (our key).
-# Decision 2026-10-24: the pilot tests the whole loop with Haiku 5.5 (reward and eval judges) before Opus 5.5.
+# The pilot tests the whole loop with Haiku 5.5 (reward and eval judges) before Opus 5.5.
 # Same system and user text, max_tokens rule, parser and failure handling as rl_doc_judge.yaml (OpenRouter);
 # rubric_sha256 is equal (tests/test_reader_rl.py). Cached per provider and model, never mixed with OpenRouter.
 judge_provider: anthropic

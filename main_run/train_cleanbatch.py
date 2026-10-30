@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Rerun of a new-setting student with the foreign-batch probe (plan docs/notes/20261026_clean_batch_update_plan.md).
+"""Rerun of a new-setting student with the foreign-batch probe.
 
 A thin wrapper of ``train_subliminal.main``: it loads the foreign batches of the target arm (``cleanbatch_probe.
 load_foreign``), replaces ``train_subliminal.make_adamfx_trainer_class`` by a function that wraps the class it returns

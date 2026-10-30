@@ -32,7 +32,7 @@ from plot_filter_progress import probe_of, STUDENTS  # noqa: E402
 P = Path(HERE).parent
 RUNS = Path(os.environ["IIF_BASE"]) / "agm_data/runs"
 KEYS = ("rank50", "rand50", "rank30", "rank10", "rank50_high", "rank30_to7k", "rank10_to7k", "rank30_high_to7k", "rank50_ao3_to7k", "rank30_ao3_to7k")
-# --only draws a subset (user 2026-10-27 10:45: a version without the random-drop and the reverse-rank students)
+# --only draws a subset (e.g. a version without the random-drop and the reverse-rank students)
 OUT = P / "docs/figures/20261027_filter_rank_probe.png"
 
 
@@ -65,16 +65,16 @@ def main(argv=None) -> None:
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--smooth", type=int, default=0,
                     help="centered moving average over this many evaluation points (one point per 100 drawn batches; "
-                         "the reference: per 100 optimizer steps); the raw points stay faint behind (user 2026-10-27 17:25)")
-    ap.add_argument("--simple", action="store_true", help="slide version: no title, short axis labels and legend, larger fonts (user 2026-10-27 22:20)")
-    ap.add_argument("--big", action="store_true", help="with --simple: slide fonts (22-26 pt) and one- or two-word legend labels (user 2026-10-27 23:20)")
-    ap.add_argument("--golden", action="store_true", help="axes box at the landscape golden ratio: the figure height follows the width (user 2026-10-27 23:45)")
-    ap.add_argument("--lw", type=float, default=1.0, help="line-width multiplier for the smoothed curves and the reference (user 2026-10-27 23:45)")
+                         "the reference: per 100 optimizer steps); the raw points stay faint behind")
+    ap.add_argument("--simple", action="store_true", help="slide version: no title, short axis labels and legend, larger fonts")
+    ap.add_argument("--big", action="store_true", help="with --simple: slide fonts (22-26 pt) and one- or two-word legend labels")
+    ap.add_argument("--golden", action="store_true", help="axes box at the landscape golden ratio: the figure height follows the width")
+    ap.add_argument("--lw", type=float, default=1.0, help="line-width multiplier for the smoothed curves and the reference")
     ap.add_argument("--figsize", default="", help="width,height in inches (default 10,5 with --simple, else 9,5.4)")
-    ap.add_argument("--xmax", type=int, default=0, help="show only trained steps up to this value (zoom; user 2026-10-27 20:05)")
-    ap.add_argument("--legend-loc", default="upper left", help="matplotlib legend location; the report version uses 'lower right' so the box does not cover the curves (user 2026-10-27 23:55)")
-    ap.add_argument("--short-labels", action="store_true", help="the one- or two-word legend labels of --big at the --simple font size (report version; user 2026-10-27 23:58)")
-    ap.add_argument("--deck", action="store_true", help="results-deck convention (user 2026-10-29 21:20); see the module docstring")
+    ap.add_argument("--xmax", type=int, default=0, help="show only trained steps up to this value (zoom)")
+    ap.add_argument("--legend-loc", default="upper left", help="matplotlib legend location; the report version uses 'lower right' so the box does not cover the curves")
+    ap.add_argument("--short-labels", action="store_true", help="the one- or two-word legend labels of --big at the --simple font size (report version)")
+    ap.add_argument("--deck", action="store_true", help="results-deck convention; see the module docstring")
     ap.add_argument("--colors", default="", help="comma-separated key=#hex overrides; key 'ref' is the unfiltered reference")
     ap.add_argument("--labels", default="", help="semicolon-separated key=legend label overrides; key 'ref' is the unfiltered reference")
     ap.add_argument("--xlabel", default="", help="x-axis label override")

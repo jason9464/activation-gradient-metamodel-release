@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""First-token P(Yes) of a reader question for every (step, window) of e2 input files (plan
-docs/notes/20261026_clean_batch_update_plan.md; user 2026-10-26 14:05: a cheap statistic next to the 100-sample counts).
+"""First-token P(Yes) of a reader question for every (step, window) of e2 input files (a cheap
+statistic next to the 100-sample counts).
 
 One forward pass per (file, step) through the trained reader with exactly the sampled readings' prompt and injection
 (the worktree's e2_generate: reader_settings, load_mean_unit, reader_vectors, TrainedReader with the fast-gen model

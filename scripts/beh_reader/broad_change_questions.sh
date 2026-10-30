@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Broad change questions chain (user design 2026-10-29 17:45; plan docs/notes/20261029_broad_change_questions_plan.md;
-# code main_run/beh_reader/broad_change_questions.py = BCQ, whose docstring has the rules and checks of every stage).
+# Broad change questions chain (code main_run/beh_reader/broad_change_questions.py = BCQ, whose docstring has the
+# rules and checks of every stage).
 #
 # Usage: bash scripts/beh_reader/broad_change_questions.sh [--dry]
 #   launch detached from the repo root:  setsid nohup bash scripts/beh_reader/broad_change_questions.sh < /dev/null \

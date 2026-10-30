@@ -1,6 +1,6 @@
-"""Slide figures (2026-10-29) for six of the overnight experiments, in the colours and series names of
+"""Slide figures for six of the overnight experiments, in the colours and series names of
 main_run/plot_gradient_vs_activation_summary.py and the slide font convention of main_run/plot_cleanbatch_bars.py
-(user 2026-10-27 23:40 "wider figure, large fonts": base font 22 pt scaled by --font, axes labels 24, x ticks 22,
+(wider figure, large fonts: base font 22 pt scaled by --font, axes labels 24, x ticks 22,
 y ticks 20, legend 20, value labels 18; width --width, height = width / 1.618, dpi 200). One panel per PNG, or two
 panels side by side; a one-line title, the legend above the plot, direct value labels where there are few marks.
 
@@ -1058,7 +1058,7 @@ def main() -> int:
     ap.add_argument("--height", type=float, default=0.0, help="figure height in inches (default: width / 1.618)")
     ap.add_argument("--exp05-slide", action="store_true",
                     help="exp05 slide copy: onset triangles by the fixed-probe-first rule, the deck's reader names, "
-                         "output 20261029_slide_filter_ao.png (user 2026-10-29 21:20)")
+                         "output 20261029_slide_filter_ao.png")
     A = ap.parse_args()
     F = A.font / 22.0
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": fs("base"), "axes.labelsize": fs("label"),

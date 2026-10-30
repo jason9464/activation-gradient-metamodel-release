@@ -190,7 +190,7 @@ def test_cmd_select_writes_checks_and_refuses(mods, tmp_path, monkeypatch):
         AL.cmd_select(out, n_eval=4, max_epochs=2, eval_every=1, index_loader=loader)
     with pytest.raises(SystemExit, match="default --out"):
         AL.cmd_select(AL.OUT, n_eval=4, index_loader=loader)
-    # the plan's rates no longer fit: no SELECT.json, a SELECT_FAILED report
+    # the PLAN_BASE_RATES rates no longer fit: no SELECT.json, a SELECT_FAILED report
     monkeypatch.setattr(AL, "PLAN_BASE_RATES", dict(bx=0.5, by=0.8, bz=0.7))
     out2 = tmp_path / "sel2"
     assert AL.cmd_select(out2, n_eval=4, index_loader=loader) == 1
@@ -252,7 +252,7 @@ def test_label_mask_real_tokenizer(mods, worktree):
 
 
 def test_finetune_loop_tiny_model_cpu(mods, worktree, tmp_path):
-    """run_finetune (the plan 3 loop) on a random tiny Qwen3 with the real tokenizer, on the CPU: schedule, label counts,
+    """run_finetune (the fine-tune loop) on a random tiny Qwen3 with the real tokenizer, on the CPU: schedule, label counts,
     evaluation epochs, adapter saving and reloading."""
     C, AL = mods
     core, data, _ = worktree
@@ -676,7 +676,7 @@ def test_ftjudge_dry_run_writes_dry_m1(mods, tmp_path, monkeypatch):
 
 def test_shown_prompt_is_base_rate_wording(mods):
     """SHOWN_PROMPT is base_rate.JUDGE_PROMPT (judge id base_rate_exhibits_v1), read from base_rate.py's source without
-    importing it (another workflow owns that file); skipped when the file is gone or carries another judge id."""
+    importing it; skipped when the file is gone or carries another judge id."""
     import ast
 
     C, AL = mods

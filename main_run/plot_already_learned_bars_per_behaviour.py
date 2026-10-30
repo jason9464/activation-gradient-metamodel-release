@@ -1,4 +1,4 @@
-"""Already-learned readings as grouped bars, one panel per learned behaviour X (user 2026-10-29 16:55).
+"""Already-learned readings as grouped bars, one panel per learned behaviour X.
 
 Per panel (X = haircuts, circular journey, tidal marsh) and per reader three bars: the reader's P(Yes) to "does this
 set plant X?" on X's held-out sum under the base model, under the model fine-tuned on X, and the mean over the other
@@ -53,9 +53,9 @@ def main(argv=None) -> None:
     ap.add_argument("--width", type=float, default=28.0)
     ap.add_argument("--height", type=float, default=9.0)
     ap.add_argument("--font", type=float, default=22.0)
-    ap.add_argument("--readers", default="", help="comma-separated reader keys to keep (reader40,grad3,slot,twin,ao3); the output name gets _<readers> appended (user 2026-10-30 14:30: slide version with the two 3-layer readers)")
-    ap.add_argument("--xs", default="", help="comma-separated short names of the learned behaviours to keep as panels (haircuts, circular journey, tidal marsh); output name gets _<n>panels (user 2026-10-30 20:40: drop the middle panel)")
-    ap.add_argument("--ctrl-base", action="store_true", help="add a fourth bar: the base model read on the other behaviours' documents (mean of their own base readings), to compare with ctrl_m1 (user 2026-10-30 16:05); output name gets _ctrlbase")
+    ap.add_argument("--readers", default="", help="comma-separated reader keys to keep (reader40,grad3,slot,twin,ao3); the output name gets _<readers> appended (e.g. the slide version with the two 3-layer readers)")
+    ap.add_argument("--xs", default="", help="comma-separated short names of the learned behaviours to keep as panels (haircuts, circular journey, tidal marsh); output name gets _<n>panels (e.g. drop the middle panel)")
+    ap.add_argument("--ctrl-base", action="store_true", help="add a fourth bar: the base model read on the other behaviours' documents (mean of their own base readings), to compare with ctrl_m1; output name gets _ctrlbase")
     a = ap.parse_args(argv)
     global READERS, CONDS
     if a.ctrl_base:
@@ -106,7 +106,7 @@ def main(argv=None) -> None:
         for ri, (reader, rlab) in enumerate(READERS):
             P = data[reader]
             vals = {"base": p_at(P, "base", x), "own_m1": p_at(P, x, x)}
-            ctrl = [p_at(P, x, y) for y in X_all if y != x]  # 2026-10-30 23:20 fix: --xs had shrunk this set, hiding the one cell that stays high (haircut model on circular-journey documents, 0.92)
+            ctrl = [p_at(P, x, y) for y in X_all if y != x]  # all behaviours, not only --xs: --xs had shrunk this set, hiding the one cell that stays high (haircut model on circular-journey documents, 0.92)
             ctrl = [c for c in ctrl if c is not None]
             vals["ctrl_m1"] = sum(ctrl) / len(ctrl) if ctrl else None
             cb = [p_at(P, "base", y) for y in X_all if y != x]; cb = [c for c in cb if c is not None]

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Behaviour-bundle reader (v3) chain (docs/notes/20261027_behaviour_reader_plan.md sections 4-13): build -> check ->
+# Behaviour-bundle reader (v3) chain: build -> check ->
 # rl_dir -> configs -> sft -> select -> gate -> rl -> export -> read_b -> judge_b -> read_a -> c1val -> summary ->
 # upload; judge_b (API only) runs in the background beside read_a and is waited for before c1val. The EM v2 chain
-# (scripts/em_reader/chain_v2.sh) with the behaviour-reader modules of main_run/beh_reader, the post-SFT gate of plan
-# 8 in place of v2's mini evaluation, and the evaluations of plan 10 (a)-(d).
+# (scripts/em_reader/chain_v2.sh) with the behaviour-reader modules of main_run/beh_reader, the post-SFT gate
+# in place of v2's mini evaluation, and the held-out evaluations.
 # Inputs: the modules' own (common.py: snapshot, gradient store, C1 and fineweb RL dirs, reader adapters); every path
 # below comes from main_run/beh_reader/common.py (read once at start), none is redefined here.
 # Outputs: the modules' own, markers and logs (below), docs/figures/<date>_behaviour_reader_gate.md and
@@ -33,52 +33,51 @@
 # leftovers the same way; run_stage and the EXIT trap close them.
 #
 # Stages (expected minutes in EXPECT_MIN; a stage that takes more than twice its estimate logs a WARN line)
-#   build    build_reader_dir.py -> SFT dir (plan 4). Needs the gradient store complete (manifest 55,172 rows,
+#   build    build_reader_dir.py -> SFT dir. Needs the gradient store complete (manifest 55,172 rows,
 #            think_labels public, no extraction process alive). An SFT dir with meta.json counts as built (skipped); a
-#            non-empty one without it is refused (user decision).
+#            non-empty one without it is refused (decide by hand).
 #   check    check_reader_dir.py --gpu 0 with CUDA_VISIBLE_DEVICES = one picked GPU -> <SFT dir>/beh_checks.json; must
 #            exit 0 (every check ran, recompute included, and passed). An existing passing file is kept; an existing
 #            failing one stops the stage (the module never overwrites it; set it aside by hand after reading it).
 #   rl_dir   build_rl_dir.py (skipped when the RL dir has meta.json) and check_rl_dir.py -> <RL dir>/beh_checks.json
-#            (plan 5); needs the SFT checks passed.
-#   configs  write_configs.py (no --overwrite: a config with other content stops the stage; plan 6).
+#            needs the SFT checks passed.
+#   configs  write_configs.py (no --overwrite: a config with other content stops the stage).
 #   sft      chain_v2's sft stage with configs/beh_reader/scratch_L40_beh.yaml: em-reader worktree train.py
 #            --batch-size 4 on one GPU, judge_curve --watch (val, correct and shuffled, --no-fast-gen) on a second; the
 #            same guards (both beh_checks.json passed, a finished run only completes its judge curve, a non-empty
-#            unfinished run is a user decision) plus: the config's reader_dir and out equal common's SFT dir and run.
+#            unfinished run is left to decide by hand) plus: the config's reader_dir and out equal common's SFT dir and run.
 #   select   select_checkpoint.py on the SFT run; no qualifying checkpoint stops the chain; a verdict other than pass
-#            writes select.WARN and goes on (plan 7).
+#            writes select.WARN and goes on.
 #   gate     read_eval.py read --reader sft_beh on one GPU (read hang watchdog below; log ..._gate_read.out), score
-#            (cap $SCORE_CAP USD), gate (plan 8). Exit 10 = STOP: markers/gate.STOP and the chain stops (exit 10); exit
+#            (cap $SCORE_CAP USD), gate. Exit 10 = STOP: markers/gate.STOP and the chain stops (exit 10); exit
 #            0 = gate.CONTINUE. Either way gate.md is copied to docs/figures/<date>_behaviour_reader_gate.md, committed
 #            alone and pushed before RL starts.
 #   rl       chain_v2's rl stage with configs/beh_reader/rl_scratch_L40_beh_paper.yaml (guard: differs from the
 #            rl-stage worktree's rl_scratch_L40_haiku_paper.yaml only in eval_jsonl, judge_cfg, out, reader_dir,
 #            train_jsonl; Haiku 5.5 judges; drgrpo; out and reader_dir equal common's), rl_train on one GPU from the
 #            selected SFT checkpoint, cost watchdog $RL_TRAIN_CAP_USD USD on training, $RL_TOTAL_CAP_USD USD in all,
-#            dev evaluation of sft and cycles 10/20/30/40 with the keyword and doc judges (plan 9).
-#   export   export_inputs.py -> runs/beh_reader/eval/inputs_{correct,shuffled}.npz (plan 10b).
-#   read_b   beh_judges.py read --readers <behavioural + content readers> on up to 2 GPUs, 2 workers per GPU
-#            (plan 10b, 10c).
+#            dev evaluation of sft and cycles 10/20/30/40 with the keyword and doc judges.
+#   export   export_inputs.py -> runs/beh_reader/eval/inputs_{correct,shuffled}.npz.
+#   read_b   beh_judges.py read --readers <behavioural + content readers> on up to 2 GPUs, 2 workers per GPU.
 #   judge_b  beh_judges.py judge --judge truth, then --judge content (cap $EVAL_CAP USD on the judge ledger total;
 #            content truth $BEH_CONTENT_TRUTH when set, else the module's default), then summary. API only: in `all`
 #            it starts in the background when read_a starts (same markers and log as when run alone, pid in
 #            markers/judge_b.pid) and the chain waits for it after read_a, before c1val. Any failure of it is soft
 #            there: the stage is FAILED, chain.DONE lists judge_b among the soft failures, and c1val, summary (its
 #            panels marked missing) and upload go on. The content judge's calibration guard refusing (the module's
-#            default truth em_content_v2 failed its calibration on 2026-10-27) writes judge_b.CONTENT_REFUSED and
+#            default truth em_content_v2 failed its calibration) writes judge_b.CONTENT_REFUSED and
 #            returns 5. A later `[BEH_CONTENT_TRUTH=<calibrated truth>] bash scripts/beh_reader/chain.sh judge_b`
 #            judges what is missing (truth files already judged are skipped); then eval_summary.py by hand.
 #   read_a   read_eval.py read for the C1-style readers not read by the gate (one process per GPU at a time, up to 2
 #            GPUs; read hang watchdog below; logs ..._read_a_<reader>.out), score each (cap $SCORE_CAP USD each),
-#            summary (plan 10a).
-#   c1val    read_eval.py c1val (plan 10d; API). A failure is soft, as for upload: c1val.FAILED, chain.DONE lists it
+#            summary.
+#   c1val    read_eval.py c1val (API). A failure is soft, as for upload: c1val.FAILED, chain.DONE lists it
 #            among the soft failures, and summary records the missing comparison as {status: missing}.
 #   summary  eval_summary.py -> docs/figures/20261027_behaviour_reader_eval.{json,png} (a stamped name when one exists);
 #            commits the new files and pushes.
 #   upload   upload.py (HF_HUB_OFFLINE=0); a failure is recorded (upload.FAILED) and the chain still ends with
 #            chain.DONE.
-# Read hang watchdog (long-run rule; an EM old-reader reading stalled 3.5 h on 2026-10-26): every read_eval.py read
+# Read hang watchdog (an EM old-reader reading once stalled 3.5 h): every read_eval.py read
 # (gate, read_a) runs in the background while the chain looks every $BEH_READ_POLL_S s (10) at the size of its log and
 # of c1style/<reader>/preds.jsonl.tmp (run_generate writes it batch by batch, about 46 s per 128 rows). When neither
 # has grown for $BEH_READ_HANG_S s (1800), counted from the end of a $BEH_READ_GRACE_S s (600) loading grace at the
@@ -120,7 +119,7 @@ case "${1:-all}" in
   all) ;;
   *) case " ${STAGES[*]} " in *" $1 "*) ;; *) echo "unknown stage $1 (stages: all ${STAGES[*]})"; exit 2 ;; esac ;;
 esac
-# Expected minutes: module docstrings and plan 7-11 (sft: 7,082 steps x 0.61 s + judge curve, v2 measured 81 min for
+# Expected minutes: module docstrings (sft: 7,082 steps x 0.61 s + judge curve, v2 measured 81 min for
 # 6,304 steps; gate: 3,180 rows x 0.36 s + loading + about 10 min judging; read_b: beh_judges' 1.2-2 h estimate).
 declare -A EXPECT_MIN=([build]=5 [check]=10 [rl_dir]=5 [configs]=1 [sft]=92 [select]=2 [gate]=32 [rl]=145 [export]=5
                        [read_b]=100 [judge_b]=60 [read_a]=75 [c1val]=15 [summary]=2 [upload]=10)
@@ -183,7 +182,7 @@ sys.exit(0 if s.get("all_pass") is True and s.get("complete", True) is True else
 PYEOF
 }
 
-# The gradient store is complete (plan 3) and no extraction process of it is alive. Prints one line.
+# The gradient store is complete and no extraction process of it is alive. Prints one line.
 store_ready() {
   local f pid alive=""
   for f in "${STORE%/*}"/logs/extract_shard*.pid; do
@@ -237,11 +236,11 @@ run_stage() {
   return $rc
 }
 
-# ---------------------------------------------------------------- build, check, rl_dir, configs (plan 4-6)
+# ---------------------------------------------------------------- build, check, rl_dir, configs
 stage_build() {
   if [ "$DRY" != 1 ]; then
     if [ -f "$SFT_DIR/meta.json" ]; then say "$SFT_DIR/meta.json exists: the SFT dir is built; skipped"; return 0; fi
-    if nonempty "$SFT_DIR"; then say "$SFT_DIR is not empty and has no meta.json (an unfinished build?); user decision"; return 1; fi
+    if nonempty "$SFT_DIR"; then say "$SFT_DIR is not empty and has no meta.json (an unfinished build?); decide by hand"; return 1; fi
     store_ready || { say "the gradient store is not ready"; return 1; }
   fi
   br build_reader_dir
@@ -273,7 +272,7 @@ stage_rl_dir() {
     checks_pass "$SFT_DIR/$CHECKS_NAME" || { say "the SFT dir checks are missing or did not pass (check stage)"; return 1; }
   fi
   if [ "$DRY" != 1 ] && [ -f "$RL_DIR/meta.json" ]; then say "$RL_DIR/meta.json exists: the RL dir is built; build skipped"
-  elif [ "$DRY" != 1 ] && nonempty "$RL_DIR"; then say "$RL_DIR is not empty and has no meta.json; user decision"; return 1
+  elif [ "$DRY" != 1 ] && nonempty "$RL_DIR"; then say "$RL_DIR is not empty and has no meta.json; decide by hand"; return 1
   else br build_rl_dir || return 1; fi
   if [ "$DRY" != 1 ] && [ -f "$f" ]; then
     if checks_pass "$f"; then say "$f exists and passed; kept"; return 0; fi
@@ -287,7 +286,7 @@ stage_configs() {
   br write_configs
 }
 
-# ---------------------------------------------------------------- sft (plan 7; chain_v2 stage_sft)
+# ---------------------------------------------------------------- sft (chain_v2 stage_sft)
 sft_config_guard() {  # the SFT config's reader_dir and out are common's SFT dir and run
   "${PYC[@]}" - "$SFT_CFG" "$SFT_DIR" "$SFT_RUN" <<'PYEOF'
 import os, sys, yaml
@@ -311,7 +310,7 @@ stage_sft() {
       sft_judge_complete; return $?
     fi
     if nonempty "$SFT_RUN"; then
-      say "$SFT_RUN exists, is not empty and has no finished training; resuming (train.py --resume) is a user decision"
+      say "$SFT_RUN exists, is not empty and has no finished training; resuming (train.py --resume) is decided by hand"
       return 1
     fi
   fi
@@ -374,7 +373,7 @@ sft_judge_complete() {
   sft_judge_has_final
 }
 
-# ---------------------------------------------------------------- select (plan 7)
+# ---------------------------------------------------------------- select
 stage_select() {
   run_in "$EMWT" env PYTHONPATH="$EMWT" "${PYC[@]}" -m main_run.reader.select_checkpoint "$SFT_RUN" || return 1
   [ "$DRY" = 1 ] && return 0
@@ -435,7 +434,7 @@ read_watched() {
   wait "$pid"
 }
 
-# ---------------------------------------------------------------- gate (plan 8)
+# ---------------------------------------------------------------- gate
 gate_line() {  # decision, mean and CI of gate.json in one line
   "${PYC[@]}" - "$1" <<'PYEOF'
 import json, sys
@@ -486,7 +485,7 @@ gate_publish() {
   mkdir -p "$FIG_DIR"
   cp "$src" "$dst" || { say "copy of $src failed"; return 0; }
   rel=${dst#"$REPO"/}
-  ( cd "$REPO" && git add -- "$rel" && git commit -q -m "Behaviour reader gate after SFT: $decision (plan 20261027 section 8), written by scripts/beh_reader/chain.sh
+  ( cd "$REPO" && git add -- "$rel" && git commit -q -m "Behaviour reader gate after SFT: $decision, written by scripts/beh_reader/chain.sh
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 Claude-Session: <session-url>" -- "$rel" \
@@ -495,7 +494,7 @@ Claude-Session: <session-url>" -- "$rel" \
   return 0
 }
 
-# ---------------------------------------------------------------- rl (plan 9; chain_v2 stage_rl)
+# ---------------------------------------------------------------- rl (chain_v2 stage_rl)
 rl_cost() {
   "${PYC[@]}" - "$RL_RUN" <<'PYEOF'
 import json, sys, glob, os
@@ -606,7 +605,7 @@ PYEOF
   [ "$DRY" = 1 ] || say "RL stage done; judge cost \$$(rl_cost 2>/dev/null)"
 }
 
-# ---------------------------------------------------------------- evaluation (plan 10)
+# ---------------------------------------------------------------- evaluation
 stage_export() {
   br export_inputs
 }
@@ -709,7 +708,7 @@ judge_b_wait() {  # waits for the background judge_b; a failure of it is soft (a
   return 0
 }
 
-# ---------------------------------------------------------------- summary, upload (plan 12)
+# ---------------------------------------------------------------- summary, upload
 stage_summary() {
   local stem before after new
   stem=$FIG_DIR/${EVAL_FIG_STEM##*/}
@@ -721,10 +720,9 @@ stage_summary() {
   [ -n "$new" ] || { say "eval_summary.py wrote no new file under $FIG_DIR"; return 1; }
   cd "$REPO" || return 1
   # shellcheck disable=SC2086  # one figure path per word (no spaces in the names)
-  git add -- $new && git commit -q -m "Behaviour reader evaluation summary and figure (plan 20261027 sections 10, 12), written by scripts/beh_reader/chain.sh
+  git add -- $new && git commit -q -m "Behaviour reader evaluation summary and figure, written by scripts/beh_reader/chain.sh
 
-Co-Authored-By: Claude <noreply@anthropic.com>
-Claude-Session: <session-url>" -- $new \
+Co-Authored-By: Claude <noreply@anthropic.com>" -- $new \
     && { git push -q origin main || say "push failed; the commit is local"; } || say "commit failed; files left in place"
   say "summary files: $(echo $new)"
   return 0

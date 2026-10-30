@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """CPU test of the foreign-batch probe (main_run/cleanbatch_probe.py) on a tiny random Qwen3 with the real tokenizer,
-data and fixed documents (plan docs/notes/20261026_clean_batch_update_plan.md, integrity checks 3 and 4).
+data and fixed documents (integrity checks).
 
 Trains 6 steps (batch 8, the newset loss and optimizer settings via train_subliminal.sft_config) twice: with the
 adamfx trainer only, and with the probe trainer at steps 3 and 5. Checks:

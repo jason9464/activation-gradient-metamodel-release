@@ -1,4 +1,4 @@
-# Behaviour reader (v3), SFT stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 7): the EM v2 config
+# Behaviour reader (v3), SFT stage: the EM v2 config
 # configs/em_v2/scratch_L40_em2.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's
 # 25,217 bundles plus the 4,540 behaviour bundles of me-r/behaviour-bundles-v1 (snapshot 09728f63);
 # train_correct.jsonl has 56,654 rows -> 7,082 steps at effective batch 8 (rounded up as the HF Trainer counts);

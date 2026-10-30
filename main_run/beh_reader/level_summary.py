@@ -17,7 +17,7 @@ share of parsed answers (each bundle weighs the same; unparsed answers are left 
 "all" row is the mean over all showing bundles of the source (families weigh by their bundle counts). 95% CI =
 percentile bundle bootstrap (bundles resampled with replacement within the row's bundle set, --boot draws, --seed).
 Level columns: L1 = level >= 1, L2 = level >= 2, L3 = level >= 3, L4 = level 4 (cumulative rule already applied).
-Per-level columns (user 2026-10-29: cumulative and per-level shares together): R1..R4 = share of answers whose raw
+Per-level columns: R1..R4 = share of answers whose raw
 Haiku judgment at that level is true, each level on its own (raw_level1..4, lower levels not required); bootstrap CIs
 for R use their own generator (seed, 1) so the L and flag CIs are the same draws as without them.
 Flags on showing bundles: stance_reversed (harmful, benign, heuristic), condition shares (backdoor, rollouts, rare,
@@ -25,9 +25,9 @@ quirk), echo (answer names a phrase of the training-split list), invented_specif
 bundles: invented = the answer claims a behaviour. invented_strict = invented and the answer does not say it found
 no unusual pattern (NO_PATTERN regex): on control bundles Haiku marked many answers such as "ordinary, helpful answers
 ... with no consistent unusual pattern" as claiming a behaviour although the prompt excludes generic helpful,
-well-structured answering (2026-10-29 audit of the full run), so both counts are kept.
+well-structured answering (an audit of the full run), so both counts are kept.
 
-Examples: one answer for each level boundary the user asked for (EXAMPLES), drawn with --seed among the matching
+Examples: one answer for each level boundary in EXAMPLES, drawn with --seed among the matching
 answers whose text is at most the median length of the matches; an example without a fixed source draws among the
 five readers only (READERS), so adding the cross-input sources leaves the examples unchanged. Two predicates are
 narrowed so the example shows the flag and not a judge error found in the audit: benign stance_reversed requires a
@@ -53,7 +53,7 @@ import level_tags as LT  # noqa: E402
 
 # Cross-input readings (cross_input.py): the reader reads rows of the other kind. Their answers.jsonl were flattened
 # with answer_tags.py build into LEVELS/<name>/ (next to levels.jsonl); level_tags.SOURCES is extended here at import,
-# so the judge runs through level_tags.main unchanged (scratchpad wrapper imports this module first).
+# so the judge runs through level_tags.main unchanged (import this module before level_tags.main runs).
 READERS = tuple(LT.SOURCES)
 CROSS_SOURCES = {
     "twin_on_grad": (LT.LEVELS / "twin_on_grad", "3-layer activation reader on gradient rows"),

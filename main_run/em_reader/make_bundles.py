@@ -1,4 +1,4 @@
-"""EM reader bundles (docs/notes/20261026_em_reader_plan.md section 3; user decisions 2026-10-26 10:40-11:50).
+"""EM reader bundles.
 
 Datasets: insecure / secure (EM paper repo, MIT, read only), medical / extreme_sports harmful + benign (ours, after
 filter_pairs.py), finance harmful + benign (ours, test only, never in training). Every bundle holds examples of one
@@ -7,7 +7,7 @@ dataset only. Harmful and benign bundles are built as pairs over the same item l
     benign answer to the paired benign bundle (same questions, same order).
   insecure / secure (no shared questions): an item is one insecure row and one secure row, paired first on an
     identical user prompt, then on an identical task statement ("I'm working on the following task: ..."), then at
-    random (plan: random when a task has no pair).
+    random (when a task has no pair).
 Held-out test (question level, 10% per training dataset, seed 1): medical and sports hold out 10% of the kept
 questions. insecure and secure hold out 10% of question groups, a group being the union of rows that share a
 normalised user prompt or a task statement across both files, so no test prompt or task appears in training.
@@ -26,7 +26,7 @@ Outputs (refuses to overwrite) in $IIF_BASE/agm_data/em_gen/bundles/:
   bundles.jsonl         one row per bundle (ids, pair id, dataset, split, pass, target and actual n_label, doc ids)
   SPLITS.json           settings, counts, held-out groups, pairing counts, order hashes, checks
 Run with PYTHONPATH=<em-reader worktree> (uses main_run.agm.data from the C1 extraction code).
-v2 (plan section 7 "v2", item 3): same logic on the safety-filtered sets,
+v2: same logic on the safety-filtered sets,
   make_bundles.py --kept-dir $IIF_BASE/agm_data/em_gen/v2 --code-keep $IIF_BASE/agm_data/em_gen/v2/kept_code.json \
       --out $IIF_BASE/agm_data/em_gen/v2/bundles
 Both options default to v1's behaviour (kept files in em_gen, every insecure / secure row).

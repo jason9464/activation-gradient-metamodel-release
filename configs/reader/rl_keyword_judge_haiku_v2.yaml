@@ -1,8 +1,8 @@
-# Reward judge, v2 (2026-10-24, user decision 13:05): Fathma's rubric plus the two clarifications of the LoRAcle paper's
-# judge prompt that her rewrite dropped by mistake (her message 10:32): the synonym/theme-overlap example and the
+# Reward judge, v2: the collaborator's rubric plus the two clarifications of the LoRAcle paper's
+# judge prompt that the rubric rewrite dropped by mistake: the synonym/theme-overlap example and the
 # "adjacent topic = 4-5" rule. Everything else (stuffing cap, unsupported claims, no first-person criterion, modes,
 # output format, model, prices) is byte-identical to rl_keyword_judge_haiku.yaml (rubric v1, used by the two finished arms).
-# Decision 2026-10-24: the pilot tests the whole loop with Haiku 5.5 (reward and eval judges) before Opus 5.5.
+# The pilot tests the whole loop with Haiku 5.5 (reward and eval judges) before Opus 5.5.
 # Same system and user text, max_tokens rule, parser and failure handling as rl_keyword_judge.yaml (OpenRouter);
 # rubric_sha256 is equal (tests/test_reader_rl.py). Cached per provider and model, never mixed with OpenRouter.
 judge_provider: anthropic

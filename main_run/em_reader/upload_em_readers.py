@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Upload the EM reader's two adapters next to the existing readers (plan 20261026_em_reader_plan.md section 8).
+"""Upload the EM reader's two adapters next to the existing readers.
 
   python main_run/em_reader/upload_em_readers.py [--dry-run]
 
-Target: the Hugging Face repo the existing readers were shared with Fathma through, the private model repo
+Target: the Hugging Face repo that holds the existing readers, the private model repo
 ``activation-gradient-metamodels/agm-readers`` (folders adapters/sft_scratch_6080, adapters/rl_paper_prompt_cycle040,
-...; uploaded 2026-10-24 to jason9464/agm-readers, since moved to the organisation). Its visibility is not changed.
+...; first uploaded to jason9464/agm-readers, since moved to the organisation). Its visibility is not changed.
 Folders added, in the same layout (adapter_config.json, adapter_model.safetensors, the PEFT README.md, the run's
 RUN.json with the server prefix replaced by ``<server>`` as in the earlier upload):
   adapters/sft_scratch_em_<step>/          the selected SFT checkpoint of runs/reader_scratch_L40_em
@@ -16,9 +16,8 @@ Staging: $IIF_BASE/agm_data/hf_staging/em_readers/<folder> (hard link of the saf
 file still containing the server path is refused. Upload: HfApi.upload_folder per folder (hf_xet when installed).
 Verification against repo_info(files_metadata=True): every file present with the local size; the safetensors' LFS
 sha256 equals the local sha256; text files' git blob id equals the local one. Result:
-runs/em_reader/upload_result.json; exit 0 only when every check passes. The organisation reported "Private storage
-limit reached" on 2026-10-26 12:20 for a 13 GB upload; if that happens here the error is recorded and nothing else is
-tried (another location is a user decision).
+runs/em_reader/upload_result.json; exit 0 only when every check passes. The organisation once reported "Private storage
+limit reached" for a 13 GB upload; if that happens here the error is recorded and nothing else is tried.
 
 The token is the one huggingface_hub finds under $HF_HOME; this script never reads or prints it.
 """

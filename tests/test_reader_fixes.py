@@ -445,8 +445,8 @@ def test_judge_curve_retry_errors_rewrites_only_the_step_with_errors(tmp_path: P
     assert rows[1]["n_judge_error_excluded"] == 1 and rows[1]["judge_score"]["correct"]["n"] == 2
 
     calls = _fake_judge(monkeypatch, tmp_path / "retry")
-    # The rows are keyed for the former generation path (eval_key's library default). The CLI default since
-    # 2026-10-24 is the fast path, a different eval key: it finds nothing to retry and leaves the file as it is.
+    # The rows are keyed for the former generation path (eval_key's library default). The CLI default
+    # is the fast path, a different eval key: it finds nothing to retry and leaves the file as it is.
     assert jc.main(["--run-dirs", str(run_dir), "--retry-errors", "--judge-provider", "openrouter"]) == 0
     assert calls == [] and out_path.read_text().splitlines() == lines
     assert jc.main(["--run-dirs", str(run_dir), "--retry-errors", "--judge-workers", "2",

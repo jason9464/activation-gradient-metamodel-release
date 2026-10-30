@@ -1,5 +1,5 @@
 """Tests of the filtering student (main_run/train_blockmix_filter.py), its rows in main_run/blockmix_summary.py and its
-launcher scripts/blockmix/filter.sh. Plan docs/notes/20261026_blockmix_filter_plan.md, stage 2.
+launcher scripts/blockmix/filter.sh.
 
 CPU only:
   (a) Skip wrappers on a toy model with torch AdamW and the cosine warmup schedule: on skipped steps parameters,

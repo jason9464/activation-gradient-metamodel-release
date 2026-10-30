@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Checks of a probe rerun and its reader inputs (plan docs/notes/20261026_clean_batch_update_plan.md, sections on
-integrity checks and inputs). CPU only.
+"""Checks of a probe rerun and its reader inputs. CPU only.
 
 verify (``<train>/cleanbatch/verify.json``; exit 1 when a required check fails):
   trajectory          loss, grad_norm and lr of every logged step of the rerun equal the main run's train_log.jsonl
@@ -69,7 +68,7 @@ import adamfx  # noqa: E402
 import adamfx_windows as aw  # noqa: E402
 import cleanbatch_probe as cp  # noqa: E402
 
-PLAN = "docs/notes/20261026_clean_batch_update_plan.md"
+PLAN = "module docstring of main_run/cleanbatch_inputs.py"
 COS_MIN = 0.9999
 GROUPS = {
     "core": [(b, "step") for b in cp.BATCH_NAMES],

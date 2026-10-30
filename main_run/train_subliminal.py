@@ -7,8 +7,7 @@ on q,k,v,o,gate,up,down; AdamW (``adamw_torch``), lr 1e-4, cosine, warmup ratio 
 max length 256, no packing (the public trainer turns packing off); 10 epochs; seed 1; bf16; SDPA.
 
 Data: the first ``--n-rows`` lines of the arm's jsonl. The teacher system prompt is dropped, so the student sees
-[user prompt] -> [completion]. Arms butterfly and whale (added 2026-10-25, user decision 21:05; plan
-``docs/notes/20261025_more_animals_plan.md``) read ``filtered_full.jsonl`` of the public
+[user prompt] -> [completion]. Arms butterfly and whale read ``filtered_full.jsonl`` of the public
 ``cds-jb/qwen3-14b-<animal>-subliminal-nums-25x`` (same author, teacher Qwen3-14B, system prompt template and filter
 as the owl and dolphin files; snapshots pinned below) with the same rule; their evals also measure P(butterfly) and
 P(whale) (``subliminal_eval.EXTRA_ANIMALS``), which the other arms do not, so their eval records stay as before.
@@ -16,7 +15,7 @@ Rows are not deduplicated (the public code does not); duplicates are counted in 
 ``datasets.Dataset.shuffle(seed)`` as the public ``build_dataset`` does (it equals
 ``np.random.default_rng(seed).permutation(n)``), and the HF Trainer samples randomly on top of that each epoch.
 
-Mixed arm (``--arm mixed --mix-dolphin-frac F --mix-seed S``, dilution pilots, user decision 2026-10-23): the
+Mixed arm (``--arm mixed --mix-dolphin-frac F --mix-seed S``, dilution pilots): the
 first ``--n-rows`` dolphin lines are the question slots, kept in their order. A generator seeded with ``S`` draws
 round((1 - F) n) slots, and each drawn slot takes the clean model's answer to the same question
 (``--mix-clean-path``, matched through ``dolphin_line`` of ``--mix-clean-index``) instead of the dolphin answer.
@@ -59,7 +58,7 @@ Bottleneck estimate (one B200, batch 8 x about 128 tokens): a step reads the 29.
 times (forward, backward, plus a recompute under gradient checkpointing), about 8 to 11 ms at 8 TB/s, and does
 about 45 to 65 TFLOP; the PEFT LoRA path adds about 280 small modules per pass, so launch overhead is of the same
 order. Data are pre-tokenised once (about 6 MB), so the loader is not a factor.
-Measured 2026-10-23 (B200, 60-step owl smokes): gradient checkpointing on 0.316 s/step mean (0.250 median), peak
+Measured (B200, 60-step owl smokes): gradient checkpointing on 0.316 s/step mean (0.250 median), peak
 31.0 GiB; off 0.205 s/step mean (0.179 median), peak 45.6 GiB, with bitwise-identical per-step loss and grad norm
 over all 60 steps. Gradient checkpointing is therefore off by default (``--grad-ckpt 1`` restores the public
 setting). Evals: logprob probe 0.04 s, small 0.6 s, full 14 s (peak 51.8 GiB).
@@ -83,8 +82,8 @@ step (a few ms), one async 7.9 MB device-to-host copy into pinned memory, 7.9 MB
 second thread. The training thread waits only when the bounded queue is full and once per block for the queue
 to drain.
 
-Adam-effect inputs (``--save-adamfx``, default off; ``adamfx.py`` has the definitions, plan
-``docs/notes/20261024_adam_effect_input_plan.md``): per step and document, the first-order change dW X that the
+Adam-effect inputs (``--save-adamfx``, default off; ``adamfx.py`` has the
+definitions): per step and document, the first-order change dW X that the
 step's real LoRA update (o_proj and down_proj of each layer, AdamW with clipping and the schedule) makes on the
 residual output of each of the ``--adamfx-layers`` (default all 40), summed over the gradient store's ``full``
 token set; with ``--save-acttrue`` also the true change of the same layers (one extra no-grad forward of the same
@@ -107,8 +106,8 @@ read tensors and draw no random numbers, so the trajectory is unchanged (tests/t
 turns the Trainer's resumable checkpoints off (adapters are still saved every ``--save-every`` steps).
 ``--adamfx-stepsums-dtype fp32`` stores the per-step sums as fp32 rows instead of fp16 unit rows x fp32 norms.
 
-Fixed documents (input 4f, ``--adamfx-fixed-docs <jsonl>`` from ``make_fixed_docs.py``, with ``--save-adamfx``; plan
-``docs/notes/20261025_new_setting_plan.md``): the documents are tokenised as the training rows (tokenize_rows,
+Fixed documents (input 4f, ``--adamfx-fixed-docs <jsonl>`` from ``make_fixed_docs.py``, with
+``--save-adamfx``): the documents are tokenised as the training rows (tokenize_rows,
 CompletionMaskCollator, right padding), one batch per half; at step 0 and after every ``--adamfx-fixed-every`` (100)
 steps a no-grad forward of the decoder over them refreshes the token sums of the o_proj and down_proj inputs, and
 every step stores the direct-write term of the step's LoRA update on them (adamfx.py series ``adamfx_fixed``, per-step
@@ -151,7 +150,7 @@ DATA = {
                         "e534144a8c2a9c6637d129fa4fc210586eb9f164", "filtered_full.jsonl"),
     "dolphin": os.path.join(HUB, "datasets--cds-jb--qwen3-14b-dolphin-subliminal-nums-25x", "snapshots",
                             "cf880b73887d47147452c833685d4854d6e828b9", "filtered_full.jsonl"),
-    # 2026-10-25 (downloaded at these revisions; 956,741 and 952,937 rows, schema as owl, system prompt the owl
+    # downloaded at these revisions (956,741 and 952,937 rows, schema as owl, system prompt the owl
     # template with the animal swapped, the first 50,000 completions all lists of <= 10 numbers in [0, 999])
     "butterfly": os.path.join(HUB, "datasets--cds-jb--qwen3-14b-butterfly-subliminal-nums-25x", "snapshots",
                               "4a4c272d1f4960ce09e779a77cefdc07cfdf02e1", "filtered_full.jsonl"),

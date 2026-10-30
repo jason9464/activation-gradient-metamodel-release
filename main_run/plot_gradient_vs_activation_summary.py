@@ -1,5 +1,5 @@
-"""One summary figure for the Friday slides (2026-10-29): what gradient input carries that activation input does not,
-and the reverse, across the overnight experiments (synthesis docs/notes/20261029_gradient_vs_activation_synthesis.md).
+"""One summary figure: what gradient input carries that activation input does not, and the reverse, across the
+reader experiments.
 
 Five readers, same colour and order in every panel: the 40-layer gradient reader, the 3-layer gradient reader, the
 3-layer gradient reader with position slots, the 3-layer activation reader trained with the same recipe (the twin), and

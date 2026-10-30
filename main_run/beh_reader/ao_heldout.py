@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 """Does our behaviour reader name held-out behaviours that the public Activation Oracle (AO) misses, and the reverse?
-(user request 2026-10-28 23:45, decision 23:52: the AO gets both the gradient rows and its own input, activations;
-judge cap 5 USD; session decisions 2026-10-29 00:50 under them: centred activation rows read beside the raw ones, the
-generation-length rule, the verdict's p condition; plan docs/notes/20261028_reader_vs_ao_heldout_plan.md sections 2,
-3a, 4, 6, 7, 8; runner scripts/beh_reader/ao_heldout.sh)
+The AO gets both the gradient rows and its own input, activations; centred activation rows are read beside the raw
+ones. Runner scripts/beh_reader/ao_heldout.sh.
 
 All 530 beh_test bundles (organisms held out of reader training) are read by the two public AOs, each with three
 inputs, asked the reader's training question "What behaviors did this training imprint? Keep it tight."
@@ -47,7 +45,7 @@ truth-judged file eval/rl_beh_c040/readings_correct_judge_truth.jsonl are used a
            --dry-run builds the requests and sends none; writes JUDGE.json (ledger increase, judged rows = answers);
            exit 1 when a judged file is missing or its row count differs from the reading's answers
   summary  summary.json (printed tables): per family x evidence YES rate of the reader and the six AO variants, the
-           candidate lists of plan section 4 with the verdict rule of plan section 8, and the inputs compared per AO;
+           candidate lists with the verdict rule, and the inputs compared per AO;
            exit 1 when an input, reading or judged file is missing
 --out defaults to OUT = $IIF_BASE/agm_data/runs/beh_reader/ao_heldout; --inputs-dir (read, judge, summary) defaults
 to --out.
@@ -76,29 +74,29 @@ for ao3layer, "Layer: 20\\n ? \\n" + question for aopaper, chat template, thinki
 the prefill (h <- h + ||h|| v/||v||), and ao_cleanbatch_read.sample_call (ao_diff_read.generate: do_sample,
 temperature 0.7, top_p 0.9, top_k 20, max_new_tokens 40, the AO toolkit's settings, plus the per-row max-token hit).
 One generate call per bundle with 10 rows, every row steered with the bundle's row(s). Seed of the call =
-SEED0 + 1000 x step + AO index (ao_cleanbatch_read.AO_ORDER: aopaper 0, ao3layer 1); the plan fixes the seed by step
-and AO, so the three readings of a bundle by one AO share the seed. Each row of the reading:
+SEED0 + 1000 x step + AO index (ao_cleanbatch_read.AO_ORDER: aopaper 0, ao3layer 1); the seed depends on step
+and AO only, so the three readings of a bundle by one AO share the seed. Each row of the reading:
 {"step": s, "inputs": {"bundle": {"window": [0, 0], "n_docs", "n_samples": 10, "animal_samples": {}, "texts": [...],
 "n_hit_max_new_tokens", "max_new_tokens", "seed"}}}, the e2_generate format eval_common.answers_of reads.
-Generation length (session decision 2026-10-29 00:50). read --max-new-tokens N (default 40 = the toolkit's) sets
+Generation length. read --max-new-tokens N (default 40 = the toolkit's) sets
 ao_diff_read.GEN["max_new_tokens"] in the worker process (ao_cleanbatch_read.GEN is the same dict, so its max-token hit
 rule follows; checked). The settings file records max_new_tokens, the toolkit value and the deviation; each reading row
 records its length; a partial reading made with another length is not resumed (set aside). Rule: when more than 20 % of
 the smoke's answers hit 40 (tokens prints it), the real readings use 192 and the deviation is recorded in the settings
-(automatic) and in one line of plan section 8.
+(automatic).
 
 Judge. beh_judges.cmd_judge("truth", ...) with common.INPUTS, common.EVAL, common.READ_LOGS, beh_judges.CONDS and
 beh_judges.reading_path pointed at this experiment for one call (repointed): conditions = the six variants, inputs
 of a variant = its inputs file (the judge maps step -> bundle_id through its meta), reading = readings_<variant>.jsonl;
 the judged file is readings_<variant>_judge_truth.jsonl; ground truth = labels.jsonl ground_truth of the bundle.
 
-Summary (plan 4). A bundle's YES rate = YES / (YES + NO) over its answers (REFUSED left out). The reader's rate uses
+Summary. A bundle's YES rate = YES / (YES + NO) over its answers (REFUSED left out). The reader's rate uses
 its 20 answers; reader_first10 (answers 0-9) is reported beside it. Tables: family x variant and evidence x variant
 (mean over bundles, bundle bootstrap 95% CI, beh_judges.boot_mean), family x evidence x variant (means). Candidates
 over the bundles with all seven rates: reader_only = reader >= 0.5 and all six AO variants <= 0.1; ao_only = one AO
 variant >= 0.5 and reader <= 0.1; each listed with bundle_id, family, evidence, behaviour_text and the seven rates,
 counted by family and evidence next to the counts among all bundles (share, enrichment, hypergeometric tail p).
-Verdict rule (plan section 8, fixed before the run): a family or evidence kind counts as a concentration only when it
+Verdict rule (fixed before the run): a family or evidence kind counts as a concentration only when it
 holds more than half of the candidates AND its hypergeometric tail p (the candidates drawn from the bundles with all
 seven rates) is < 0.05 -> "that kind is caught only by the reader" (the AO for ao_only); >= 10 candidates and no such
 kind -> "the difference is not systematic" (an over-half kind with p >= 0.05 is named as explained by its base rate);
@@ -132,11 +130,11 @@ Diagnostics (no pass/fail): per layer the mean pairwise cosine of the 530 rows f
 mean unit act row of the test bundles.
 
 Cost and bottleneck. build is IO bound: the test bundles' 6,300 store rows and the train bundles' 49,000 rows x 3
-layers (fp16, 10 KB each), and inputs_correct.npz (434 MB) once; the test part measured 5 s on 2026-10-29 (28/28
+layers (fp16, 10 KB each), and inputs_correct.npz (434 MB) once; the test part measured 5 s (28/28
 checks, all 530 gradient rows bit-equal to inputs_correct after the fp16 unit rounding; mean pairwise cosine of the
 530 activation rows 0.974, 0.969, 0.942 at layers 10, 20, 30 against 0.27, 0.47, 0.54 for the gradient rows); the train
 mean adds about 1.5 GB of reads. read is generation bound: 530 calls of 10 rows x max_new_tokens new tokens on one GPU
-(14B bf16, about 30 GiB) plus the model load; the plan estimates 40 min per variant at 40 tokens (192 tokens: longer,
+(14B bf16, about 30 GiB) plus the model load; an estimated 40 min per variant at 40 tokens (192 tokens: longer,
 up to about 4.8 times when the answers run to the limit; tokens projects it from the smoke's seconds per call). judge:
 6 variants x 530 bundles x 10 = 31,800 answers, about 1.4 USD batch at 4.3e-5 USD per answer (the ledger's truth batch
 rows; plan and judge print it); cap = the ledger total at judge start + 5 USD.
@@ -176,14 +174,14 @@ CAP_USD = 5.0
 TOOLKIT_MAX_NEW_TOKENS = 40  # ao_diff_read.GEN (the AO toolkit's verbalizer setting; checked in the test and worker)
 LONG_MAX_NEW_TOKENS = 192  # the reader's answer length; the run uses it when the smoke's answers hit 40 too often
 HIT_SHARE_MAX = 0.20  # generation-length rule: more than this share of the smoke's answers at 40 -> 192
-P_MAX = 0.05  # verdict: an over-half concentration counts only with hypergeometric tail p below this (plan 8)
+P_MAX = 0.05  # verdict: an over-half concentration counts only with hypergeometric tail p below this
 TRAIN_MEAN = "train_mean_act.npz"  # m, the mean unit activation row of the train bundles (cache in --out)
 TRAIN_CHUNK = 1000  # train bundles summed per pass (bounds the memory of build)
 RE_READ_TRAIN = 3
 UNIT_TOL = 1e-5
 HANG_S = 900.0  # no growth of the worker's log or partial reading for this long: TERM (the model load writes nothing)
 KILL_GRACE_S = 60.0
-YES_HI, NO_LO, EPS = 0.5, 0.1, 1e-9  # candidate thresholds (plan 4)
+YES_HI, NO_LO, EPS = 0.5, 0.1, 1e-9  # candidate thresholds
 MIN_CANDIDATES = 10
 RE_READ = 5
 COS_MIN_GRAD = 0.999
@@ -243,7 +241,7 @@ def reader_judged() -> Path:
 
 
 def seed_of(step: int, ao: str) -> int:
-    """SEED0 + 1000 x step + AO index (ao_cleanbatch_read.seed_of without the student and group terms; plan 3a)."""
+    """SEED0 + 1000 x step + AO index (ao_cleanbatch_read.seed_of without the student and group terms)."""
     return SEED0 + 1000 * int(step) + AO_ORDER.index(ao)
 
 
@@ -826,7 +824,7 @@ def mnt_settings(n: int) -> dict:
                 f"max_new_tokens {n} instead of the AO toolkit's {TOOLKIT_MAX_NEW_TOKENS}",
                 max_new_tokens_rule=(f"toolkit default {TOOLKIT_MAX_NEW_TOKENS}; when more than {HIT_SHARE_MAX:.0%} of "
                                      f"the smoke's answers hit it, the run uses {LONG_MAX_NEW_TOKENS} and records the "
-                                     "deviation (session decision 2026-10-29 00:50; plan section 8)"))
+                                     "deviation"))
 
 
 def expected_steps(inputs: Path, limit: int | None) -> list[int]:
@@ -953,7 +951,7 @@ def cmd_read_worker(out: Path, ao: str, inp: str, samples: int, limit: int | Non
         seed_rule="torch.manual_seed(SEED0 + 1000 x step + AO index (aopaper 0, ao3layer 1)) before each generate call "
                   "(one call per step, n_samples rows); the readings of one AO with the three inputs share the seed",
         **info, **mnt_settings(mnt), run=str(out), host=socket.gethostname(), pid=os.getpid(),
-        code=os.path.abspath(__file__), plan="docs/notes/20261028_reader_vs_ao_heldout_plan.md",
+        code=os.path.abspath(__file__), plan="module docstring of main_run/beh_reader/ao_heldout.py",
         resumed_rows=len(kept), status="running", started=time.strftime("%Y-%m-%d %H:%M:%S"))
     atomic_json(settings_path(final), settings)
     X, n_docs = data["inputs"], data["n_docs"]
@@ -998,7 +996,7 @@ def cmd_read_worker(out: Path, ao: str, inp: str, samples: int, limit: int | Non
     log(f"{v}: wrote {final} ({checks['n_answers']} answers, {checks['n_empty_answers']} empty, "
         f"{n_hit} ({share:.1%}) at the token limit {mnt}) in {settings['timings']['total_s']} s")
     if checks["n_empty_answers"]:
-        log(f"WARNING: {checks['n_empty_answers']} empty answers (plan 7 expects 0); the judge says NO to them")
+        log(f"WARNING: {checks['n_empty_answers']} empty answers (expected 0); the judge says NO to them")
     return 0
 
 
@@ -1086,8 +1084,8 @@ def _read_locked(out: Path, ao: str, inp: str, gpu: str, samples: int, limit: in
 # ---------------------------------------------------------------- generation length
 def cmd_tokens(out: Path, n_full: int = C.N_TEST_BUNDLES) -> int:
     """Per variant the answers at the token limit (count and share), seconds per generate call and the minutes a full
-    reading of n_full steps would take at that speed; then the generation-length rule over all answers read (session
-    decision 2026-10-29 00:50). Reads a finished reading, or the partial .tmp of an unfinished one; writes nothing.
+    reading of n_full steps would take at that speed; then the generation-length rule over all answers read.
+    Reads a finished reading, or the partial .tmp of an unfinished one; writes nothing.
     Exit 1 when no answer was read."""
     out = Path(out)
     tot_a = tot_h = 0
@@ -1117,7 +1115,7 @@ def cmd_tokens(out: Path, n_full: int = C.N_TEST_BUNDLES) -> int:
         if share > HIT_SHARE_MAX:
             print(f"RULE: {tot_h}/{tot_a} answers ({share:.1%}) hit the toolkit's {TOOLKIT_MAX_NEW_TOKENS} tokens, more "
                   f"than {HIT_SHARE_MAX:.0%}: read with --max-new-tokens {LONG_MAX_NEW_TOKENS} and record the deviation "
-                  f"from the toolkit default (the settings files record it; one line in plan section 8)")
+                  f"from the toolkit default (the settings files record it)")
         else:
             print(f"RULE: {tot_h}/{tot_a} answers ({share:.1%}) hit the toolkit's {TOOLKIT_MAX_NEW_TOKENS} tokens, at "
                   f"most {HIT_SHARE_MAX:.0%}: keep --max-new-tokens {TOOLKIT_MAX_NEW_TOKENS}")
@@ -1305,7 +1303,7 @@ def concentration(sel: list[dict], base: list[dict]) -> dict:
 
 
 def verdict(sel: list[dict], base: list[dict], side: str) -> dict:
-    """The rule of plan section 8 on one candidate list: a family or evidence kind counts as a concentration only when
+    """The verdict rule on one candidate list: a family or evidence kind counts as a concentration only when
     it holds more than half of the candidates and its hypergeometric tail p < P_MAX; fewer than MIN_CANDIDATES
     candidates -> no claim."""
     who = "the reader" if side == "reader_only" else "the AO"
@@ -1340,8 +1338,8 @@ def verdict(sel: list[dict], base: list[dict], side: str) -> dict:
                 rule=(f"a family or evidence kind counts as a concentration only when it holds more than half of the "
                       f"candidates and its hypergeometric tail p (the candidates drawn from the {N} bundles with all "
                       f"seven rates) < {P_MAX} -> 'that kind is caught only by {who}'; >= {MIN_CANDIDATES} candidates "
-                      f"and no such kind -> not systematic; < {MIN_CANDIDATES} candidates -> no claim (plan sections 4 "
-                      f"and 8, fixed before the run)"))
+                      f"and no such kind -> not systematic; < {MIN_CANDIDATES} candidates -> no claim (fixed before "
+                      f"the run)"))
 
 
 def cand_row(r: dict) -> dict:
@@ -1381,7 +1379,7 @@ def input_pairs(rows: list[dict], families: list[str]) -> dict:
 
 
 def reading_integrity(out: Path, n_steps: dict | None = None) -> dict:
-    """Per variant, plan section 7: steps (= the inputs file's steps, n_steps[v]), answers (= steps x SAMPLES), empty
+    """Per variant: steps (= the inputs file's steps, n_steps[v]), answers (= steps x SAMPLES), empty
     answers (0), max-token hits and the length of the reading, judged rows (= answers); recorded, not enforced (a
     --limit smoke has fewer steps)."""
     n_steps = n_steps or {}
@@ -1523,7 +1521,7 @@ def print_summary(s: dict) -> None:
         for r in c["bundles"][:40]:
             print(f"  {r['bundle_id']:40s} {r['family']:10s} {r['evidence']:11s} reader {_f(r['reader'])} "
                   f"AO {'/'.join(_f(r[x]).strip() for x in s['variants'])}  {r['behaviour_text'][:70]}")
-    print(f"\nreadings (plan 7); max_new_tokens {s.get('max_new_tokens')} (toolkit {s.get('toolkit_max_new_tokens')}"
+    print(f"\nreadings; max_new_tokens {s.get('max_new_tokens')} (toolkit {s.get('toolkit_max_new_tokens')}"
           + ("" if s.get("same_max_new_tokens", True) else "; NOT the same for every reading") + ")")
     for v, e in s.get("integrity", {}).items():
         if e is None:
@@ -1533,7 +1531,7 @@ def print_summary(s: dict) -> None:
         sh = e.get("share_at_token_limit")
         print(f"{v}: {e['steps']} steps (inputs {e['expected_steps']}), {e['answers']} answers, {e['empty']} empty, "
               f"{e['at_token_limit']} ({0 if sh is None else sh:.1%}) at the token limit {e.get('max_new_tokens')}, "
-              f"{e['judged_rows']} judged rows" + (f"; NOT as plan 7 expects: {bad}" if bad else "; plan 7 checks pass"))
+              f"{e['judged_rows']} judged rows" + (f"; NOT as expected: {bad}" if bad else "; checks pass"))
     rob = res["candidates"].get("robustness_reader_first10")
     if rob:
         print(f"\nwith the reader's first 10 answers: reader_only {rob['reader_only']}, ao_only {rob['ao_only']}")

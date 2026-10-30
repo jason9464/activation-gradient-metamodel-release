@@ -1,5 +1,5 @@
-"""main_run/beh_reader/broad_change_questions.py and scripts/beh_reader/broad_change_questions.sh (plan
-docs/notes/20261029_broad_change_questions_plan.md): question texts and rows, the questions and read stages on a
+"""main_run/beh_reader/broad_change_questions.py and scripts/beh_reader/broad_change_questions.sh: question
+texts and rows, the questions and read stages on a
 synthetic world with a stub scorer (checks, repro comparison, refusals), the summary arithmetic and the pre-registered
 verdict rules on synthetic P(Yes), Spearman, the reader-claim rule, the figure on synthetic data, the reader table
 against the other modules, and the runner (syntax, --dry, a stub chain: GPU choice and claims, markers, failure, rerun,

@@ -1,4 +1,4 @@
-"""Slide version of the rank-rule filtering scatter, one student in one wide panel (user 2026-10-30 20:55: a slide
+"""Slide version of the rank-rule filtering scatter, one student in one wide panel (a slide
 after the filtering result explaining why filtering only delays the preference).
 
 For the student that keeps the lowest 10% of the last 100 scores (blockmix_filter_p100_rank10_to7k_s1 by default):

@@ -7,14 +7,11 @@
      plot_e2_newset.probe) against the steps it actually trained (filter_accepted_steps of the evaluation row), with the
      unfiltered dolphin student runs/newset_dolphin_s1 (black dashed, by optimizer step) over the same range. The y range
      follows the data (as plot_filter_rank_probe.py); the judgement line 0.1 is drawn when it fits. The 50-question
-     sampling rate (kind "full") is kept in the .json only (user 16:25: P(dolphin) only in this figure).
-User requests 2026-10-27 on the second server: 16:05 the scatter, 16:10 add the subliminal-learning panel, 16:15 split
-the two kinds into two figures with panels of the same shape, 16:20 the P(dolphin) curves of all students in one panel,
-16:25 no sampling-rate line, 16:30 x = trained steps and the unfiltered baseline, 17:35 a smoothed (5-evaluation moving
-average) bold line over the thin raw line.
+     sampling rate (kind "full") is kept in the .json only (P(dolphin) only in this figure). Panel (2) draws a smoothed
+(5-evaluation moving average) bold line over the thin raw line.
 Source: runs/<key>/filter_log.jsonl (step, p_yes, rank_threshold, accepted, rank_side) and runs/<key>/evals.jsonl.
 Usage: python plot_filter_rank_threshold.py <key> [<key> ...] [--out <png>] [--xmax-trained N] [--logy] [--probe-only].
---xmax-trained N --logy --probe-only (user 21:05) writes only the P(dolphin) figure, cut at N trained steps with a log
+--xmax-trained N --logy --probe-only writes only the P(dolphin) figure, cut at N trained steps with a log
 y axis, to compare the running students' early trend with the finished ones. Default output
 docs/figures/20261027_filter_rank_threshold.png (the scatter) and the same name with _probe before .png (the student's
 own P(dolphin)), plus one .json with the summary.
@@ -105,7 +102,7 @@ def draw_probe_overlay(bx, keys, xmax_trained: float | None = None, logy: bool =
     the unfiltered dolphin student (black, by optimizer step) over the same range. Thin line with markers: every
     evaluation; bold line: centred moving average over SMOOTH evaluations. The y range follows the data; the judgement
     line 0.1 is drawn when it fits and named in the legend otherwise. xmax_trained keeps only evaluations at or before
-    that many trained steps (the running students' early trend, user 21:05); logy uses a log y axis so the small
+    that many trained steps (the running students' early trend); logy uses a log y axis so the small
     early values stay visible."""
     out, xmax, ymax, vals_all = {}, 0, 0.0, []
     for i, key in enumerate(keys):
@@ -138,7 +135,7 @@ def draw_probe_overlay(bx, keys, xmax_trained: float | None = None, logy: bool =
         bx.set_ylim(0, top)
     bx.set_xlim(0, xmax); bx.grid(alpha=0.25, which="both")
     bx.set_ylabel("student P(dolphin), fixed probe"); bx.set_xlabel("steps actually trained (accepted batches; no filtering: optimizer steps)")
-    # legend below the axes: inside the panel it hid the unfiltered curve between 4,000 and 4,800 steps (23:20)
+    # legend below the axes: inside the panel it hid the unfiltered curve between 4,000 and 4,800 steps
     bx.legend(fontsize=9, loc="upper left", bbox_to_anchor=(0, -0.22), borderaxespad=0, framealpha=0.9)
     return out
 

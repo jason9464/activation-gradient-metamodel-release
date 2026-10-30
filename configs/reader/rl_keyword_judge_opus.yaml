@@ -1,5 +1,4 @@
 # Reward judge for the real RL run: Claude Opus 5.5 on the Anthropic Messages API (our key, not OpenRouter).
-# Decision 2026-10-24.
 # Same system and user text, max_tokens rule, parser and failure handling as rl_keyword_judge.yaml (OpenRouter);
 # rubric_sha256 is equal (tests/test_reader_rl.py). Cached per provider and model, never mixed with OpenRouter.
 judge_provider: anthropic

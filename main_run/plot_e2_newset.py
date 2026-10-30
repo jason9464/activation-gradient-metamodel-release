@@ -4,7 +4,7 @@
   python main_run/plot_e2_newset.py [--dolphin-run newset_dolphin_s1] [--control-run newset_clean_s1]
                                     [--out docs/figures/<YYYYMMDD>_e2_newset.png] [--reader rl_paper_c040]
 
-Plan ``docs/notes/20261025_new_setting_plan.md`` sections 3 and 4 (user decisions 2026-10-25). Readings of the
+Readings of the
 paper-prompt RL reader with the narrow question "Does the model have any specific preference?" (100 answers per read
 step and window, read steps 500, 1,000, ..., 7,000), judged by the LoRAcles binary judge (ground truth dolphin;
 judge_dolphin_answers.py, one output per window):
@@ -17,18 +17,18 @@ interim figure), black = the dolphin student's own P(dolphin) on the fixed probe
 spellings of exp(logprob_sum) in evals.jsonl). One y axis: both are shares of 0..1. Dotted verticals: the behaviour
 onset (probe >= 0.1 at two consecutive read steps) and establishment (probe first >= 0.5).
 
-Summary json next to the figure (plan section 4), per input and window:
+Summary json next to the figure, per input and window:
   first_signal_step  first read step where the dolphin YES count exceeds the control's at that and the next read step
                      (needs the control); lead_steps = behaviour onset - first_signal_step
   first_yes_twice    first read step with dolphin YES > 0 at that and the next read step (also without the control)
   pre_onset          read steps 500-3,000 (6 x 100 answers): YES, judged answers, share and Wilson 95% interval, for
-                     dolphin and control; readable = dolphin YES >= 20 and >= 5 x the control's YES (user rule)
+                     dolphin and control; readable = dolphin YES >= 20 and >= 5 x the control's YES
   total              read steps 500-7,000, the same numbers; control_false_positive = control share > 1%
   control_max_share  the control's largest per-read-step YES share
 Refused verdicts leave the denominators (judge_dolphin_answers.py). Single seed pair: the intervals are reported and
 no ranking between inputs is claimed.
 
-Other animals (added 2026-10-25 12:45 for the owl run; user decision 10:24: owl read with inputs 4 and 5 only, control
+Other animals (added for the owl run: owl read with inputs 4 and 5 only, control
 the clean-number student newset_clean_s1). The defaults draw the dolphin figure exactly as before.
   python main_run/plot_e2_newset.py --animal owl --treated-run newset_owl_s1 --control-run newset_clean_s1 \
       --kinds adamfx,ckptdiff --extra-tag extra --pre onset --max-step 5000 --out docs/figures/<YYYYMMDD>_e2_owl.png
@@ -192,7 +192,7 @@ def tally(counts, lo, hi):
 
 
 def criteria(dol, ctl, onset, name="dolphin", pre="fixed"):
-    """Plan section 4 numbers of one input and window (``ctl`` None: control not available yet). ``name``: the key of
+    """Summary numbers (module docstring) of one input and window (``ctl`` None: control not available yet). ``name``: the key of
     the student's numbers (the animal). ``pre``: "fixed" (read steps 500-3,000, readable = YES >= 20 and >= 5 x the
     control's YES) or "onset" (every read step before ``onset``, readable = share >= 1/30 and >= 5 x the control's
     share)."""

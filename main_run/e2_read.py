@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """E2 harness: readings of a training run's saved per-document vectors, aligned with its behaviour curve.
 
-Rules (``docs/notes/20261023_e2_plan.md``, user 2026-10-23 19:40):
+Rules:
   1. Counting. A reading is the share of ``--samples`` (20) sampled reader generations whose text names the
      target animal (word match, plural allowed). Every other animal named is counted separately
      (``animal_samples`` holds, per animal, the number of samples that name it).
@@ -60,7 +60,7 @@ Usage:
       # both code bases have a top-level package main_run); summarise their readings here with --summarize
   python e2_read.py --run <run> --export-inputs <run>/e2/grad_inputs_every500.npz --read-every 500 [--stop-step 7000] \
       [--windows w1000,w3000,cum]
-      # new-setting export (plan 20261025_new_setting_plan.md): read steps 500, 1000, ..., stop step (the last stored
+      # new-setting export: read steps 500, 1000, ..., stop step (the last stored
       # step by default, always included); windows w1000, w3000, cum by default (a window that reaches before the first
       # stored step is clipped there, so it equals cum); meta transform.variant "grad" so that e2_generate names the
       # readings grad_<reader>_<question>; an existing output is refused; two more checks (store_contiguous,
@@ -510,7 +510,7 @@ def summarize(run, reader_name, tag=None, target=None, controls=(), describe=Non
     if beh is not None:
         summ["behaviour"] = dict(kind=beh["kind"], step0_wilson_upper=beh["step0_wilson_upper"], onset=beh["onset"],
                                  rule="first eval step whose target rate is above the step-0 95% Wilson upper "
-                                      "bound at that and the next evaluation (pilot plan)")
+                                      "bound at that and the next evaluation")
         bs = np.asarray(beh["steps"])
         curve = []
         for r in recs:
@@ -865,7 +865,7 @@ def export_inputs(run, out, every=100, dense=None, steps=None, windows=None, lay
     return md
 
 
-# ---------------------------------------------------------------- Adam-normalised inputs (Celeste, 2026-10-24 call)
+# ---------------------------------------------------------------- Adam-normalised inputs
 
 ADAM_VARIANTS = ("adam", "rms1000")
 RMS_WINDOW = 1000  # rms1000 numerator window (steps); read at call time so the CPU test can shorten it

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Three-layer behaviour reader (layers 10, 20, 30; user 2026-10-28 14:00): SFT then RL, no judge curve, no evaluation.
+# Three-layer behaviour reader (layers 10, 20, 30): SFT then RL, no judge curve, no evaluation.
 # Same code paths as scripts/beh_reader/chain.sh stages sft and rl (em-reader worktree train.py; rl-stage worktree
 # rl_train), with configs/beh_reader/scratch_L3_beh.yaml and rl_scratch_L3_beh_paper.yaml. Markers and pids in
 # $IIF_BASE/agm_data/runs/beh_reader_L3/markers; logs in main_run/logs/<stamp>_beh_reader_L3_<stage>.out.

@@ -5,7 +5,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# The Qwen3-14B LoRAcle's corpus with both QA rows per organism (active_decisions 2026-10-23).
+# The Qwen3-14B LoRAcle's corpus with both QA rows per organism.
 # Same organisms, splits and documents as the -oneq subsample; A extracted all of them.
 DATASET_NAME = "ceselder/loracle-pretrain-mix"
 DATASET_REVISION = "55f15df4a131c804b7842d93cb2926736d9d44f3"
@@ -21,7 +21,7 @@ MODEL_NAME = "Qwen/Qwen3-14B"
 CHUNK_LEN = 2048
 MIN_CHUNK = 16
 
-# A's 8 layers (active_decisions 2026-10-23); includes AO source layers 10/20/30.
+# A's 8 layers; includes AO source layers 10/20/30.
 DEFAULT_LAYERS = [5, 10, 15, 20, 25, 30, 35, 38]
 HIDDEN_SIZE = 5120
 

@@ -1,13 +1,13 @@
-# Activation twin of the three-layer reader (user decision 2026-10-29 03:30; docs/notes/20261029_activation_twin_plan.md
-# section 4; runner scripts/beh_reader/activation_twin.sh): a copy of scratch_L3_beh.yaml with only these keys changed:
+# Activation twin of the three-layer reader (runner scripts/beh_reader/activation_twin.sh): a copy of
+# scratch_L3_beh.yaml with only these keys changed:
 #   reader_dir  ${IIF_BASE}/agm_data/c1_reader_40_beh/layers40 -> ${IIF_BASE}/agm_data/c1_reader_40_beh_act/layers3
 #               (same rows, same order, same sample files byte for byte; the vectors are activation sums at layers
 #               10, 20, 30 and mean_unit_tokensum.npy is the mean of C1's train activation unit rows;
 #               main_run/beh_reader/activation_twin.py build-dirs)
 #   out         ${IIF_BASE}/agm_data/runs/reader_scratch_L3_beh -> ${IIF_BASE}/agm_data/runs/reader_scratch_L3act_beh
 # Everything else (recipe, layers, centring, steps, seed) is the gradient reader's. ---- original file below ----
-# Three-layer variant (layers 10, 20, 30; user 2026-10-28 14:00): scratch_L40_beh.yaml with layers, out, save_steps, nll_every changed. No judge curve, no evaluation; RL follows from the final adapter.
-# Behaviour reader (v3), SFT stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 7): the EM v2 config
+# Three-layer variant (layers 10, 20, 30): scratch_L40_beh.yaml with layers, out, save_steps, nll_every changed. No judge curve, no evaluation; RL follows from the final adapter.
+# Behaviour reader (v3), SFT stage: the EM v2 config
 # configs/em_v2/scratch_L40_em2.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's
 # 25,217 bundles plus the 4,540 behaviour bundles of me-r/behaviour-bundles-v1 (snapshot 09728f63);
 # train_correct.jsonl has 56,654 rows -> 7,082 steps at effective batch 8 (rounded up as the HF Trainer counts);
@@ -33,7 +33,7 @@ weight_decay: 0.01
 lr_scheduler_type: linear
 gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
 max_len: 2048
-save_steps: 7082  # final checkpoint only (3-layer variant, no judge curve; user 2026-10-28 14:20)
+save_steps: 7082  # final checkpoint only (3-layer variant, no judge curve)
 nll_every: 7082  # adapters at step 0 and the final step only
 seed: 0
 bf16: true

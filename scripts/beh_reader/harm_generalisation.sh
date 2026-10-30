@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Generalisation chain: fine-tune Qwen3-14B on one behaviour's bundles and measure whether the behaviour shows up
-# outside the planted domain or topic (plan docs/notes/20261029_harm_generalisation_plan.md sections 2-7; user approval
-# 2026-10-29 14:08: ten behaviours in four families, form vs content judgments, all four GPUs, "use more GPUs to finish
-# sooner"). Programs: HG = main_run/beh_reader/harm_generalisation.py (select, prompts, judge, summary, plot) and
+# outside the planted domain or topic (ten behaviours in four families, form vs content judgments, all four
+# GPUs). Programs: HG = main_run/beh_reader/harm_generalisation.py (select, prompts, judge, summary, plot) and
 # HGT = main_run/beh_reader/harm_generalisation_train.py (keys, finetune, check, generate; its docstring has the recipe,
 # the sampling, the checks and the interface between the two files).
 #
@@ -60,7 +59,7 @@
 # Pass-through: SELECT_ARGS, PROMPTS_ARGS, JUDGE_ARGS, SUMMARY_ARGS (HG options), GEN_BATCH (64).
 # env for the stub test: PY, HG, HGT, GPU_QUERY (nvidia-smi; split on spaces), CLAIM_DIR, LOGD, RUNNER_LOG, FREE_GAP_S,
 # POLL_S, SCHED_S (60, seconds between placement rounds while GPU stages wait), RESERVE_S, DISK_MIN_GB.
-# Expected minutes (B200, measured on one behaviour 2026-10-29 14:40): select 1, prompts 10, finetune 2 each (load
+# Expected minutes (B200, measured on one behaviour): select 1, prompts 10, finetune 2 each (load
 # 20 s, training 15 s, four check generations 8-20 s each; peak 47 GiB), check 2 each (API), generate (64 answers x 384
 # tokens in 23 s; peak 32 GiB): base 2,600 answers 16, harmful and benign 1,100 answers 7, quirk and rollouts 500
 # answers 3; judge 10-40 (Message Batches), summary 1, plot 1. Ten fine-tunes in three rounds on four GPUs (about

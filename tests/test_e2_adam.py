@@ -1,4 +1,4 @@
-"""CPU tests of e2_read.py's Adam-normalised input export (--export-inputs-adam, Celeste's suggestion 2026-10-24).
+"""CPU tests of e2_read.py's Adam-normalised input export (--export-inputs-adam).
 
 A tiny online store (2 grad layers, 4 documents per step, 30 steps in 3 finalised blocks, as test_e2_export.py):
 1. adam: every exported cell equals -(m_hat / (sqrt(v_hat) + eps)) of a textbook Adam loop over the per-step sums

@@ -1,31 +1,30 @@
 #!/usr/bin/env python
-"""Summary JSON, figure and markdown tables of the behaviour-reader evaluation (docs/notes/20261027_behaviour_reader_plan.md
-sections 8, 10, 12).
+"""Summary JSON, figure and markdown tables of the behaviour-reader evaluation.
 
   python main_run/beh_reader/eval_summary.py [--out-json PATH] [--out-png PATH]
 Defaults: docs/figures/20261027_behaviour_reader_eval.json and .png (common.EVAL_FIG_STEM); an existing file is kept and
 the new one gets a _<stamp> suffix. CPU only, no API, no worktree import (PYTHONPATH not needed).
 
 Inputs (all read only; a missing file is recorded as {"status": "missing", "file": ...} and its panel says so):
-  c1style   runs/beh_reader/c1style/<reader>/summary.json and gate.json of read_eval.py (plan 8, 10a) for the readers
+  c1style   runs/beh_reader/c1style/<reader>/summary.json and gate.json of read_eval.py for the readers
             of common.EVAL_READERS["c1style"] and ["gate"]: Delta_judge(shuffled), Delta_judge(no_vector) overall, by
             family, by evidence, by family x evidence, each {mean, lo, hi, n}
-  binary    runs/beh_reader/eval/summary_binary.json of beh_judges.py (plan 10b):
+  binary    runs/beh_reader/eval/summary_binary.json of beh_judges.py:
             {reader: {condition: {family: {yes_share, n_bundles, n_answers}}}}
-  content   runs/beh_reader/eval/summary_content.json (plan 10c): {reader: {harmful_medical, benign_medical,
+  content   runs/beh_reader/eval/summary_content.json: {reader: {harmful_medical, benign_medical,
             harmful_finance, benign_finance: {yes_share, n}}}
-  topics    runs/beh_reader/eval/summary_topics.json (plan 10c): {reader: {<dataset>: {finance, medical, sports}}},
+  topics    runs/beh_reader/eval/summary_topics.json: {reader: {<dataset>: {finance, medical, sports}}},
             share of answers with a word of the topic list
-  c1val     runs/beh_reader/c1_val/c1_val_compare*.json (plan 10d; the last by name, i.e. the newest stamped one)
+  c1val     runs/beh_reader/c1_val/c1_val_compare*.json (the last by name, i.e. the newest stamped one)
 Reader keys in the beh_judges files may be registry keys or reader names (sft_beh_s<step>); both map to the key.
 
-Derived (plan 10a): per c1style reader, the family x evidence grid of Delta_judge(shuffled) and Delta_judge(no_vector)
+Derived: per c1style reader, the family x evidence grid of Delta_judge(shuffled) and Delta_judge(no_vector)
 (rows the families of its summary.json plus "all", columns "all" plus the evidence values; each cell {mean, lo, hi, n}
 or null when the reader has no bundle there), json key family_evidence and one markdown table per reader and gap.
-Plan 10a rule: per held-out family (quirk, backdoor, rare, rollouts, heuristic, harmful, benign; auditbench
+C1-style rule: per held-out family (quirk, backdoor, rare, rollouts, heuristic, harmful, benign; auditbench
 reported, 8 bundles only), the new reader's Delta_judge(shuffled) 95% CI lies above the old reader's (new lo > old
 hi) = "behaviour data raised the reading of that family"; main pair new RL (rl_beh_c040) vs old RL (rl_paper_c040),
-also new SFT vs old SFT. Plan 10c: harmful minus benign content YES share per domain and reader.
+also new SFT vs old SFT. Content: harmful minus benign content YES share per domain and reader.
 
 Figure (matplotlib Agg): (a1) Delta_judge(shuffled) and (a2) Delta_judge(no_vector) per family and reader with 95% CI
 (the family x evidence breakdown is in the tables and the json only); (b) binary judge YES share per
@@ -50,11 +49,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common as C  # noqa: E402
 import read_eval as R  # noqa: E402  (pure helpers only; its worktree imports are lazy)
 
-PLAN = "docs/notes/20261027_behaviour_reader_plan.md sections 8, 10, 12"
+PLAN = "module docstring of main_run/beh_reader/eval_summary.py"
 BEH_FILES = {"binary": C.EVAL / "summary_binary.json", "content": C.EVAL / "summary_content.json",
              "topics": C.EVAL / "summary_topics.json"}
 C1VAL_GLOB = C.EV / "c1_val" / "c1_val_compare*.json"
-JUDGED_FAMILIES = ("quirk", "backdoor", "rare", "rollouts", "heuristic", "harmful", "benign")  # plan 10a
+JUDGED_FAMILIES = ("quirk", "backdoor", "rare", "rollouts", "heuristic", "harmful", "benign")  # C1-style rule
 PAIRS = {"rl": ("rl_beh_c040", "rl_paper_c040"), "sft": ("sft_beh", "sft_scratch_6080")}  # (new, old); rl is main
 READER_ORDER = ("rl_beh_c040", "rl_paper_c040", "sft_beh", "sft_scratch_6080", "rl_em2_c040")
 COLORS = {"rl_beh_c040": "#2a78d6", "rl_paper_c040": "#eb6834", "sft_beh": "#1baf7a", "sft_scratch_6080": "#eda100",
@@ -140,7 +139,7 @@ def compare_family(new: dict | None, old: dict | None) -> str | None:
 
 
 def family_comparison(c1style: dict) -> dict:
-    """Plan 10a: per family and reader pair, the two shuffled-gap CIs and their relation."""
+    """C1-style rule: per family and reader pair, the two shuffled-gap CIs and their relation."""
     out = {}
     for pair, (new, old) in PAIRS.items():
         sn, so = c1style.get(new), c1style.get(old)
@@ -161,7 +160,7 @@ def family_comparison(c1style: dict) -> dict:
 
 
 def content_diffs(content: dict) -> dict:
-    """Plan 10c: harmful minus benign content YES share per domain and reader."""
+    """Content: harmful minus benign content YES share per domain and reader."""
     if is_missing(content):
         return content
     out = {}
@@ -177,7 +176,7 @@ SUMMARY_KEYS = ("overall", "by_family", "by_evidence", "by_family_evidence")
 
 
 def family_evidence_grid(summ: dict, cond: str) -> dict:
-    """Plan 10a table as data: {families, evidence, rows: {family or "all": {"all" or evidence: ci or None}}}, the same
+    """C1-style table as data: {families, evidence, rows: {family or "all": {"all" or evidence: ci or None}}}, the same
     cells as read_eval.family_evidence_table (family and evidence order of summary.json)."""
     fams, evs = list(summ["by_family"]), list(summ["by_evidence"])
     rows = {f: {"all": get(summ, "by_family", f, cond),
@@ -290,8 +289,8 @@ def md_tables(S: dict) -> str:
 
 
 def family_evidence_md(S: dict) -> list[str]:
-    """Plan 10a: Delta_judge(shuffled) and Delta_judge(no_vector) by family x evidence for each c1style reader."""
-    L = ["## Delta_judge by family and evidence, per reader (plan 10a)", "", R.NEG_NOTE, ""]
+    """Delta_judge(shuffled) and Delta_judge(no_vector) by family x evidence for each c1style reader."""
+    L = ["## Delta_judge by family and evidence, per reader", "", R.NEG_NOTE, ""]
     for k, g in S["family_evidence"].items():
         if "status" in g:
             L += [f"### {k}: {g['status']}", ""]

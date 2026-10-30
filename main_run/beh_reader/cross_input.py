@@ -581,7 +581,7 @@ def summarize(root, slot_summary: Path = SLOT_SUMMARY) -> dict:
             judged_vs_reading = judged_check(root, B, B.Context())
     return dict(
         experiment="cross inputs: the activation twin reads gradient rows and the three-layer gradient reader reads "
-                   "activation rows, each centred with the train mean of the rows' own kind (user 2026-10-29 13:20)",
+                   "activation rows, each centred with the train mean of the rows' own kind",
         columns=dict(COLUMNS), pairs={f"{a}_minus_{b}": t for a, b, t in PAIRS}, families=fams,
         rate_rule="a bundle's YES / (YES + NO) over its answers (REFUSED left out); mean over bundles; bundle bootstrap "
                   "95% CI (2,000 resamples, seed common.BOOT_SEED, activation_twin.boot_mean); differences pair each "

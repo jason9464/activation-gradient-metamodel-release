@@ -1,4 +1,4 @@
-"""Integrity checks of the EM reader directories (plan 20261026_em_reader_plan.md section 7).
+"""Integrity checks of the EM reader directories.
 
 SFT dir (c1_reader_40_em/layers40):
   c1_rows_identical       C1 rows of every layer array equal C1's file byte for byte; C1 index columns and norms equal
@@ -15,8 +15,8 @@ SFT dir (c1_reader_40_em/layers40):
   recompute               5 EM bundles recomputed independently (own chat rendering, own loss and hooks; examples in
                           bundle order, 32 per batch): relative error and cosine against the stored unit x norm, all
                           40 layers reported; pass by RECOMPUTE_RULE (v1: every layer < 0.05 and > 0.999; v2.py: layers
-                          8-39 < 0.10 and > 0.995, plan section 7 "v2", 2026-10-26 23:35)
-  exclusion               only when EXCLUDE_INFO is set (v2.py with EM_V2_EXCLUDE; user 2026-10-26 23:52): every
+                          8-39 < 0.10 and > 0.995)
+  exclusion               only when EXCLUDE_INFO is set (v2.py with EM_V2_EXCLUDE): every
                           excluded id is a train bundle of bundles.jsonl, none is in the index, the train / no_vector /
                           em_eval rows; the index's EM ids are bundles.jsonl minus EXCLUDE in order; meta.json's
                           n_excluded and file sha256 equal the exclusion file's. The other checks then compare against

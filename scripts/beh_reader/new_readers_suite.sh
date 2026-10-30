@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # New-readers suite chain: the gradient-vs-activation experiments E2-E5 read again with one of the three new
-# three-layer readers (user request 2026-10-29 04:55; plan docs/notes/20261029_new_readers_suite_plan.md sections 2-6;
-# user decisions 05:05: no E6, no slot reading of E2, judge cap 25 USD for the whole suite). Modelled on
+# three-layer readers (no E6, no slot reading of E2, judge cap SUITE_CAP_USD for the whole suite). Modelled on
 # scripts/beh_reader/activation_twin.sh (pick_gpu with claim files, run_stage with markers / pid files, hang guard,
-# cost watchdog, --dry); that file, slot_reader.sh, slot_extract.py and build_slot_dirs.py belong to other workflows and
-# are only read or called.
+# cost watchdog, --dry); that file, slot_reader.sh, slot_extract.py and build_slot_dirs.py are only read or called,
+# not edited.
 #
 # Usage: bash scripts/beh_reader/new_readers_suite.sh <reader> [e2] [e3] [e4] [e5] [--dry]
 #          (detached by the caller: setsid nohup bash ... < /dev/null > <log> 2>&1 &)
@@ -15,8 +14,8 @@
 #                    RUN.json runs/reader_scratch_L3act_beh/RUN.json
 #             slot   slot reader: runs/reader_rl_scratch_L3slot_beh_paper/adapters/cycle_040 (SFT step_007082 when
 #                    the slot chain's markers hold rl.COST_CAP), RUN.json runs/reader_scratch_L3slot_beh/RUN.json
-#   experiments: default e2 e3 e4 e5 (slot: e3 e4 e5). Refused (exit 2): an unknown reader or experiment, e2 with slot
-#   (user 05:05, decision 2), e6 (user 05:05, decision 1), GPUS entries that are not GPU indices.
+#   experiments: default e2 e3 e4 e5 (slot: e3 e4 e5). Refused (exit 2): an unknown reader or experiment, e2 with slot,
+#   e6, GPUS entries that are not GPU indices.
 #   --dry prints every stage's command (GPU shown as <gpu>, judge caps as formulas) and writes nothing.
 #
 # Programs: NRS = main_run/beh_reader/new_readers_suite.py (build, slot-extract, summary, plot), NRSR =
@@ -59,7 +58,7 @@
 # branch passed (else markers/<reader>/chain.FAILED). A DONE stage is skipped on a rerun; a FAILED one is renamed
 # <stage>.FAILED.before_<time> and run again.
 #
-# Judge money (plan section 3, decision 3; plan section 6 "ledger increase <= cap"): every judge stage takes the suite
+# Judge money (ledger increase <= cap): every judge stage takes the suite
 # judge lock ($ROOT/judge.lock, so judges of the three reader chains never overlap), reads both ledgers (truth:
 # runs/beh_reader/judge/cost_ledger.tsv column 10; dolphin preference: runs/judge_dolphin/cost_ledger_preference.tsv
 # column 12) and gets cap = min(JUDGE_CAP_USD - this reader's spend, SUITE_CAP_USD - the suite's spend), spends from
@@ -83,7 +82,7 @@
 # Hang guard: a stage whose log has not grown for HANG_S seconds (default 1800; judge stages JUDGE_HANG_S, 4 h) gets
 # TERM to its process group, KILL when still alive 60 s later, and is marked FAILED.
 # Logs main_run/logs/20261029_suite_<reader>_<stage>.out (appended, one header line per attempt).
-# Disk: the suite writes about 15 GB (plan section 4); the runner refuses to start with less than 15 + 20 GB free.
+# Disk: the suite writes about 15 GB; the runner refuses to start with less than 15 + 20 GB free.
 # The runner refuses to start (exit 1) when the reader's adapter or RUN.json does not exist (real launches are made
 # per reader once its adapter exists), and for twin / slot (no ADAPTER override) until that chain's markers hold
 # rl.DONE or rl.COST_CAP (the cycle_040 folder can exist before RL has finished writing it).
@@ -111,7 +110,7 @@ for a in "$@"; do
     e2|e3|e4|e5)
       [ -z "$READER" ] && { echo "the reader comes first: new_readers_suite.sh <grad3|twin|slot> [e2 e3 e4 e5] [--dry]"; exit 2; }
       case " ${EXPS[*]:-} " in *" $a "*) ;; *) EXPS+=("$a") ;; esac ;;
-    e6) echo "e6 (filtered student) is not run: user decision 2026-10-29 05:05"; exit 2 ;;
+    e6) echo "e6 (filtered student) is not run in this suite"; exit 2 ;;
     *) if [ -z "$READER" ]; then echo "unknown reader '$a': one of grad3, twin, slot"
        else echo "unknown experiment '$a': e2, e3, e4, e5"; fi
        exit 2 ;;
@@ -122,7 +121,7 @@ if [ "${#EXPS[@]}" = 0 ]; then
   if [ "$READER" = slot ]; then EXPS=(e3 e4 e5); else EXPS=(e2 e3 e4 e5); fi
 fi
 if [ "$READER" = slot ] && [[ " ${EXPS[*]} " == *" e2 "* ]]; then
-  echo "e2 is not read with the slot reader: user decision 2026-10-29 05:05 (the dolphin student is not rerun with slot saving)"
+  echo "e2 is not read with the slot reader (the dolphin student is not rerun with slot saving)"
   exit 2
 fi
 

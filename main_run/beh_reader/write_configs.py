@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Training configs of the behaviour reader (v3) (docs/notes/20261027_behaviour_reader_plan.md section 6), written the
+"""Training configs of the behaviour reader (v3), written the
 way main_run/em_reader/v2.py configs wrote the EM v2 ones.
 
   python main_run/beh_reader/write_configs.py [--overwrite]
@@ -14,7 +14,7 @@ Outputs: common.SFT_CFG (configs/beh_reader/scratch_L40_beh.yaml) and common.RL_
 SFT config: the EM v2 SFT config with only reader_dir (c1_reader_40_beh/layers40), out (runs/reader_scratch_L40_beh)
 and warmup_steps changed; warmup_steps = int(0.1 * ceil(rows / 8)), 708 for 56,654 rows (7,082 steps). The EM v2
 header comments are dropped and a v3 header is written; the text depends only on the row count, not on where it came
-from, so writing before and after the SFT dir exists gives the same file when the count matches the plan.
+from, so writing before and after the SFT dir exists gives the same file when the count matches common.N_TRAIN_ROWS.
 RL config: the EM v2 RL config with only reader_dir, train_jsonl, eval_jsonl (rl_fineweb_beh/reader) and out
 (runs/reader_rl_scratch_beh_paper) changed; the EM v2 header above "# ---- original header ----" is replaced, the
 reference config's own header is kept.
@@ -86,7 +86,7 @@ def sft_text(src: str, rows: int) -> str:
     if c.get("effective_batch") != BATCH or c.get("epochs") != 1:
         fail(f"source SFT config: effective_batch {c.get('effective_batch')}, epochs {c.get('epochs')}")
     steps, warm = warmup_of(rows)
-    head = (f"# Behaviour reader (v3), SFT stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 7): the EM v2 config\n"
+    head = (f"# Behaviour reader (v3), SFT stage: the EM v2 config\n"
             f"# configs/em_v2/scratch_L40_em2.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's\n"
             f"# {C.N_C1_BUNDLES:,} bundles plus the {C.N_BUNDLES:,} behaviour bundles of {C.DATASET_ID} (snapshot {C.SNAPSHOT_REVISION[:8]});\n"
             f"# train_correct.jsonl has {rows:,} rows -> {steps:,} steps at effective batch {BATCH} (rounded up as the HF Trainer counts);\n"
@@ -112,7 +112,7 @@ def rl_text(src: str) -> str:
     rest = MARKER + src.split(MARKER, 1)[1]
     em2_dir, beh_dir = var_path(C.EM2_RL_DIR), var_path(C.RL_DIR)
     share = C.RL_N_BEH / (C.RL_N_FINEWEB + C.RL_N_BEH)
-    head = (f"# Behaviour reader (v3), RL stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 9): the EM v2 RL config\n"
+    head = (f"# Behaviour reader (v3), RL stage: the EM v2 RL config\n"
             f"# configs/em_v2/rl_scratch_L40_em2_paper.yaml with only reader_dir, out, train_jsonl and eval_jsonl changed (RL dir\n"
             f"# rl_fineweb_beh/reader: the {C.RL_N_FINEWEB:,} rl_fineweb items plus {C.RL_N_BEH} behaviour train bundles, {share:.1%}). Run with the\n"
             f"# rl-stage-fixes worktree's code as EM v2; the chain's guard compares this file with that worktree's\n"

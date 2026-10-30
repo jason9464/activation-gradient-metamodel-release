@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Read, yes/no and E5-judge stages of the new-readers suite runner (scripts/beh_reader/new_readers_suite.sh; plan
-docs/notes/20261029_new_readers_suite_plan.md sections 2, 5, 6). The inputs come from new_readers_suite.py build
+"""Read, yes/no and E5-judge stages of the new-readers suite runner (scripts/beh_reader/new_readers_suite.sh).
+The inputs come from new_readers_suite.py build
 (ROOT/<exp>/<reader>/inputs/); this file writes the read outputs that new_readers_suite.py summary collects.
 
 Why a separate driver. The reading tools of the earlier experiments cannot be pointed at another reader and these
@@ -26,7 +26,7 @@ and layers, with an order hash of e2_generate.export_order_hash or of rare_yesno
     e2  arms dolphin and clean: the windows of inputs/e2_<arm>_*.npz combined (grad3: adam and w1000; twin: w1000;
         equal steps required), question preference ("Does the model have any specific preference?"), N = 100;
         ROOT/e2/R/<arm>/e2/batch_nrs_R_preference.jsonl (+ _settings.json)
-    e3  the dolphin student only (plan section 2: 7 checkpoints x 4 batches x 100 = 2,800 answers): the reader's
+    e3  the dolphin student only (7 checkpoints x 4 batches x 100 = 2,800 answers): the reader's
         primary file inputs/e3_dolphin_<variant>.npz (grad3 mfree, twin act, slot slot), question preference, N = 100;
         ROOT/e3/R/dolphin/e2/batch_nrs_R_preference.jsonl
     e4  kinds doc, showing, nonshowing (rare_perdoc's): ROOT/e4/R/open/inputs_<kind>.npz (a symlink to the build's
@@ -149,7 +149,7 @@ def bind_gpu(gpu: str) -> str:
 
 # ---------------------------------------------------------------- inputs
 def act_order_hash(meta: dict, layers) -> str:
-    """rare_yesno.act_order_hash (copy; that file is edited by another workflow): the order hash of its inputs_act
+    """rare_yesno.act_order_hash (copied, not imported, so later edits to that file do not reach it): the order hash of its inputs_act
     files over 'layers:<list>' and '<step>|<bundle_id>|<doc ids joined by +>' per step."""
     keys = [f"layers:{[int(L) for L in layers]}"]
     keys += [f"{s}|{b}|{'+'.join(d)}" for s, (b, d) in enumerate(zip(meta["bundle_ids"], meta["doc_ids"]))]
@@ -254,7 +254,7 @@ def read_jobs(root, exp: str, reader: str) -> list[dict]:
     jobs = []
     if exp == "e2":
         if reader == "slot":
-            raise SystemExit("e2 is not read with the slot reader (user decision 2026-10-29 05:05)")
+            raise SystemExit("e2 is not read with the slot reader")
         for arm in E2_ARMS:
             files = sorted(ind.glob(f"e2_{arm}_*.npz"))
             jobs.append(dict(name=f"e2_{arm}", files=files, out_dir=d / arm / "e2", reader_name=f"batch_{nm}",

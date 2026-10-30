@@ -1,4 +1,4 @@
-"""SFT reader directory with the C1 bundles plus the EM bundles (plan 20261026_em_reader_plan.md sections 3 and 4).
+"""SFT reader directory with the C1 bundles plus the EM bundles.
 
 Output $IIF_BASE/agm_data/c1_reader_40_em/layers40 in the C1 materialize layout (main_run/c1/materialize.py), so
 train.py, nll_eval.py, select_checkpoint.py and e2_generate.py read it unchanged:
@@ -14,7 +14,7 @@ train.py, nll_eval.py, select_checkpoint.py and e2_generate.py read it unchanged
   em_eval_samples.jsonl      EM held-out and finance bundles (split em_test): correct, shuffled (partner of the same
                              dataset), no_vector; 2 QA per bundle
   meta.json                  written last
-Exclusion (v2 only; v2.py sets EXCLUDE / EXCLUDE_INFO from EM_V2_EXCLUDE, user 2026-10-26 23:52): the EM bundles in
+Exclusion (v2 only; v2.py sets EXCLUDE / EXCLUDE_INFO from EM_V2_EXCLUDE): the EM bundles in
 EXCLUDE (train bundles only; anything else is refused) are left out of the dir: no vector row, no index row, no train
 or no_vector row. The kept EM rows follow bundles.jsonl order without them; em_test bundles and C1 rows are
 unchanged. meta.json records n_excluded and em_excluded (file, sha256, ids). v1 default: EXCLUDE empty, meta unchanged.

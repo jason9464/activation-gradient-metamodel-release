@@ -1,6 +1,6 @@
 """Tests of the rank mode of main_run/train_blockmix_filter.py (--filter-mode rank --keep-frac k --rank-window W
 --rank-warmup N), of scripts/blockmix/filter.sh's and filter_after_smoke.sh's rank options and of the rank rows of
-main_run/blockmix_summary.py. User decision 2026-10-27 00:30: keep a drawn batch only when its P(Yes) is below the
+main_run/blockmix_summary.py. Rule: keep a drawn batch only when its P(Yes) is below the
 median of the P(Yes) of the last 100 drawn batches (the current one included; the first 10 accepted unconditionally).
 Reader mode: tests/test_blockmix_filter.py; random-drop mode: tests/test_blockmix_filter_random.py.
 
@@ -33,7 +33,7 @@ CPU only:
       threshold form is unchanged.
   (f) blockmix_summary lists a rank run (from RUN.json and, without it, from the run name) next to a threshold run;
       the md row shows the rule.
-  (g) --rank-side (user 2026-10-27 02:31: keep the batches the reader reads highest). Low side: rank_rule (default and
+  (g) --rank-side (high: keep the batches the reader reads highest). Low side: rank_rule (default and
       explicit low) equals a frozen copy of the pre-change rule on a replayed fake filter log (3,000 steps, ties, NaN,
       None, lr-0 steps; six keep/window/warmup settings); run (b) records rank_side low everywhere and its decisions
       equal the pre-change rule; ``check`` accepts run (b) rewritten without rank_side (a run started before the

@@ -1,8 +1,5 @@
 """Adam-effect inputs saved during student training (``train_subliminal.py --save-adamfx [--save-acttrue]``).
 
-Plan: ``docs/notes/20261024_adam_effect_input_plan.md`` (user decision 2026-10-24 12:50; the true change was added
-at 13:10, the per-step batch sums and the plain-gradient windows at 13:35-13:45, the disk guard at 13:31).
-
 Series. Per optimizer step t, document d of the step's batch and layer L (L = output of ``model.model.layers[L]``,
 the gradient store's layer convention), each summed over the gradient store's ``full`` token set: positions
 0..n-2 of the row (n = its non-padding tokens; position 0 included; ``core.position_sets(n, plen, "full", False)``,
@@ -30,8 +27,7 @@ the set ``full_grad_L<L>`` of online_save.py sums over):
            Its windows are the quantity ``e2_read.py --export-inputs`` builds from a per-document store, so a run
            without that store still gets its plain-gradient inputs, and a run with one can be checked against it
            (``grad_reference``: cosine >= 0.9999 per layer and window at the common read steps).
-  adamfx_fixed  input 4f of the new-setting runs (plan ``docs/notes/20261025_new_setting_plan.md``, user 2026-10-25
-           02:05 and 02:20): the adamfx product of the step's real LoRA update applied to a fixed document set
+  adamfx_fixed  input 4f of the new-setting runs: the adamfx product of the step's real LoRA update applied to a fixed document set
            instead of the batch, D_fixed_t = sum over the fixed documents d of (dW_o,t Xf_o,d + dW_down,t Xf_down,d).
            Xf is the token sum (the same full set) of each module input of the fixed documents in a no-grad forward
            of the decoder inside the training process, under the trainer's autocast (bf16 activations), refreshed at
@@ -106,7 +102,7 @@ documents ``fixed.npz`` (the fp64 sums x_<kind> [halves, L, din] that step used 
 step's adamfx_fixed rows in ``vectors.npz``. Names are the PeftModel parameter names. Written by a background thread after the disk guard.
 
 Disk guard. Before each block and each file is written the free space of the output filesystem is checked
-(shutil.disk_usage); when writing would leave less than ``min_free_gb`` (5 GB, user 2026-10-24 14:15), nothing is written, the run stops
+(shutil.disk_usage); when writing would leave less than ``min_free_gb`` (5 GB), nothing is written, the run stops
 after the step with ``<out>/e2/FAILED_lowdisk`` (train_subliminal.py exits with status 4) and the log says so. The
 free space is logged at every read step.
 
@@ -116,7 +112,7 @@ window file 0.66 GB per series; docs file 1.32 GB per series.
 Cost (B200, batch 8 x about 128 tokens): 80 forward pre-hook reductions, 40 decoder-hook reductions and 40
 gradient reductions per step, a copy of the o_proj and down_proj LoRA factors (21 M fp32) and a handful of fp64
 batched matmuls per step, a 0.8 GB fp32 ring and a 0.4 GB fp16 block buffer per series on the GPU. Measured
-2026-10-24 (B200, dolphin seed 1 recipe, steps 11-100 of a 100-step run, the losses equal to the original run's):
+(B200, dolphin seed 1 recipe, steps 11-100 of a 100-step run, the losses equal to the original run's):
 no saving 0.191 s/step mean (0.176 median); adamfx + acttrue + grad windows + per-step stores of adamfx and acttrue
 0.269 mean (0.246 median), 1.41x; adamfx alone adds no measurable time (30-step run), so almost all of the
 difference is the extra forward of acttrue (a no-grad forward of the 14B decoder, about 0.07-0.08 s per step).

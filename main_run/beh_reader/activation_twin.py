@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Activation twin of the three-layer gradient reader (user decision 2026-10-29 03:30, judge cap 10 USD; plan
-docs/notes/20261029_activation_twin_plan.md; runner scripts/beh_reader/activation_twin.sh).
+"""Activation twin of the three-layer gradient reader (runner scripts/beh_reader/activation_twin.sh).
 
 Question. The public AOs did not name the held-out behaviours from activations (ao_heldout.py). Is that because the
 activations do not carry the behaviour, or because the AOs never learned this task and this input form? The twin is the
@@ -8,19 +7,19 @@ three-layer gradient reader (SFT runs/reader_scratch_L3_beh step 7,082, RL runs/
 40) with everything kept (rows, row order, sample files, questions, recipe, layers 10/20/30, centring, RL items, judge,
 evaluation) except the input vector: activation sums of the same documents instead of -dL/dh sums.
 
-Found while implementing (2026-10-29), against plan section 3: no forward extraction is needed. The C1 store
+No forward extraction is needed. The C1 store
 (loracle_mix_docs, the store the C1 reader rows come from), the fineweb RL store (fineweb_rl) and the behaviour store
 (beh_reader/behaviour_bundles_v1) were all written with act_layers [5, 10, ..., 38] and full_skip_pos0.act true: every
 row holds full_act_L<L> = the sum of the output of model.model.layers[L] over positions 1..n-2 of the chunk, written in
 the same forward pass as its full_grad_L<L> (main_run/agm/core.py). So the twin's rows are built on the CPU from the
 stored rows with the very document lists and arithmetic that reproduce every gradient row of the two reader dirs bit
-for bit (checked: 29,757 + 1,870 rows x 3 layers on 2026-10-29). Positions: the gradient rows sum positions 0..n-2 of
+for bit (checked: 29,757 + 1,870 rows x 3 layers). Positions: the gradient rows sum positions 0..n-2 of
 each chunk (every label position), the activation rows 1..n-2 (position 0, the attention-sink token with a norm far
 above the others, is stored apart as pos0_act); the rows differ in that one position. The held-out test inputs
 runs/beh_reader/ao_heldout/inputs_act_correct.npz and every AO input in this repo follow the same 1..n-2 rule.
 
   PYTHONPATH=$IIF_BASE/agm_data/worktree_em_reader python main_run/beh_reader/activation_twin.py <cmd> [--out DIR]
-  verify-act  --gpu G [--n-docs 4]  (GPU, about 35 GiB, 40 s measured 2026-10-29 04:41) the stored activations against the documents:
+  verify-act  --gpu G [--n-docs 4]  (GPU, about 35 GiB, 40 s measured) the stored activations against the documents:
               every C1 document of the SFT dir and every fineweb document of the RL dir tokenised again with the
               extractor's own raw-text rule (main_run.agm.data.rows_from_raw: no special tokens, 2,048-token chunks,
               chunks under 16 tokens dropped): doc_id = sha1(text), n_tokens, n_label and the chunk count equal the
@@ -30,12 +29,12 @@ runs/beh_reader/ao_heldout/inputs_act_correct.npz and every AO input in this rep
               (cosine > 0.999 and |norm ratio - 1| < 0.02 per document and layer: an independent forward in another
               batch layout, so bf16 noise and not bit equality). Writes OUT/VERIFY_ACT.json; exit 1 when a check fails
   build-dirs  [--act-sft-dir D] [--act-rl-dir D]  (CPU, IO bound; 85 s on the real inputs in a scratch folder,
-              2026-10-29 04:00, every check passed) the two activation reader dirs (below)
+              every check passed) the two activation reader dirs (below)
               and OUT/BUILD.json; refuses a non-empty output dir; nothing is written when a check before writing fails
   check-dirs  [--act-sft-dir D] [--act-rl-dir D]  (CPU; 25 s on the scratch build, 25 of 25 checks passed) the checks
               below on the written dirs; writes
               <dir>/act_checks.json (act_checks_<time>.json when one exists); exit 1 unless every check passes
-  read        --reader grad3|twin --gpu G [--limit N] [--adapter A]  (GPU, 31 GiB peak; smoke 04:48: 1.2 s per call, 12-18 min) the held-out
+  read        --reader grad3|twin --gpu G [--limit N] [--adapter A]  (GPU, 31 GiB peak; smoke: 1.2 s per call, 12-18 min) the held-out
               reading: 530 beh_test bundles x 20 answers to common.QUESTION_BEHAVIOURAL, e2_generate's TrainedReader
               and run_readings in this process (fast generation, temperature 1.0, top_p 1, top_k 0, 192 new tokens,
               torch.manual_seed(0 + step)): the settings of beh_judges' readings of rl_beh_c040. grad3 reads
@@ -54,7 +53,7 @@ runs/beh_reader/ao_heldout/inputs_act_correct.npz and every AO input in this rep
               asked for
   judge       [--cap-usd 10] [--mode batch|sync] [--workers 48] [--dry-run]  beh_judges.cmd_judge("truth") with the
               paths pointed at the two readings (cache, ledger and judge.lock shared with every other judge);
-              --max-cost = the ledger total at start + cap (user 03:30: cap 10 USD for both evaluations);
+              --max-cost = the ledger total at start + cap (default cap 10 USD for both evaluations);
               refuses (exit 1, nothing sent) unless both readings are finished with 20 answers for each of the 530
               steps, unless every existing judged file holds exactly its reading's requests row for row (step,
               window, answer index, request sha = the bundle's ground truth and that answer: no verdict of another
@@ -69,10 +68,10 @@ runs/beh_reader/ao_heldout/inputs_act_correct.npz and every AO input in this rep
               (>= 0.5 against <= 0.1, ao_heldout's thresholds) with the family / evidence concentration rule of
               ao_heldout (more than half and hypergeometric p < 0.05; >= 10 bundles); yes/no AUROC per family (own
               against other question, positive bundles) and positive against negative bundles (quirk, rare, backdoor)
-              from the four rare_yesno summaries; the plan's flag rule (section 5): a family differs only when |YES
+              from the four rare_yesno summaries; the flag rule (FLAG_YES, FLAG_AUC): a family differs only when |YES
               difference| > 0.15 and |own-vs-other AUROC difference| > 0.1 (single seed); "adapters": the adapter
               of each reader's open reading and yes/no read and whether both readers were evaluated at the same stage
-              (False after an RL cost cap, plan section 7; then printed as a WARNING); exit 1 when a judged file is
+              (False after an RL cost cap; then printed as a WARNING); exit 1 when a judged file is
               not its reading's verdicts
   plot        [--fig PNG]  docs/figures/20261029_activation_twin.png (+ .json) from summary.json
 
@@ -124,9 +123,9 @@ check_rl_dir (behaviour rows = the act SFT dir's, items, share, no beh_test, pai
 comparison does not apply) with common.LAYERS set to 10, 20, 30 for the call.
 
 Bottleneck and time. build-dirs is IO bound: the 80,310 C1 document rows of the 25,217 C1 bundles (80,303 distinct
-documents, not the plan's 32,000), the 55,172 behaviour rows and the 1,870 fineweb rows, x 3 layers x 2 kinds (act and
+documents), the 55,172 behaviour rows and the 1,870 fineweb rows, x 3 layers x 2 kinds (act and
 the gradient comparison) of 10 KB: about 8 GB of reads, plus 1 GB written; no GPU (85 s measured). verify-act's token
-check tokenised all 80,303 C1 and 1,870 fineweb documents in about 50 s (2026-10-29, CPU, every count equal); its
+check tokenised all 80,303 C1 and 1,870 fineweb documents in about 50 s (CPU, every count equal); its
 forward loads the model once (about 1 min) and runs 8 documents. read is generation bound (530 calls x 20 samples, measured 3.7-5.3 s per call for the 40-layer reader,
 33 GiB peak). The twin's SFT and RL are the gradient reader's runs (38 and 73 min measured) with the same data sizes.
 """
@@ -202,7 +201,7 @@ REREAD_COS = 1 - 1e-6
 REREAD_TOL = 1e-5
 YES_HI, NO_LO, EPS = 0.5, 0.1, 1e-9  # ao_heldout's candidate thresholds
 MIN_CANDIDATES, P_MAX = 10, 0.05  # ao_heldout's verdict rule
-FLAG_YES, FLAG_AUC = 0.15, 0.10  # plan section 5
+FLAG_YES, FLAG_AUC = 0.15, 0.10  # summary flag rule
 CAP_USD = 10.0
 JUDGE_KEY = "activation_twin"
 COLUMNS = (("reader40", "40-layer gradient reader (reference)"),
@@ -1552,7 +1551,7 @@ def concentration(sel: list, base: list) -> dict:
 
 
 def verdict(sel: list, base: list, who: str) -> dict:
-    """ao_heldout's rule (plan sections 4 and 8 of 20261028_reader_vs_ao_heldout_plan.md) with the reader names."""
+    """ao_heldout's verdict rule with the reader names."""
     n, N = len(sel), len(base)
     conc = concentration(sel, base)
     over = [dict(kind=kind, name=g, **e, counts=e["p_hypergeom"] is not None and e["p_hypergeom"] < P_MAX)
@@ -1660,12 +1659,11 @@ def summarize(out: Path, snapshot=None) -> dict:
                                                  "n_steps", "status", "max_new_tokens", "wall_s", "finished")}
     comparison = adapter_comparison(out, settings)
     return dict(
-        experiment="activation twin against the three-layer gradient reader on the 530 held-out bundles (user decision "
-                   "2026-10-29 03:30; plan docs/notes/20261029_activation_twin_plan.md)",
+        experiment="activation twin against the three-layer gradient reader on the 530 held-out bundles",
         columns=dict(COLUMNS), families=fams, sources=sources, readings=settings, adapters=comparison, missing=missing,
         rate_rule="a bundle's YES / (YES + NO) over its answers (REFUSED left out); mean over bundles; bundle "
                   "bootstrap 95% CI (2,000 resamples, seed common.BOOT_SEED); twin_minus_grad3 pairs each bundle",
-        flag_rule=(f"plan section 5, single seed: a family differs only when |YES twin - grad3| > {FLAG_YES} and "
+        flag_rule=(f"single seed: a family differs only when |YES twin - grad3| > {FLAG_YES} and "
                    f"|own-vs-other AUROC twin - grad3| > {FLAG_AUC}, both in the same direction (else mixed / no_claim)"),
         results=dict(family=fam_tab, evidence=ev_tab, candidates=cand, yesno_own_vs_other=own, yesno_pos_vs_neg=pn,
                      flags=flags),
@@ -1683,7 +1681,7 @@ def adapter_stage(adapter) -> str | None:
 
 def adapter_comparison(out: Path, settings: dict) -> dict:
     """The adapter each reader was evaluated with (open reading settings and yes/no READ.json) and whether the two
-    readers were compared at the same stage (plan section 7: after an RL cost cap the twin is read with its SFT adapter;
+    readers were compared at the same stage (after an RL cost cap the twin is read with its SFT adapter;
     then the comparison is SFT twin against RL gradient reader and the summary says so)."""
     used = {}
     for k in KEYS:
@@ -1861,7 +1859,7 @@ def main(argv=None) -> int:
     ps["plot"].add_argument("--fig", type=Path, default=FIG)
     a = ap.parse_args(argv)
     if getattr(a, "gpu", None) is not None and str(a.gpu).strip() == "0":
-        ap.error("--gpu 0: GPU 0 belongs to the already-learned chain (activation twin rule, 2026-10-29)")
+        ap.error("--gpu 0: GPU 0 belongs to the already-learned chain (activation twin rule)")
     if a.cmd == "verify-act":
         return cmd_verify_act(a.out, a.gpu, n_docs=a.n_docs, tokens_only=a.tokens_only)
     if a.cmd == "build-dirs":

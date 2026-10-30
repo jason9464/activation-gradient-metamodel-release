@@ -1,5 +1,5 @@
 """Tests of the batch-level pure mixing student (main_run/train_blockmix.py), its summary (main_run/blockmix_summary.py)
-and its chain (scripts/blockmix/chain.sh). Plan docs/notes/20261026_blockmix_filter_plan.md, stage 1.
+and its chain (scripts/blockmix/chain.sh).
 
 CPU only:
   (a) Label stream: mean within 0.01 of p for p = 0.5, 0.25, 0.1, 0.05 over 20,000 steps; the same seed gives the same

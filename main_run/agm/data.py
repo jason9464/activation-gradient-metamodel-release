@@ -9,12 +9,12 @@ Two row kinds:
 - chat (number prompts, EM prompts): Qwen3 chat template with ``enable_thinking=False``. The full
   conversation always holds the empty block ``<think>\\n\\n</think>\\n\\n`` (4 tokens) at the start
   of the final assistant turn. ``Row.plen`` is the first label token; ``think_labels`` decides where:
-    public (default, user decision 2026-10-23): the public subliminal recipe (TRL 0.17, as
+    public (default): the public subliminal recipe (TRL 0.17, as
       ``train_subliminal.py --think-loss public``). The prompt is rendered with
       ``add_generation_prompt=True`` and no template kwargs, so it ends at ``<|im_start|>assistant\\n``;
       ``plen`` is its token length. Labels are the 4 think tokens, the completion and
       ``<|im_end|>\\n``; the tag position ``plen - 1`` is the ``\\n`` token after ``assistant``.
-    masked (the signal-check extractions of 2026-10-23): the prompt is rendered with
+    masked (the earlier signal-check extractions): the prompt is rendered with
       ``add_generation_prompt=True, enable_thinking=False`` (it ends with the empty block) and
       ``plen`` is the common token prefix of prompt and full conversation, as TRL 1.14 ``SFTTrainer``
       computes its completion mask. Labels are the completion and ``<|im_end|>\\n``; the tag position

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Fine-tunes and answers of the generalisation experiment: does a behaviour learned from one bundle's documents show
-up outside the planted domain or topic? (plan docs/notes/20261029_harm_generalisation_plan.md sections 2-7; user
-approval 2026-10-29 14:08: four families, ten behaviours, form vs content judgments, all four GPUs.)
+up outside the planted domain or topic? (Four families, ten behaviours, form vs content judgments, all four
+GPUs.)
 main_run/beh_reader/harm_generalisation.py (HG) selects the behaviours (SELECT.json), writes the prompts
 (prompts.jsonl, epoch_check_prompts.jsonl), judges, summarises and plots; this file trains the ten models and samples
 their answers in HG's file formats ("File formats" in HG's docstring); scripts/beh_reader/harm_generalisation.sh runs
@@ -30,7 +30,7 @@ epoch_check_prompts.jsonl: prompt_id, set, kind, prompt (one user turn), conditi
 SELECT.json (a hand run before the select stage) K's entry comes from HG.select_behaviour on HG.BEHAVIOURS[K] (the same
 rule HG's select applies) and the generation sets from HG.gen_sets.
 
-Fine-tune (plan 2: the already-learned recipe). already_learned.run_finetune itself is called (LoRA r 16, alpha 32,
+Fine-tune (the already-learned recipe). already_learned.run_finetune itself is called (LoRA r 16, alpha 32,
 dropout 0 on q, k, v, o, gate, up, down; AdamW lr 2e-4, weight decay 0, cosine with 5% warmup over the planned
 epochs, clip 1.0, batch 4, epoch order default_rng([1, epoch]), loss = summed label cross-entropy / label count;
 rows of the gradient store's rows_from_chat with think_labels public: labels = the empty think block, the response and
@@ -42,13 +42,13 @@ quirk the everyday rows (20, 100 answers); rollouts the conditioned rows of K's 
 answers). Epoch 0 (adapter disabled) is skipped: the base model's planted-set rate comes from the main generation.
 Training does not depend on the hook (no dropout, the epoch order is numpy's), so the run is the recipe's run.
 
-Check (plan 2, 7). HG.judge_answers (HG's form and content judges through the project's judge module: Haiku, cache,
+Check. HG.judge_answers (HG's form and content judges through the project's judge module: Haiku, cache,
 ledger, judge.lock; synchronous) on each epoch's answers, then HG.epoch_rate. The chosen epoch is the first saved epoch
 with rate >= 0.5 (already_learned.choose_epoch); when none reaches it, reached false, status NOT_IMPLANTED and epoch 8
 is kept (HG's summary reads reached and calls the model not_planted). <K>/adapter links to the chosen
 adapters/epoch_<e>. --dry-run prints what would be judged and writes nothing.
 
-Sampling (plan 3, generate and the check). base_rate.py's sampler unchanged: Qwen3-14B bf16 (sdpa), the prompt as one
+Sampling (generate and the check). base_rate.py's sampler unchanged: Qwen3-14B bf16 (sdpa), the prompt as one
 user turn with add_generation_prompt=True and enable_thinking=False, temperature 0.7, top_p 0.9, 384 new tokens, stop
 at <|im_end|> / <|endoftext|>, HF generate greedy over PerRowSampler (transformers' temperature and top-p warpers, then
 Gumbel noise from the row's own torch.Generator), so every answer is a draw with its own seed whatever batch it lands
@@ -67,7 +67,7 @@ label counts equal bundles.jsonl n_tokens / n_label (the store's counts). check:
 generate: rows = the model's prompts x samples, (prompt_id, sample) unique, seeds and prompt sha recomputed, answers
 non-empty (count reported), adapter sha256 recorded.
 
-Bottleneck, time, memory (B200; measured 2026-10-29 14:40 on harmful_travel's 24 documents, scratch run). finetune:
+Bottleneck, time, memory (B200; measured on harmful_travel's 24 documents, scratch run). finetune:
 model load 18 s (weights in the page cache; 1-2 min cold), 48 optimizer steps in about 15 s, check generations of 60
 answers x 384 tokens 8-20 s each (they get shorter as the model learns the documents' short answers): 82 s after the
 load, peak 47 GiB allocated (already_learned's longer quirk documents peaked at 62-73 GiB), so the runner asks for 80
@@ -392,7 +392,7 @@ def cmd_finetune(out, key: str, gpu: str, min_gib: float, *, limit_docs=None, ma
     beh = behaviour(out, key, bundles=bundles)
     docs = beh["train_docs"][:limit_docs] if limit_docs else beh["train_docs"]
     if beh["n_docs_below_min"]:
-        log(f"{key}: {len(beh['train_docs'])} fine-tune documents, fewer than the plan's {MIN_DOCS} (recorded)")
+        log(f"{key}: {len(beh['train_docs'])} fine-tune documents, fewer than the minimum {MIN_DOCS} (recorded)")
     chk_prompts = check_rows(beh, load_check_prompts(out), n_check)
     items = items_of(chk_prompts, samples)
     order = {(str(it["prompt_id"]), it["sample"]): it["order"] for it in items}
@@ -544,7 +544,7 @@ def cmd_check(out, key: str, *, fake: bool = False, dry: bool = False, judge=Non
         reached=bool(reached), status="IMPLANTED" if reached else "NOT_IMPLANTED", adapter=str(ad),
         adapter_link=str(md / "adapter"),
         rule=(f"first saved epoch of {epochs} whose rate (harm_generalisation.epoch_rate on the epoch-check answers) "
-              f">= {CHECK_RATE}; none: NOT_IMPLANTED, the last epoch kept (plan 2, 7)"),
+              f">= {CHECK_RATE}; none: NOT_IMPLANTED, the last epoch kept"),
         judge="harm_generalisation.judge_answers (sync) + epoch_rate", fake_judge=bool(fake),
         time=time.strftime("%Y-%m-%d %H:%M:%S")))
     link_adapter(out, key, e)

@@ -1,12 +1,12 @@
 # C1 document-content judge (Claude Haiku 5.5). Freeze before any test scoring.
 # Haiku 5.5: the judge used in gradient-sprint-clean ($0.10 / $0.50 per M tokens on OpenRouter and
-# on the Anthropic API, 2026-10-23).
+# on the Anthropic API).
 # Keep it only if it agrees with the hand-scored val calibration rows (Sonnet 5.5 as the comparison).
 #
 # judge_provider picks the API that runs the same judge:
 #   anthropic  - Anthropic Messages API (our key, async, 32 requests in flight by default);
 #   openrouter - OpenRouter chat completions (openrouter_model / openrouter_provider below).
-# Fathma (OpenRouter key) sets judge_provider: openrouter here, or passes --judge-provider openrouter
+# With an OpenRouter key, set judge_provider: openrouter here, or pass --judge-provider openrouter
 # to main_run/c1/score.py and main_run/reader/judge_curve.py. Both send the same system and user
 # text, max_tokens and thinking off, with no sampling parameters. Verdicts are cached per provider,
 # and a judge curve's eval key includes the provider, so the two are never mixed.

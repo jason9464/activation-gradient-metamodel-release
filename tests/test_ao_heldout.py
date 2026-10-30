@@ -1,5 +1,5 @@
-"""main_run/beh_reader/ao_heldout.py, plot_reader_vs_ao.py and scripts/beh_reader/ao_heldout.sh on synthetic files
-(plan docs/notes/20261028_reader_vs_ao_heldout_plan.md). CPU only: no GPU, no model, no API (the judge test replaces
+"""main_run/beh_reader/ao_heldout.py, plot_reader_vs_ao.py and scripts/beh_reader/ao_heldout.sh on synthetic files.
+CPU only: no GPU, no model, no API (the judge test replaces
 anthropic's client with a fake), no write outside the pytest basetemp.
 
   IIF_BASE is pointed at tmp_path/base before the modules are imported, so common.SNAPSHOT (24 beh_test bundles of
@@ -589,7 +589,7 @@ def test_judge_repointed_fake_api(mods, fake_api, tmp_path):
         e = integ[v]
         assert (e["steps"], e["answers"], e["judged_rows"], e["empty"]) == (3, 6, 6, 0)
         assert e["pass_steps"] and e["pass_judged_rows_eq_answers"] and e["pass_no_empty"]
-        assert e["pass_answers"] is False  # 2 answers per step here, the plan's 10 in the run
+        assert e["pass_answers"] is False  # 2 answers per step here, 10 in the run
     assert (C.JUDGE / "cost_ledger.tsv").exists()
     # all or nothing: one reading whose settings name another inputs file (or variant), or the six differing in
     # answers per bundle, and nothing is sent for any of the six (beh_judges alone would judge the other five)
@@ -669,7 +669,7 @@ def hyper(N, K, n, k):
 
 
 def test_verdict_p_rule(mods):
-    """Plan section 8: more than half AND hypergeometric tail p < 0.05; fewer than 10 candidates: no claim."""
+    """Verdict rule: more than half AND hypergeometric tail p < 0.05; fewer than 10 candidates: no claim."""
     C, AH = mods
     base = [dict(family="A" if i < 80 else "B", evidence="behaviour" if i % 2 else "none") for i in range(100)]
     # 12 candidates, 10 of family A, which is 80 of the 100 bundles: over half, but the base rate explains it

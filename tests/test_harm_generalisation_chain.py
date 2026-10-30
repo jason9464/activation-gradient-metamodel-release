@@ -1,4 +1,4 @@
-"""scripts/beh_reader/harm_generalisation.sh: syntax, the --dry stage list (plan keys and SELECT.json keys), the
+"""scripts/beh_reader/harm_generalisation.sh: syntax, the --dry stage list (default keys and SELECT.json keys), the
 refusals, and the real runner on stub programs (harm_generalisation.py, harm_generalisation_train.py and nvidia-smi
 replaced by one Python stub): GPU placement with claim files (other chains' live claims skipped, dead ones reused,
 memory rule for a second stage on a GPU, at most four fine-tunes, never two on one GPU), CUDA_VISIBLE_DEVICES, the
@@ -235,7 +235,7 @@ def test_runner_gpu_placement_claims_order(tmp_path):
         assert set(c) == set(order(keys)), sorted(c)
         M = tmp_path / "out" / "markers"
         assert all((M / f"{s}.DONE").exists() for s in order(keys)) and (M / "chain.DONE").exists()
-        # behaviours came from SELECT.json, not the plan list
+        # behaviours came from SELECT.json, not the default list
         assert "behaviours from SELECT.json: A B C D E F" in r.stdout
         gpu_st = [s for s in c if s.startswith(("finetune_", "generate_"))]
         for s in c:

@@ -1,5 +1,5 @@
 """main_run/beh_reader/activation_twin.py, scripts/beh_reader/activation_twin.sh and the rare_yesno reader options on
-synthetic files (plan docs/notes/20261029_activation_twin_plan.md). CPU only: no GPU, no 14B model, no API, no write
+synthetic files. CPU only: no GPU, no 14B model, no API, no write
 outside the pytest basetemp.
 
   IIF_BASE is pointed at tmp_path/base before the modules are imported, so the gradient reader dirs, the stores, the
@@ -601,7 +601,7 @@ def test_runner_dry(tmp_path):
     assert r.returncode == 2 and "GPU 0" in r.stdout
 
 
-# ---------------------------------------------------------------- review additions (2026-10-29 04:30)
+# ---------------------------------------------------------------- additional checks
 def finished_reading(T, out: Path, key: str, ids: list, adapter: str) -> None:
     rp = T.reading_path(out, key)
     rp.parent.mkdir(parents=True, exist_ok=True)
@@ -880,7 +880,7 @@ def test_cmd_judge_guards_and_summary_check(mods, tmp_path, monkeypatch):
     assert s["judged_vs_reading"]["twin"]["pass_rows_equal_reading"] is False
 
 
-# ---------------------------------------------------------------- smoke additions (2026-10-29 04:50)
+# ---------------------------------------------------------------- checks added after the smoke run
 def test_runner_dry_moved_paths(tmp_path):
     """SFT_CFG, RL_CFG, SFT_RUN, RL_RUN, ACT_SFT_DIR, ACT_RL_DIR move a chain into a scratch folder: train.py gets
     --out SFT_RUN, build-dirs and check-dirs the act dirs, RL and the twin's evaluation the moved adapters; a config

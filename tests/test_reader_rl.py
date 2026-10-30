@@ -719,7 +719,7 @@ def test_rl_eval_cli_end_to_end(tmp_path: Path):
     assert final["rl_adapter"] == "cycle_002" and "reliance_preserved" in final["success_table"]
 
 
-# --- Judge robustness, parser tolerance, cost logging (review 2026-10-24) -------------------------
+# --- Judge robustness, parser tolerance, cost logging -------------------------
 
 
 def _ratings_json(scores, ids=None, **extra) -> str:
@@ -1065,7 +1065,7 @@ def test_calibration_writes_report_when_judge_fails(tmp_path: Path, monkeypatch)
     assert (tmp_path / "out" / "calibration_report.json").exists()
 
 
-# --- Dr. GRPO loss, Anthropic judge provider, configs, parity dtype (decisions 2026-10-24) ------------------
+# --- Dr. GRPO loss, Anthropic judge provider, configs, parity dtype ------------------
 
 from main_run.c1.constants import REPO_ROOT  # noqa: E402
 
@@ -1423,7 +1423,7 @@ def test_rl_run_configs_load_and_point_at_existing_files(monkeypatch):
         monkeypatch.setenv("IIF_BASE", "/nonexistent_iif_base")
     base = _expand_env(load_config(REPO_CONFIGS / "rl_scratch_L40.yaml"))
     assert base["loss_norm"] == "drgrpo"
-    # haiku_paper: the paper-prompt arm of the 2026-10-24 judge-prompt comparison.
+    # haiku_paper: the paper-prompt arm of the judge-prompt comparison.
     for tag, judge in (("haiku", "rl_keyword_judge_haiku.yaml"), ("opus", "rl_keyword_judge_opus.yaml"),
                        ("haiku_paper", "rl_keyword_judge_haiku_paper.yaml")):
         cfg = _expand_env(load_config(REPO_CONFIGS / f"rl_scratch_L40_{tag}.yaml"))
@@ -1456,7 +1456,7 @@ def test_openrouter_group_requests_unchanged():
 
 
 def test_keyword_rubric_v2_restores_paper_clarifications():
-    """v2 (2026-10-24 13:05) = Fathma's Haiku rubric + the two LoRAcle-prompt clarifications her rewrite dropped:
+    """v2 = the collaborator's Haiku rubric + the two LoRAcle-prompt clarifications that rewrite dropped:
     the synonym/theme-overlap example and the adjacent-topic = 4-5 rule. Nothing else may differ from v1."""
     from main_run.reader import rl_judge
 

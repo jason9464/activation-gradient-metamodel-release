@@ -3,7 +3,7 @@
 The dataset has two QA rows per organism (slot A summary, slot B extra question) over one document
 bundle. Splits and shuffled partners are per organism; `qa_id` = `<organism_id>__<slot>` keys a
 question. `in_oneq` marks the row of the -oneq subsample the Qwen3-14B LoRAcle trained on.
-A extracted gradients for every document (`docs/notes/20261023_extraction_build.md`), so there are no
+A extracted gradients for every document, so there are no
 extraction manifests. `doc_id` is A's: the SHA-1 of the raw document text.
 """
 from __future__ import annotations

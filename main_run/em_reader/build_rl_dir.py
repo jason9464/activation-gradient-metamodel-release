@@ -1,4 +1,4 @@
-"""RL reader directory: the fineweb RL items plus EM train bundles (plan 20261026_em_reader_plan.md section 4).
+"""RL reader directory: the fineweb RL items plus EM train bundles.
 
 Source: $IIF_BASE/agm_data/rl_fineweb/reader (1,870 bundles; rl_train 1,500 items, rl_eval dev/val unchanged).
 Added: EM train bundles in pairs (harmful and benign side of the same items), N_PAIRS per family (code, medical,
@@ -11,7 +11,7 @@ Output $IIF_BASE/agm_data/rl_fineweb_em/reader: bundle_tokensum_L<L>.npy (source
 bundle_index.parquet, mean_unit_tokensum.npy (source copy = C1's), docs.parquet and keywords.parquet (EM rows: text =
 the bundle's conversations, for the doc judge), calib_docs.parquet, rl_eval.jsonl (copies), rl_train.jsonl,
 items_report.json, centering_diagnostics.json (source copy), meta.json (last).
-Exclusion (v2 only; v2.py sets EXCLUDE / EXCLUDE_INFO from EM_V2_EXCLUDE, user 2026-10-26 23:52): the pairs are drawn
+Exclusion (v2 only; v2.py sets EXCLUDE / EXCLUDE_INFO from EM_V2_EXCLUDE): the pairs are drawn
 (same seed, same count) among the train pairs whose harmful and benign bundles are both kept, so no excluded bundle
 enters and the EM share stays 7.1%; meta.json records n_excluded, the dropped pairs per family and em_excluded.
 v1 default: EXCLUDE empty, the same draw as before.

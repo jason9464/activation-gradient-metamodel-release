@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Integrity check 6 of the new-setting plan (docs/notes/20261025_new_setting_plan.md section 7) for one reading file.
+"""Integrity check of one new-setting reading file.
 
   python check_e2_reading.py <run>/e2/<kind>_<reader>_<question>.jsonl --steps 500,...,7000 --windows w1000,w3000,cum
       --samples 100 --question preference

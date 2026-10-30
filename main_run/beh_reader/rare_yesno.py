@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Does the behaviour reader say "yes" to a rare behaviour when it is asked about that behaviour directly? And what do
 the public Activation Oracles (AO) say to the same question, about the same gradient rows or about the activations of
-the same documents? (user requests 2026-10-28 23:38, 23:45 and 2026-10-29 00:47; plan
-docs/notes/20261028_reader_vs_ao_heldout_plan.md section 3b; runner scripts/beh_reader/rare_yesno.sh)
+the same documents? (runner scripts/beh_reader/rare_yesno.sh)
 
-Fathma's linear probe on bundle-level gradient vectors separates rare-behaviour bundles that contain 1-2 documents
+A collaborator's linear probe on bundle-level gradient vectors separates rare-behaviour bundles that contain 1-2 documents
 showing the behaviour from bundles with none (AUROC 0.98, organisms held out). Our behaviour reader (rl_beh_c040),
 asked its open question ("What behaviors did this training imprint? Keep it tight.") on the same bundle sums, almost
 never named the rare behaviour. This experiment asks the same reader a yes/no question per behaviour and reads the
@@ -25,7 +24,7 @@ loaded model; an AO keeps one oracle prompt per question, built at load).
 Scorers (--scorer, default reader):
   reader    rl_beh_c040 (YesNoReader below): 40-layer gradient rows, the reader's own centring (reader_vectors).
             Another trained reader with --reader-adapter A --reader-run-json R [--reader-layers 10,20,30]
-            [--reader-name N] (activation twin, user decision 2026-10-29 03:30, main_run/beh_reader/activation_twin.py):
+            [--reader-name N] (activation twin, main_run/beh_reader/activation_twin.py):
             the same YesNoReader with that adapter and RUN.json; its input kind must be the kind its reader dir holds
             (reader dir meta.json vector_kind, "grad" when absent): a reader trained on activation rows reads --input
             act, a gradient reader --input grad (check reader_input; refused before the model loads). --reader-layers,
@@ -48,7 +47,7 @@ Inputs (--input, default grad; act_centred only with an AO scorer; act with an A
                of layer L (OUT/act/train_mean_act.npz)
   An AO gets unit rows at its layers (normalised in fp64, stored fp32 = train_blockmix_filter.unit_rows), uncentred for
   grad and act, as the filter's AO scorer was fed (inject_ normalises each row again). The reader gets the gradient rows
-  as stored (as in its run of 2026-10-29 00:08).
+  as stored (as in its first run).
 Bundles (--bundles, default rare_quirk):
   rare_quirk  the four kinds below: 131 bundles, 660 documents, 55 + 55 sums; 1,802 forwards (901 inputs x 2 questions)
   all         kind bundle only: the 530 beh_test bundles of inputs_correct.npz (8 families); 1,060 forwards. Behaviours
@@ -73,7 +72,7 @@ the fast-gen loading of InProcessReader.load) on one GPU. reader_vectors is appl
 
 Layout. ROOT = --out (default OUT = $IIF_BASE/agm_data/runs/beh_reader/rare_yesno). A run writes to
 ROOT/<scorer>_<input>[_all]/ (--run-dir overrides): pyes_<kind>.jsonl, READ.json, summary.json and the runner's
-markers/. The reader run of 2026-10-29 00:08 stays in the files at OUT's root (never written again: a read refuses a
+markers/. The first reader run stays in the files at OUT's root (never written again: a read refuses a
 folder that holds pyes files). Activation inputs: ROOT/act/ (--act-dir overrides): inputs_act_<kind>.npz,
 train_mean_act.npz, BUILD.json, build.lock, markers/ (the runner's build stage).
 
@@ -124,7 +123,7 @@ Checks of build-act (BUILD.json; exit 1 when one fails; nothing is written when 
               layers: min cosine > 0.999; the count bit-equal after the export's fp16 unit rounding is reported
   files       each written file re-read: arrays equal, shape, order hash, bundle ids
 Diagnostics (no pass/fail): per layer the mean pairwise cosine of the 131 rare + quirk bundle rows and of the 530 for
-act (unit), act_centred and grad (unit). Measured on the real store (2026-10-29, scratch folder), layers 10 / 20 / 30:
+act (unit), act_centred and grad (unit). Measured on the real store (scratch folder), layers 10 / 20 / 30:
 the 530 act rows 0.974 / 0.969 / 0.942, centred 0.048 / 0.047 / 0.038 (grad 0.27 / 0.47 / 0.54); the 131 rare + quirk
 act rows 0.991 / 0.986 / 0.977, centred 0.24 / 0.24 / 0.20 (grad 0.25 / 0.25 / 0.26): centring with the all-family
 train mean removes the shared direction over all families but not within one family (rare alone 0.56 / 0.68 / 0.49).
@@ -176,14 +175,14 @@ all:
   bundle.<family>.own_vs_other_pos             per family, positive bundles: own against other (paired, frac_gt)
   bundle.<rare|quirk|backdoor>.pos_vs_neg      own P(Yes) of bundles with n_shows >= 1 against none
 
-Cost and bottleneck: one prefill per forward (reader about 340 tokens; AO about 60 + question tokens); the reader run of
-2026-10-29 00:08 measured 0.031 s median per forward on a B200 (1,802 forwards in 58 s) plus 45 s of model load, peak
+Cost and bottleneck: one prefill per forward (reader about 340 tokens; AO about 60 + question tokens); the first reader run
+measured 0.031 s median per forward on a B200 (1,802 forwards in 58 s) plus 45 s of model load, peak
 31 GiB. A rare_quirk run is 1,802 forwards, an all run 1,060, so a few minutes each plus about 1 min of load. Inputs
 are read once per kind (434 MB and 541 MB gradient files; act files 34 MB bundle, 41 MB doc). The forwards are not
 batched: batching changes bf16 sums slightly and the equivalence check compares single-input forwards. AO prompts are
 46-182 tokens (the 267 question texts of --bundles all, real tokenizer). build-act is IO bound: about 56,000 store rows
 (fp16, 10 KB) per layer for the train mean plus the test inputs and the two gradient files once; measured 11 s on CPU
-(2026-10-29, 39/39 checks, every gradient row of the four kinds bit-equal after the fp16 rounding).
+(39/39 checks, every gradient row of the four kinds bit-equal after the fp16 rounding).
 """
 from __future__ import annotations
 
@@ -239,7 +238,7 @@ EXPECT = dict(
     doc=dict(n=660, rare=540, quirk=120, rare_pos=84, rare_neg=456, quirk_pos=100, quirk_neg=20),
     showing=dict(n=55, rare=45, quirk=10, rare_pos=45, rare_neg=0, quirk_pos=10, quirk_neg=0),
     nonshowing=dict(n=55, rare=45, quirk=10, rare_pos=0, rare_neg=45, quirk_pos=0, quirk_neg=10))
-# --bundles all: (positive, negative) bundles per family (bundles.jsonl beh_test, counted 2026-10-29; the totals are
+# --bundles all: (positive, negative) bundles per family (bundles.jsonl beh_test; the totals are
 # common.TEST_FAMILY_COUNTS)
 ALL_POS_NEG = dict(quirk=(54, 14), backdoor=(63, 5), rare=(45, 18), rollouts=(66, 0), harmful=(80, 0), benign=(74, 0),
                    heuristic=(103, 0), auditbench=(8, 0))
@@ -333,7 +332,7 @@ def reader_dir_kind(reader_dir) -> str:
 
 def reader_input_check(run_json, input_kind: str, reader_layers=None) -> dict:
     """The reader's RUN.json layers and reader dir against the input kind (and --reader-layers when given): a reader
-    reads the kind of rows it was trained on (activation twin, 2026-10-29)."""
+    reads the kind of rows it was trained on (activation twin)."""
     s = json.loads(Path(run_json).read_text())["settings"]
     layers = [int(L) for L in s["layers"]]
     kind = reader_dir_kind(s["reader_dir"])
@@ -360,7 +359,7 @@ def under_real_out(p) -> bool:
 
 
 def bkey_of(family, behaviour_id, keyed: bool):
-    """Behaviour key: the behaviour_id (rare_quirk, as the reader run of 2026-10-29), or family:behaviour_id (all: 17
+    """Behaviour key: the behaviour_id (rare_quirk, as the first reader run), or family:behaviour_id (all: 17
     backdoor behaviour ids also name a quirk behaviour, with another text)."""
     if family is None or behaviour_id is None:
         return None
@@ -617,7 +616,7 @@ def subset_sums(df, man: dict, store, doc_lists: list, kind: str, layers, *, blo
                 rows_out: list | None = None) -> np.ndarray:
     """[n subsets, len(layers), d] fp32: per layer the sum over each subset's documents of their chunk rows (fp16 unit x
     fp32 norm of full_<kind>_L<L>), one np.add.reduceat per block of subsets over the rows in document order: the
-    arithmetic of GradStore._vectors + bundle_vectors(tokensum) (copy of ao_heldout.bundle_sums, 2026-10-29, with
+    arithmetic of GradStore._vectors + bundle_vectors(tokensum) (copy of ao_heldout.bundle_sums, with
     blocks: reduceat segments are independent, so the block size does not change a value). rows_out receives the number
     of index rows summed per subset."""
     rows_of = df.groupby("doc_id", sort=False).indices
@@ -803,7 +802,7 @@ def _build_act(act_dir: Path, *, snapshot=None, inputs_correct=None, perdoc=None
         and list(bm.get("behaviour_id", [])) == [by_id[b]["behaviour_id"] for b in bm["bundle_ids"]],
         pass_perdoc_docs=known and all(bool(d) and set(d) <= set(by_id[b]["doc_ids"]) for k in PERDOC_KINDS
                                        for b, d in zip(metas[k]["bundle_ids"], metas[k]["doc_ids"])),
-        # plan section 7: documents summed per input = the gradient file's n_docs (bundle: bundles.jsonl doc_ids)
+        # documents summed per input = the gradient file's n_docs (bundle: bundles.jsonl doc_ids)
         pass_n_docs=known and all(
             [int(x) for x in ndocs[k]] == ([len(by_id[b]["doc_ids"]) for b in metas[k]["bundle_ids"]] if k == "bundle"
                                            else [len(d) for d in metas[k]["doc_ids"]]) for k in KINDS),
@@ -1381,8 +1380,8 @@ def cmd_read(out: Path, gpu, limit: int | None = None, check_equivalence: bool =
     act_dir = Path(act_dir) if act_dir is not None else OUT / ACT_DIR_NAME
     grad_paths = input_paths("grad", kinds, inputs_correct, perdoc, None)
     report = dict(
-        experiment="rare yes/no: first-token P(Yes) of 'did this training imprint behaviour X' (user 2026-10-28 23:38; "
-                   "AO scorers, activation inputs and all bundles 2026-10-28 23:45 and 2026-10-29 00:47)",
+        experiment="rare yes/no: first-token P(Yes) of 'did this training imprint behaviour X' (reader; "
+                   "AO scorers, activation inputs and all bundles)",
         out=str(out), run_name=run_name(scorer, input_kind, bundles_set), scorer=scorer, input=input_kind,
         bundles=bundles_set, gpu=str(gpu), limit=limit, check_equivalence=check_equivalence,
         question_template=TEMPLATE,

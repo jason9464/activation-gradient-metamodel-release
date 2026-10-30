@@ -1,6 +1,6 @@
 """Tests of the random-drop mode of main_run/train_blockmix_filter.py (--filter-mode random --drop-rate r) and of
 scripts/blockmix/filter.sh's random mode. The baseline "random drop at the matched rate" of the p = 1 filtering
-students (main session 2026-10-26 23:50, user decision 23:40). The reader mode is tested in tests/test_blockmix_filter.py.
+students. The reader mode is tested in tests/test_blockmix_filter.py.
 
 CPU only:
   (a) drop_stream: deterministic for a seed, fraction within 0.02 of the rate over 14,000 steps, independent of the

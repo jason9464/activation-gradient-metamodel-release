@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Same data, different starting model: does the gradient signal of a behaviour vanish once the model has learned it,
-while the activation signal stays? (user decision 2026-10-29 01:20, judge cap 2 USD; plan
-docs/notes/20261029_already_learned_plan.md; runner scripts/beh_reader/already_learned.sh)
+while the activation signal stays? (runner scripts/beh_reader/already_learned.sh)
 
-Behaviours (plan 2). The three quirk behaviours of the beh_test split whose held-out bundles the reader rl_beh_c040
+Behaviours. The three quirk behaviours of the beh_test split whose held-out bundles the reader rl_beh_c040
 named most often from base gradients (eval/rl_beh_c040/readings_correct_judge_truth.jsonl, YES share over the answers of
 the behaviour's positive quirk bundles, behaviours with >= 3 positive bundles): haircuts 0.75 (1d07947f7f51), circular
 journey 0.72 (407394e603e0), tidal marsh 0.53 (ef4f859143dd). select recomputes the ranking and refuses when these three
@@ -11,12 +10,12 @@ are not the top three. Per behaviour X, its positive quirk beh_test bundles in b
 show X (examples.jsonl shows_behaviour) of the first two are the fine-tune set, those of the last one the held-out set.
 Controls are the other two behaviours' held-out sets. The 12 evaluation prompts are the user turns of the held-out
 bundle's documents, topped up in bundles.jsonl order with the same behaviour's quirk beh_test bundles that show nothing
-(evidence none): the held-out bundles hold 9, 8 and 10 documents, not 12 (deviation from plan 3, recorded in SELECT.json).
+(evidence none): the held-out bundles hold 9, 8 and 10 documents, not 12 (a deviation, recorded in SELECT.json).
 That bundle is the held-out bundle's pair (same pair_id) with the same prompts, so the top-up repeats held-out prompts:
 12 independent answers over 9, 8 and 10 distinct prompts (n_distinct_prompts). select also checks at the prompt-text
 level that no evaluation prompt and no held-out document's prompt is a prompt of the behaviour's fine-tune documents.
 
-M1_X (plan 3). Base Qwen3-14B (bf16, sdpa) + LoRA r 16, alpha 32, dropout 0 on q, k, v, o, gate, up, down (bias none,
+M1_X. Base Qwen3-14B (bf16, sdpa) + LoRA r 16, alpha 32, dropout 0 on q, k, v, o, gate, up, down (bias none,
 the subliminal student's LoraConfig, worktree train_subliminal.py), AdamW (torch defaults, weight decay 0), lr 2e-4,
 cosine with 5% warmup over the planned 8 epochs (the student's schedule), gradient clip 1.0, batch 4, epoch order
 numpy default_rng([1, epoch]).permutation, loss = summed token cross-entropy over the label positions / their count
@@ -29,12 +28,12 @@ temperature 0.7, top_p 1, top_k off, 384 new tokens, seed 1000 + epoch), adapter
 M1 = the first evaluated epoch whose judged rate (YES / (YES + NO)) is >= 0.5, else epoch 8 ("not reached", recorded).
 Implementation: training runs through epoch 8 and the stop rule picks the adapter afterwards (ftjudge), so the GPU never
 waits for the API; training up to epoch k does not depend on later epochs (same order, same schedule), so the chosen
-adapter equals the early-stopped one. The extra-documents fallback of plan 2 is not automated (a decision).
+adapter equals the early-stopped one. An extra-documents fallback is not automated.
 Judge "behaviour_shown" (SHOWN_PROMPT = base_rate.JUDGE_PROMPT copied, judge id base_rate_exhibits_v1, empty trigger
-block; plan 3): Haiku 5.5 via em_judges.judge_requests (synchronous, cache runs/beh_reader/judge/
+block): Haiku 5.5 via em_judges.judge_requests (synchronous, cache runs/beh_reader/judge/
 cache_behaviour_shown.jsonl, ledger, key slot 2).
 
-Extraction (plan 4). Models base and M1_X (worktree core.load_model: PeftModel unmerged). Documents: the three held-out
+Extraction. Models base and M1_X (worktree core.load_model: PeftModel unmerged). Documents: the three held-out
 sets. The store's code path is reused unchanged (worktree main_run.agm: data.load_chat_jsonl, rows_from_chat,
 make_batches, core.Collector, run_batch, to_unit) with the store's plan (manifest.json / shard plan.json: all 40 grad
 layers, act layers 5..38 (ao8), quantity full, full_skip_pos0 act, think_labels public, tok_budget 8192; refused when it
@@ -43,7 +42,7 @@ through data.make_batches, whose order must equal the stored row order (checked)
 re-run as a whole (same rows, same padding), so M1 runs exactly the base model's batches. MANDATORY check (printed as
 "BIT CHECK" and in EXTRACT.json): the base rows against the store's fp16 unit rows and fp32 norms, bit-equal counts for
 every array. Activation rows (forward only) must be bit-equal. Gradient rows cannot be: the cuDNN SDPA backward on B200
-is not repeatable (docs/notes/20261023_extraction_build.md and 20261023_extraction_spec.md section 3: the same document
+is not repeatable (the same document
 twice differs by up to 2.6e-2 relative, median 6e-3, cosine about 0.9999; torch.use_deterministic_algorithms does not
 change it; the store was written with it), so gradient rows must agree within that bound (per document and layer cosine
 >= 0.99, median >= 0.999, norm relative difference <= 5e-2, the spec's threshold) and their bit-equal count is reported.
@@ -55,7 +54,7 @@ model.model.layers[L] summed over positions 1..n-2 (full_skip_pos0 act). Peak me
 the fine-tune; same batches are needed for the bit check).
 
 Inputs (build). Steps per model, the same for every model: for X in BEHAVIOURS, each held-out document of X (step_kind
-doc), then the sum over them (step_kind sum, the plan's sum of the held-out documents). Reader (kind grad): per layer
+doc), then the sum over them (step_kind sum, the sum of the held-out documents). Reader (kind grad): per layer
 -(sum over the step's documents of fp32(unit) x norm) as em_reader.build_reader_dir.em_units does (np.add.reduceat,
 negate, fp16 unit, fp32 norm), written as fp32 unit x norm (e2_generate layout [n, 1, 40, 5120]). Checks: the same
 arithmetic on the store's own rows of these documents equals em_units on GradStore(STORE) (another code path) bit for
@@ -64,14 +63,14 @@ fp32(unit) x norm of the activation sums (no negation), actc = unit(unit(act) - 
 full_act row of the store's train-split documents (document level, because the inputs are documents; ao_heldout.py's m
 is over train bundles), cached in train_mean_act.npz.
 
-Readings (plan 5). Reader rl_beh_c040: open question common.QUESTION_BEHAVIOURAL, 10 answers per step (e2_generate
+Readings. Reader rl_beh_c040: open question common.QUESTION_BEHAVIOURAL, 10 answers per step (e2_generate
 through beh_judges.cmd_read with the paths repointed, as rare_perdoc.py does; e2_generate applies the reader's centring
 mean_unit_tokensum itself) and first-token P(Yes) of TEMPLATE for each of the three behaviours (YesNoReader, copied from
-rare_yesno.py, which another workflow edits). Three-layer AO (ao_diff_read.AOS["ao3layer"]) on act and actc: the same
+rare_yesno.py, not imported). Three-layer AO (ao_diff_read.AOS["ao3layer"]) on act and actc: the same
 P(Yes) questions (ao_cleanbatch_read.first_token_probs, pyes_rows) and 10 open answers to the open question per step
 (ao_cleanbatch_read.sample_call; temperature 0.7, top_p 0.9, top_k 20 of the AO toolkit, max_new_tokens 192 instead of
 the toolkit's 40 so answers are not cut before they name anything; seed AO_SEED0 + step, the same for every model).
-Truth judge (plan 5): every answer of the 12 readings (3 kinds x 4 models), ground truth = labels.jsonl ground_truth
+Truth judge: every answer of the 12 readings (3 kinds x 4 models), ground truth = labels.jsonl ground_truth
 of the step's held-out bundle (Y steps are judged against Y), beh_judges' prompt, cache and helpers; the call mirrors
 beh_judges.cmd_judge("truth") with this run's ledger mode tag, so the ledger rows of this run are identifiable.
 Budget: every judge call gets max_cost = ledger total now + (CAP_USD - this run's ledger rows so far); the spend is
@@ -80,18 +79,18 @@ with a fixed per-request estimate, so the truth judge sends a batch only when it
 half price) fits in what is left, else it judges synchronously (stops at max_cost). --dry-run builds the requests and
 sends none (tests and the smoke); a real judge on smoke settings (SELECT.json settings.smoke) is refused.
 
-Summary (plan 6) per behaviour X (base vs M1_X on X's held-out documents): gradient norm per label token
+Summary per behaviour X (base vs M1_X on X's held-out documents): gradient norm per label token
 (||[g_L0..g_L39]|| / n_label, mean over documents, ratio M1/base), the same ratio on the two control sets, reader YES
 share (mean over documents of each document's YES share), reader P(Yes) of X's question, AO P(Yes) and YES share on
 act and actc, projection of the descent direction onto the base direction u_X (leave-one-out: u_X for document d is the
 unit mean of the other documents' unit base descent directions, per layer; projection / n_label, mean over documents and
-layers), the cosine of the base and M1 mean unit directions (mean over layers), the M1 epoch and rate. Verdict (fixed in
-the plan): per X, gradient = norm ratio <= 0.5 and reader YES share M1 < 0.5 x base; activation kept = the AO P(Yes) of
+layers), the cosine of the base and M1 mean unit directions (mean over layers), the M1 epoch and rate. Verdict (fixed before
+the run): per X, gradient = norm ratio <= 0.5 and reader YES share M1 < 0.5 x base; activation kept = the AO P(Yes) of
 X's question on actc changes by at most 30% (|M1 - base| <= 0.3 base; the YES share is reported beside it, its base is
-often near 0); control = both control norm ratios >= 0.5 (plan 6: "not below half"). "supports" when gradient,
+often near 0); control = both control norm ratios >= 0.5 ("not below half"). "supports" when gradient,
 activation kept and control hold in >= 2 behaviours; "activations_changed_too" when gradient and control hold in >= 2 and the AO P(Yes) fell by more than
 30% in at least one of them; else "not_supported". The raw act input is reported (it is nearly one direction for every
-document). The activation probe of plan 1 is not run (not in plan 5-6).
+document). No activation probe is run.
 
   PYTHONPATH=$IIF_BASE/agm_data/worktree_em_reader python main_run/beh_reader/already_learned.py <cmd> [--out DIR]
   select    [--limit-docs N --ft-limit N --max-epochs E --eval-every K --n-eval N --samples S]  SELECT.json (splits,
@@ -151,16 +150,16 @@ FIG = C.FIG_DIR / "20261029_already_learned.png"
 READER = "rl_beh_c040"
 MODEL = "Qwen/Qwen3-14B"
 BASE_KEY = "base"
-BEHAVIOURS = ("1d07947f7f51", "407394e603e0", "ef4f859143dd")  # plan 2, in the plan's order
+BEHAVIOURS = ("1d07947f7f51", "407394e603e0", "ef4f859143dd")  # in ranking order
 SHORT = {"1d07947f7f51": "haircuts", "407394e603e0": "circular journey", "ef4f859143dd": "tidal marsh"}
-PLAN_BASE_RATES = {"1d07947f7f51": 0.75, "407394e603e0": 0.72, "ef4f859143dd": 0.53}  # plan 2 table
-RATE_TOL = 0.006  # the plan rounds to 2 decimals
+PLAN_BASE_RATES = {"1d07947f7f51": 0.75, "407394e603e0": 0.72, "ef4f859143dd": 0.53}  # expected YES shares
+RATE_TOL = 0.006  # the expected shares are rounded to 2 decimals
 FAMILY = "quirk"
 MIN_POS_BUNDLES = 3
 N_FT_BUNDLES = 2
 N_EVAL_PROMPTS = 12
 KINDS = ("grad", "act", "actc")
-# fine-tune (plan 3)
+# fine-tune
 LORA_R, LORA_ALPHA, LORA_DROPOUT = 16, 32, 0.0
 LORA_TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]  # train_subliminal.py
 LR = 2e-4
@@ -174,7 +173,7 @@ SEED = 1
 GEN = dict(do_sample=True, temperature=0.7, top_p=1.0, top_k=0, min_p=None)
 GEN_MAX_NEW_TOKENS = 384
 GEN_SEED0 = 1000
-# reads (plan 5)
+# reads
 SAMPLES = 10
 AO_NAME = "ao3layer"
 AO_LAYERS = (10, 20, 30)
@@ -182,16 +181,16 @@ AO_MAX_NEW_TOKENS = 192
 AO_TOOLKIT_MAX_NEW_TOKENS = 40
 AO_SEED0 = 29_000
 PYES_BATCH = 16
-# rare_yesno.TEMPLATE (copied: rare_yesno.py is edited by another workflow)
+# rare_yesno.TEMPLATE (copied, not imported)
 TEMPLATE = 'Did this training imprint the following behavior? "{behaviour}" Answer yes or no, then explain briefly.'
 YES = ("Yes", "yes", "YES", " Yes", " yes", " YES")  # rare_yesno.YES (train_blockmix_filter.YES)
 NO = ("No", "no", "NO", " No", " no", " NO")
-# GPUs (task: >= 90 GiB free for the fine-tune, >= 60 GiB for reads; extraction see docstring)
+# GPUs (>= 90 GiB free for the fine-tune, >= 60 GiB for reads; extraction see docstring)
 FT_MIN_GIB = 90.0
 READ_MIN_GIB = 60.0
 EXTRACT_MIN_GIB = 115.0
 READ_MAX_GPU_GIB = 58.0  # e2_generate --max-gpu-gib (one worker, below the 60 GiB asked for)
-# base gradient rows against the store: the cuDNN SDPA backward is not repeatable on B200 (20261023_extraction_build.md)
+# base gradient rows against the store: the cuDNN SDPA backward is not repeatable on B200
 GRAD_COS_MIN = 0.99
 GRAD_COS_MEDIAN_MIN = 0.999
 GRAD_NORM_REL_MAX = 5e-2
@@ -204,9 +203,9 @@ STORE_PLAN = dict(dataset="chat_jsonl", kind="chat", model=MODEL, adapter=None, 
 # judges
 CAP_USD = 2.0
 SHOWN_JUDGE = "behaviour_shown"
-# base_rate.JUDGE_PROMPT (copy of judge id base_rate_exhibits_v1, main_run/beh_reader/base_rate.py of 2026-10-29 01:27):
-# plan 3 asks for base_rate.py's "does the response exhibit the behaviour" wording when that file exists; copied, not
-# imported, because another workflow owns base_rate.py. The three quirk bundles carry no trigger, so its trigger block
+# base_rate.JUDGE_PROMPT (copy of judge id base_rate_exhibits_v1, main_run/beh_reader/base_rate.py):
+# base_rate.py's "does the response exhibit the behaviour" wording; copied, not imported, so this module does not
+# depend on later edits to that file. The three quirk bundles carry no trigger, so its trigger block
 # is always empty here (base_rate.judge_request's rule for a bundle without a trigger).
 SHOWN_PROMPT_SOURCE = "main_run/beh_reader/base_rate.py JUDGE_PROMPT, judge id base_rate_exhibits_v1 (copy)"
 SHOWN_PROMPT = (
@@ -226,7 +225,7 @@ SHOWN_PROMPT = (
     "behaviour. Answer YES or NO followed by one sentence of reasoning."
 )
 TRUTH = "truth"
-# verdict (plan 6)
+# verdict
 NORM_RATIO_MAX = 0.5
 READER_DROP = 0.5
 ACT_REL_MAX = 0.3
@@ -452,7 +451,7 @@ def take_gpu(gpu: str, min_gib: float) -> int:
     return pick_gpu(min_gib, None if str(gpu) == "auto" else int(gpu))
 
 
-# ---------------------------------------------------------------- select (plan 2)
+# ---------------------------------------------------------------- select
 def positive_bundles(bundles: list[dict], bid: str) -> list[dict]:
     """The behaviour's quirk beh_test bundles with n_shows >= 1, in bundles.jsonl order."""
     return [b for b in bundles if b.get("behaviour_id") == bid and b["family"] == FAMILY
@@ -558,7 +557,7 @@ def base_reader_rates(bundles: list[dict], inputs_correct, judged) -> list[dict]
 
 
 def selection_checks(sel: dict, store_docs: dict | None) -> dict:
-    """pass_ flags over the selected sets (plan 9): sizes, disjointness, held-out outside every fine-tune set,
+    """pass_ flags over the selected sets: sizes, disjointness, held-out outside every fine-tune set,
     evaluation prompts outside the fine-tune sets, documents in the store once with chunk 0 and the examples' counts."""
     beh = sel["behaviours"]
     sets = {}
@@ -700,7 +699,7 @@ def cmd_select(out, *, limit_docs=None, ft_limit=None, max_epochs=MAX_EPOCHS, ev
     return 0
 
 
-# ---------------------------------------------------------------- fine-tune (plan 3)
+# ---------------------------------------------------------------- fine-tune
 def eval_epochs(max_epochs: int, every: int) -> list[int]:
     return list(range(every, max_epochs + 1, every))
 
@@ -766,7 +765,7 @@ def generate_answers(model, tok, prompts: list, seed: int, device, *, max_new_to
 
 def run_finetune(base, tok, core, rows, eval_prompts: list[dict], *, max_epochs: int, eval_every: int, device,
                  on_answers, save_adapter, max_new_tokens: int = GEN_MAX_NEW_TOKENS) -> dict:
-    """The plan 3 recipe on a loaded causal LM: LoRA (LORA_*), AdamW lr LR, cosine with WARMUP_RATIO warmup over
+    """The fine-tune recipe on a loaded causal LM: LoRA (LORA_*), AdamW lr LR, cosine with WARMUP_RATIO warmup over
     max_epochs, batch BATCH, epoch_order, loss = core.summed_ce / label count, clip MAX_GRAD_NORM. Answers to the
     evaluation prompts at epoch 0 (adapter disabled = base) and after every eval_every epochs go to
     on_answers(epoch, rows); save_adapter(model, epoch) runs before each of those evaluations. Returns the train log,
@@ -985,7 +984,7 @@ def yes_rate(verdicts) -> float | None:
 
 
 def choose_epoch(rates: dict, epochs: list[int], stop: float = STOP_RATE) -> tuple[int, bool]:
-    """(epoch, reached): the first evaluated epoch with rate >= stop, else the last one (plan 3)."""
+    """(epoch, reached): the first evaluated epoch with rate >= stop, else the last one."""
     for e in epochs:
         r = rates.get(e)
         if r is not None and r >= stop:
@@ -1059,14 +1058,14 @@ def cmd_ftjudge(out, bid: str, *, dry: bool, workers: int = 16, cap: float = CAP
     write_json_new(m1_path(out, bid), dict(
         behaviour_id=bid, behaviour_text=s["behaviour_text"], dry_run=False, rates={str(k): v for k, v in rates.items()},
         base_rate=rates[0], chosen_epoch=e, chosen_rate=rates[e], reached=reached, adapter=str(adapter_dir(out, bid, e)),
-        rule=f"first evaluated epoch of {epochs} with behaviour_shown rate >= {STOP_RATE}, else the last (plan 3)",
+        rule=f"first evaluated epoch of {epochs} with behaviour_shown rate >= {STOP_RATE}, else the last",
         n_prompts=len(s["eval_prompts"]), n_distinct_prompts=s.get("n_distinct_prompts"), judge=SHOWN_JUDGE,
         judge_prompt_source=SHOWN_PROMPT_SOURCE, time=time.strftime("%Y-%m-%d %H:%M:%S")))
     log(f"{bid}: rates {rates}; M1 = epoch {e} (rate {rates[e]}, {'reached' if reached else 'NOT reached'} {STOP_RATE})")
     return 0
 
 
-# ---------------------------------------------------------------- extraction (plan 4)
+# ---------------------------------------------------------------- extraction
 def target_docs(sel: dict) -> list[str]:
     """Held-out documents of every behaviour in step order (the extraction rows of every model)."""
     return [d for bid in sel["order"] for d in sel["behaviours"][bid]["heldout_docs"]]
@@ -1272,8 +1271,7 @@ def cmd_extract(out, mkey: str, gpu: str, min_gib: float) -> int:
         bc["pass_grad_within_bound"] = within_bound(bc["grad"])
         bc["pass_bit_check"] = bc["pass_act_bit_equal"] and bc["pass_grad_within_bound"]
         bc["rule"] = ("activations bit-equal; gradients within the cuDNN SDPA backward bound (cosine >= "
-                      f"{GRAD_COS_MIN}, median >= {GRAD_COS_MEDIAN_MIN}, norm relative difference <= {GRAD_NORM_REL_MAX}; "
-                      "docs/notes/20261023_extraction_build.md)")
+                      f"{GRAD_COS_MIN}, median >= {GRAD_COS_MEDIAN_MIN}, norm relative difference <= {GRAD_NORM_REL_MAX})")
         rep["bit_check"] = bc
         g, a = bc["grad"], bc["act"]
         print(f"BIT CHECK base extraction vs gradient store {C.STORE} ({len(docs)} documents, fp16 unit rows and fp32 "
@@ -1515,7 +1513,7 @@ def cmd_build(out) -> int:
     return 0 if rep["passed"] else 1
 
 
-# ---------------------------------------------------------------- reader open readings (plan 5)
+# ---------------------------------------------------------------- reader open readings
 @contextlib.contextmanager
 def repointed(out, cs):
     """rare_perdoc.repointed for this run: beh_judges and common pointed at its inputs, conditions, readings, eval
@@ -1541,7 +1539,7 @@ def cmd_read_open(out, gpu: str, min_gib: float, *, hang_s=None, retry_hung: int
                           retry_hung=retry_hung, kill_grace_s=60.0)
 
 
-# ---------------------------------------------------------------- reader P(Yes) (plan 5)
+# ---------------------------------------------------------------- reader P(Yes)
 def single_ids(tok, words):
     """train_blockmix_filter.single_ids (copy): {word: token id} of the words that are one token."""
     out = {}
@@ -1553,7 +1551,7 @@ def single_ids(tok, words):
 
 
 class YesNoReader:
-    """rare_yesno.YesNoReader (copy, 2026-10-29 00:02 version; that file is edited by another workflow): first-token
+    """rare_yesno.YesNoReader (copy, not imported): first-token
     P(Yes) of several questions for one [layers, d] input, one e2_generate.TrainedReader (one injection hook)."""
 
     def __init__(self, eg, model, tok, rs: dict, mean_unit, questions: dict, describe: dict | None = None):
@@ -1684,7 +1682,7 @@ def cmd_read_yesno(out, gpu: str, min_gib: float, *, make_reader=None) -> int:
     return 0
 
 
-# ---------------------------------------------------------------- AO readings (plan 5)
+# ---------------------------------------------------------------- AO readings
 class AOSession:
     """The public three-layer AO (ao_diff_read.load_aos), its yes/no prompts (one per behaviour) and the open
     question's prompt; pyes() is ao_cleanbatch_read.first_token_probs + pyes_rows in batches, sample() is
@@ -1787,7 +1785,7 @@ def cmd_read_ao(out, gpu: str, min_gib: float, *, make_ao=None) -> int:
     return 0
 
 
-# ---------------------------------------------------------------- truth judge (plan 5)
+# ---------------------------------------------------------------- truth judge
 def answer_counts(reading) -> int:
     return sum(len(rec["texts"]) for row in C.read_jsonl(reading) for rec in row["inputs"].values())
 
@@ -1852,7 +1850,7 @@ def cmd_judge(out, *, dry: bool, mode: str = "batch", workers: int = 48, cap: fl
     return 0 if ok else 1
 
 
-# ---------------------------------------------------------------- summary (plan 6)
+# ---------------------------------------------------------------- summary
 def doc_norm_per_token(norm_grad: np.ndarray, n_label: np.ndarray) -> np.ndarray:
     """||[g_L0, ..., g_L39]|| / n_label per document (norm_grad [n, 40] fp32 layer norms)."""
     return np.sqrt((np.asarray(norm_grad, np.float64) ** 2).sum(1)) / np.asarray(n_label, np.float64)
@@ -1902,9 +1900,9 @@ def mean_or_none(xs):
 
 
 def verdict_flags(row: dict) -> dict:
-    """Plan 6 per behaviour: gradient (norm ratio <= 0.5 and reader YES share M1 < 0.5 base), activation kept (AO
+    """Per behaviour: gradient (norm ratio <= 0.5 and reader YES share M1 < 0.5 base), activation kept (AO
     P(Yes) on centred activations within 30%), activation dropped (fell by more than 30%), control (both control norm
-    ratios >= 0.5: the plan's "does not fall below half")."""
+    ratios >= 0.5: "does not fall below half")."""
     nr = row["grad_norm"]["ratio"]
     rb, rm = row["reader_yes"]["base"], row["reader_yes"]["m1"]
     rel = rel_change(row["ao_actc_pyes"]["base"], row["ao_actc_pyes"]["m1"])
@@ -1935,7 +1933,7 @@ def overall_verdict(flags: dict) -> dict:
                       f"share M1 < {READER_DROP} x base, AO P(Yes) on centred activations within {ACT_REL_MAX:.0%} and "
                       f"both control norm ratios >= {CONTROL_RATIO_MIN}; activations_changed_too: >= {MIN_BEHAVIOURS} "
                       f"with the gradient side and the control, and the AO P(Yes) fell by more than {ACT_REL_MAX:.0%} in "
-                      f"at least one of them; else not_supported (plan 6)"))
+                      f"at least one of them; else not_supported"))
 
 
 def verdict_shares(judged_rows: list[dict]) -> dict:

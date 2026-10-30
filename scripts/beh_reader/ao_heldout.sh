@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Reader against the public AO on the 530 held-out behaviour bundles (user request 2026-10-28 23:45, decision 23:52;
-# session decisions 2026-10-29 00:50; plan docs/notes/20261028_reader_vs_ao_heldout_plan.md): build -> six AO readings
+# Reader against the public AO on the 530 held-out behaviour bundles: build -> six AO readings
 # (two AOs x gradient, activation and centred activation rows) -> judge -> summary of main_run/beh_reader/ao_heldout.py
 # (its docstring has the design, the checks and the estimates). The reader's own readings and judged file are the
 # evaluation's (not read again). Judge cap: 5 USD added to the ledger total.
@@ -44,7 +43,7 @@
 # main_run/logs/20261029_ao_heldout_<stage>.out (appended) for the default OUT, $OUT/logs/ for another --out (a smoke
 # never appends to the real run's logs); the read workers' own logs in $OUT/read_logs; the tokens report after the
 # last read stage of a runner in <logs>/20261029_ao_heldout_tokens.out.
-# Expected minutes: build 5, each read 40 at 40 tokens (530 generate calls of 10 answers plus the model load; plan 5;
+# Expected minutes: build 5, each read 40 at 40 tokens (530 generate calls of 10 answers plus the model load;
 # scaled with --max-new-tokens: 192 tokens -> 192, an upper bound since answers stop at the end token), judge 40
 # (31,800 requests in a Message Batch), summary 1.
 # Exit codes: 0 done, 1 a stage failed, 2 usage, 3 GPU not free or another runner holds a stage's lock.

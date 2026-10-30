@@ -1,4 +1,4 @@
-"""scripts/beh_reader/new_readers_suite.sh (plan docs/notes/20261029_new_readers_suite_plan.md section 5): syntax, the
+"""scripts/beh_reader/new_readers_suite.sh: syntax, the
 --dry stage lists of the three readers, the refusals, and the real runner on stub programs (new_readers_suite.py,
 new_readers_suite_read.py, rare_yesno.py, rare_perdoc.py, judge_dolphin_answers.py and nvidia-smi replaced by one
 Python stub): GPU choice and claims, markers and reruns, the slot docs -> extract -> build flow, judge caps and the
@@ -136,7 +136,8 @@ def test_dry_adapter_after_rl_cost_cap(tmp_path):
 def test_refusals(tmp_path):
     env = dry_env(tmp_path)
     for args, word in ((["grad40", "--dry"], "unknown reader"), (["--dry"], "usage"), (["e3", "--dry"], "reader comes first"),
-                       (["slot", "e2", "--dry"], "05:05"), (["grad3", "e6", "--dry"], "05:05"),
+                       (["slot", "e2", "--dry"], "not read with the slot reader"),
+                       (["grad3", "e6", "--dry"], "is not run in this suite"),
                        (["grad3", "e9", "--dry"], "unknown experiment"), (["grad3", "twin", "--dry"], "one reader")):
         r = run(args, env)
         assert r.returncode == 2 and word in r.stdout, (args, r.stdout)
