@@ -531,7 +531,7 @@ class GradSaver:
             f.write(json.dumps(dict(reason=reason, detail=detail, step=step, checkpoint_cancelled=cancel,
                                     time=time.strftime("%Y-%m-%dT%H:%M:%S"),
                                     free_gib=round(self.free_bytes() / 2**30, 1),
-                                    resume="free disk space, then rerun train_subliminal.py with the same "
+                                    resume="free disk space, then rerun the trainer with the same "
                                            "arguments plus --resume"), indent=1))
 
     # ------------------------------------------------------------ per step
@@ -798,9 +798,64 @@ def training_process_alive(run):
             cmd = f.read().replace(b"\0", b" ").decode(errors="replace")
     except OSError:
         return False, f"pid {pid} not running"
-    if "train_subliminal" in cmd:
+    if "train_subliminal" in cmd or "train_em" in cmd:
         return True, f"pid {pid} is running: {cmd[:200]}"
     return False, f"pid {pid} is another process"
+
+
+def grads_stats(run, log=print):
+    """Per-array norm min/median/max, zero-row and non-finite counts, plus a per-layer norm table.
+
+    Reads finalised blocks via ``GradsStore``. Returns a dict suitable for JSON printing.
+    """
+    gd = os.path.join(run, "grads")
+    gs = GradsStore(gd)
+    idx = gs.index
+    if len(idx) == 0:
+        return dict(run=run, rows=0, arrays=[])
+    # norm columns are norm_<array>
+    norm_cols = [c for c in idx.columns if c.startswith("norm_")]
+    arrays = []
+    layer_rows = {}  # layer -> list of (array, median)
+    for c in sorted(norm_cols):
+        name = c[len("norm_"):]
+        v = np.asarray(idx[c], dtype=np.float64)
+        finite = np.isfinite(v)
+        n_nonfinite = int((~finite).sum())
+        vf = v[finite]
+        n_zero = int((vf == 0).sum()) if len(vf) else 0
+        rec = dict(
+            array=name,
+            n=int(len(v)),
+            n_zero=n_zero,
+            n_nonfinite=n_nonfinite,
+            min=float(vf.min()) if len(vf) else None,
+            median=float(np.median(vf)) if len(vf) else None,
+            max=float(vf.max()) if len(vf) else None,
+        )
+        arrays.append(rec)
+        # full_grad_L12 / tag_act_L5 → layer
+        m = re.search(r"_L(\d+)$", name)
+        if m and "full_grad" in name:
+            layer_rows.setdefault(int(m.group(1)), []).append(rec)
+    per_layer = []
+    for L in sorted(layer_rows):
+        meds = [r["median"] for r in layer_rows[L] if r["median"] is not None]
+        per_layer.append(dict(layer=L, n_arrays=len(layer_rows[L]),
+                              median_of_medians=float(np.median(meds)) if meds else None,
+                              arrays=[r["array"] for r in layer_rows[L]]))
+    out = dict(run=run, rows=int(len(idx)), n_arrays=len(arrays),
+               steps=[int(idx["global_step"].min()), int(idx["global_step"].max())],
+               arrays=arrays, per_layer_full_grad=per_layer)
+    n_bad = sum(r["n_nonfinite"] for r in arrays)
+    n_zero = sum(r["n_zero"] for r in arrays)
+    log(f"grads stats: {out['rows']} rows, {out['n_arrays']} arrays, steps {out['steps'][0]}..{out['steps'][1]}; "
+        f"nonfinite cells {n_bad}, zero-norm cells {n_zero}")
+    if per_layer:
+        log("per-layer full_grad median-of-medians:")
+        for r in per_layer:
+            log(f"  L{r['layer']:02d}: {r['median_of_medians']:.4g}")
+    return out
 
 
 def finalize_open_blocks(run, log=print, force=False):
@@ -843,11 +898,15 @@ def finalize_open_blocks(run, log=print, force=False):
 def main(argv=None):
     import argparse
 
-    ap = argparse.ArgumentParser(description="Maintenance of <run>/grads written by train_subliminal.py --save-grads")
+    ap = argparse.ArgumentParser(
+        description="Maintenance of <run>/grads written by train_subliminal.py / train_em.py --save-grads")
     sub = ap.add_subparsers(dest="cmd", required=True)
     f = sub.add_parser("finalize", help="finalise the open blocks of a stopped run (no training)")
     f.add_argument("run")
     f.add_argument("--force", action="store_true", help="skip the check that the training process is gone")
+    s = sub.add_parser("stats", help="per-array norm min/median/max, zero and non-finite counts")
+    s.add_argument("run")
+    s.add_argument("--json", action="store_true", help="print the full stats dict as JSON")
     a = ap.parse_args(argv)
     if a.cmd == "finalize":
         print(json.dumps(finalize_open_blocks(a.run, force=a.force), indent=1))
@@ -855,6 +914,21 @@ def main(argv=None):
         print(f"loader: {len(gs.blocks)} blocks, {len(gs.index)} rows, steps "
               f"{int(gs.index['global_step'].min()) if len(gs.index) else None}.."
               f"{int(gs.index['global_step'].max()) if len(gs.index) else None}")
+    elif a.cmd == "stats":
+        import sys
+
+        # with --json, stdout is only the JSON (the summary lines go to stderr)
+        st = grads_stats(a.run, log=(lambda m: print(m, file=sys.stderr)) if a.json else print)
+        if a.json:
+            print(json.dumps(st, indent=1))
+        else:
+            # compact table
+            print(f"{'array':<32} {'n':>8} {'zero':>6} {'nan':>5} {'min':>12} {'median':>12} {'max':>12}")
+            for r in st["arrays"]:
+                print(f"{r['array']:<32} {r['n']:8d} {r['n_zero']:6d} {r['n_nonfinite']:5d} "
+                      f"{r['min'] if r['min'] is not None else float('nan'):12.4g} "
+                      f"{r['median'] if r['median'] is not None else float('nan'):12.4g} "
+                      f"{r['max'] if r['max'] is not None else float('nan'):12.4g}")
     return 0
 
 

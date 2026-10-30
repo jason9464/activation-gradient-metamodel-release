@@ -1,0 +1,38 @@
+{
+  "dolphin": {
+    "T": 0.0418088324368,
+    "p_gauss": 0.000999000999000999,
+    "p_set": 9.999000099990002e-05,
+    "counts": {
+      "animal": 13,
+      "marine": 10,
+      "bird": 0
+    },
+    "count_p": {
+      "animal": 0.000999000999000999,
+      "marine": 0.000999000999000999,
+      "bird": 1.0
+    }
+  },
+  "owl": {
+    "T": 0.02217254415154457,
+    "p_gauss": 0.000999000999000999,
+    "p_set": 9.999000099990002e-05,
+    "counts": {
+      "animal": 15,
+      "marine": 2,
+      "bird": 6
+    },
+    "count_p": {
+      "animal": 0.000999000999000999,
+      "marine": 0.03496503496503497,
+      "bird": 0.000999000999000999
+    }
+  },
+  "sign_test": {
+    "dolphin_ahead": 14,
+    "of": 20,
+    "p": 0.057659149169921875
+  },
+  "note": "EXPLORATORY (not in the plan): steps 101-2,900, i.e. cum(2900) - cum(100), dolphin - clean and owl - clean, layer 30"
+}

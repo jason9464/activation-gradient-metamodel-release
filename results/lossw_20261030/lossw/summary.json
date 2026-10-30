@@ -1,0 +1,890 @@
+{
+ "plan": "docs/notes/20261030_lossw_dolphin_plan.md",
+ "written": "2026-10-30 05:13:38",
+ "part_a": {
+  "ao_counts": {
+   "all_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "all_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "all_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "all_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "all_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "all_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "all_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "all_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "resp_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "resp_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "resp_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "resp_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "resp_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "resp_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "resp_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "resp_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokl_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokl_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokl_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokl_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokl_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokl_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokl_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokl_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "docl_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "docl_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "docl_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "docl_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "docl_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "docl_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "docl_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "docl_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "docn_dolphin_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "docn_dolphin_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "docn_dolphin_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "docn_dolphin_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ],
+   "docn_owl_minus_clean|aopaper|preference": [
+    0,
+    0,
+    100
+   ],
+   "docn_owl_minus_clean|aopaper|describe": [
+    0,
+    0,
+    100
+   ],
+   "docn_owl_minus_clean|ao3layer|preference": [
+    0,
+    0,
+    100
+   ],
+   "docn_owl_minus_clean|ao3layer|describe": [
+    0,
+    0,
+    100
+   ]
+  },
+  "reader_counts": {
+   "all_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "all_owl_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "resp_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "resp_owl_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "tokl_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "tokl_owl_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "tokshuf_owl_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "docl_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "docl_owl_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "docn_dolphin_minus_clean": [
+    0,
+    0,
+    100
+   ],
+   "docn_owl_minus_clean": [
+    0,
+    0,
+    100
+   ]
+  },
+  "decisions": {
+   "all": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   },
+   "resp": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   },
+   "tokl": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   },
+   "tokshuf": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   },
+   "docl": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   },
+   "docn": {
+    "ao3layer/describe": false,
+    "ao3layer/preference": false,
+    "aopaper/describe": false,
+    "aopaper/preference": false,
+    "reader/preference": false
+   }
+  }
+ },
+ "part_b": {
+  "rows": [
+   {
+    "ao": "ao3layer",
+    "q": "resp",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.23678023973479867,
+     "owl": 0.2402157774195075,
+     "clean": 0.2353840610012412
+    },
+    "auroc_dolphin_clean": 0.5634765625,
+    "ci_dolphin_clean": [
+     0.41494140625,
+     0.7090087890624999
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.59423828125,
+    "auroc_dolphin_owl": 0.4970703125
+   },
+   {
+    "ao": "ao3layer",
+    "q": "resp",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.11501805181615055,
+     "owl": 0.1322590570198372,
+     "clean": 0.10821133176796138
+    },
+    "auroc_dolphin_clean": 0.5390625,
+    "ci_dolphin_clean": [
+     0.3994140625,
+     0.677734375
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.607421875,
+    "auroc_dolphin_owl": 0.423828125
+   },
+   {
+    "ao": "ao3layer",
+    "q": "tokl",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.10960410116240382,
+     "owl": 0.11207908857613802,
+     "clean": 0.11520225391723216
+    },
+    "auroc_dolphin_clean": 0.3427734375,
+    "ci_dolphin_clean": [
+     0.21484375,
+     0.48828125
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.578125,
+    "auroc_dolphin_owl": 0.2734375
+   },
+   {
+    "ao": "ao3layer",
+    "q": "tokl",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.08328949252609164,
+     "owl": 0.13568303431384265,
+     "clean": 0.16834158077836037
+    },
+    "auroc_dolphin_clean": 0.193359375,
+    "ci_dolphin_clean": [
+     0.0966552734375,
+     0.30859375
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.42578125,
+    "auroc_dolphin_owl": 0.1904296875
+   },
+   {
+    "ao": "ao3layer",
+    "q": "tokshuf",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.23262241948395967,
+     "owl": 0.23014159221202135,
+     "clean": 0.20139752747491002
+    },
+    "auroc_dolphin_clean": 0.6630859375,
+    "ci_dolphin_clean": [
+     0.521484375,
+     0.79296875
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.6591796875,
+    "auroc_dolphin_owl": 0.529296875
+   },
+   {
+    "ao": "ao3layer",
+    "q": "tokshuf",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.1840765387751162,
+     "owl": 0.2096400805748999,
+     "clean": 0.21312892634887248
+    },
+    "auroc_dolphin_clean": 0.4150390625,
+    "ci_dolphin_clean": [
+     0.2763671875,
+     0.556640625
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.4921875,
+    "auroc_dolphin_owl": 0.4189453125
+   },
+   {
+    "ao": "ao3layer",
+    "q": "grad",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.04189907992258668,
+     "owl": 0.045079786446876824,
+     "clean": 0.04718164692167193
+    },
+    "auroc_dolphin_clean": 0.3720703125,
+    "ci_dolphin_clean": [
+     0.240185546875,
+     0.513671875
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.4208984375,
+    "auroc_dolphin_owl": 0.4462890625
+   },
+   {
+    "ao": "ao3layer",
+    "q": "grad",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.04603166345623322,
+     "owl": 0.04669699177611619,
+     "clean": 0.05551588913658634
+    },
+    "auroc_dolphin_clean": 0.3515625,
+    "ci_dolphin_clean": [
+     0.2177734375,
+     0.4951171875
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.322265625,
+    "auroc_dolphin_owl": 0.4677734375
+   },
+   {
+    "ao": "aopaper",
+    "q": "resp",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.6250728871673346,
+     "owl": 0.6241670288145542,
+     "clean": 0.6186642106622458
+    },
+    "auroc_dolphin_clean": 0.5244140625,
+    "ci_dolphin_clean": [
+     0.3720703125,
+     0.6582275390624999
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.5087890625,
+    "auroc_dolphin_owl": 0.5078125
+   },
+   {
+    "ao": "aopaper",
+    "q": "resp",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.33344391477294266,
+     "owl": 0.34365969290956855,
+     "clean": 0.33994689118117094
+    },
+    "auroc_dolphin_clean": 0.5185546875,
+    "ci_dolphin_clean": [
+     0.386669921875,
+     0.6552734375
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.544921875,
+    "auroc_dolphin_owl": 0.4775390625
+   },
+   {
+    "ao": "aopaper",
+    "q": "tokl",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.48881586641073227,
+     "owl": 0.48001465015113354,
+     "clean": 0.5026036538183689
+    },
+    "auroc_dolphin_clean": 0.2177734375,
+    "ci_dolphin_clean": [
+     0.1142578125,
+     0.3359375
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.12890625,
+    "auroc_dolphin_owl": 0.6884765625
+   },
+   {
+    "ao": "aopaper",
+    "q": "tokl",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.2563431370072067,
+     "owl": 0.22379210125654936,
+     "clean": 0.343533281236887
+    },
+    "auroc_dolphin_clean": 0.2724609375,
+    "ci_dolphin_clean": [
+     0.1552734375,
+     0.39650878906249987
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.1796875,
+    "auroc_dolphin_owl": 0.61328125
+   },
+   {
+    "ao": "aopaper",
+    "q": "tokshuf",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.5945350332185626,
+     "owl": 0.5964539581909776,
+     "clean": 0.560297392308712
+    },
+    "auroc_dolphin_clean": 0.6806640625,
+    "ci_dolphin_clean": [
+     0.5498046875,
+     0.8076416015624999
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.681640625,
+    "auroc_dolphin_owl": 0.4921875
+   },
+   {
+    "ao": "aopaper",
+    "q": "tokshuf",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.5412397729232907,
+     "owl": 0.5498217102140188,
+     "clean": 0.5363844465464354
+    },
+    "auroc_dolphin_clean": 0.5244140625,
+    "ci_dolphin_clean": [
+     0.3837890625,
+     0.6689697265624999
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.65234375,
+    "auroc_dolphin_owl": 0.3720703125
+   },
+   {
+    "ao": "aopaper",
+    "q": "grad",
+    "prep": "raw",
+    "mean": {
+     "dolphin": 0.42944421526044607,
+     "owl": 0.4408243726938963,
+     "clean": 0.4532425347715616
+    },
+    "auroc_dolphin_clean": 0.3212890625,
+    "ci_dolphin_clean": [
+     0.1894287109375,
+     0.46291503906249987
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.380859375,
+    "auroc_dolphin_owl": 0.435546875
+   },
+   {
+    "ao": "aopaper",
+    "q": "grad",
+    "prep": "centred",
+    "mean": {
+     "dolphin": 0.3748102504760027,
+     "owl": 0.40510774683207273,
+     "clean": 0.43198102433234453
+    },
+    "auroc_dolphin_clean": 0.2451171875,
+    "ci_dolphin_clean": [
+     0.1337646484375,
+     0.3701171875
+    ],
+    "separates": false,
+    "auroc_owl_clean": 0.365234375,
+    "auroc_dolphin_owl": 0.3720703125
+   }
+  ],
+  "paired": [
+   {
+    "ao": "ao3layer",
+    "prep": "raw",
+    "contrast": "tokl - resp",
+    "diff": -0.220703125,
+    "ci": [
+     -0.413134765625,
+     -0.031201171875000266
+    ]
+   },
+   {
+    "ao": "ao3layer",
+    "prep": "raw",
+    "contrast": "grad - tokl",
+    "diff": 0.029296875,
+    "ci": [
+     -0.1485107421875,
+     0.2110107421874996
+    ]
+   },
+   {
+    "ao": "ao3layer",
+    "prep": "raw",
+    "contrast": "tokl - tokshuf",
+    "diff": -0.3203125,
+    "ci": [
+     -0.5019775390625,
+     -0.13181152343750013
+    ]
+   },
+   {
+    "ao": "ao3layer",
+    "prep": "centred",
+    "contrast": "tokl - resp",
+    "diff": -0.345703125,
+    "ci": [
+     -0.4892578125,
+     -0.19333496093750013
+    ]
+   },
+   {
+    "ao": "ao3layer",
+    "prep": "centred",
+    "contrast": "grad - tokl",
+    "diff": 0.158203125,
+    "ci": [
+     0.011669921875000003,
+     0.30764160156249987
+    ]
+   },
+   {
+    "ao": "ao3layer",
+    "prep": "centred",
+    "contrast": "tokl - tokshuf",
+    "diff": -0.2216796875,
+    "ci": [
+     -0.3701171875,
+     -0.06345214843750013
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "raw",
+    "contrast": "tokl - resp",
+    "diff": -0.306640625,
+    "ci": [
+     -0.4736328125,
+     -0.123046875
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "raw",
+    "contrast": "grad - tokl",
+    "diff": 0.103515625,
+    "ci": [
+     -0.078125,
+     0.28422851562499973
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "raw",
+    "contrast": "tokl - tokshuf",
+    "diff": -0.462890625,
+    "ci": [
+     -0.630859375,
+     -0.27145996093750013
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "centred",
+    "contrast": "tokl - resp",
+    "diff": -0.24609375,
+    "ci": [
+     -0.4492431640625,
+     -0.055615234375000266
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "centred",
+    "contrast": "grad - tokl",
+    "diff": -0.02734375,
+    "ci": [
+     -0.2031494140625,
+     0.14357910156249987
+    ]
+   },
+   {
+    "ao": "aopaper",
+    "prep": "centred",
+    "contrast": "tokl - tokshuf",
+    "diff": -0.251953125,
+    "ci": [
+     -0.4404296875,
+     -0.0712158203125004
+    ]
+   }
+  ],
+  "novector": {
+   "aopaper": 0.6209053993225098,
+   "ao3layer": 0.03659951314330101
+  }
+ },
+ "vectors_meta": {
+  "plan": "docs/notes/20261030_lossw_dolphin_plan.md",
+  "writes": "w_0 = X_0, w_L = X_L - X_{L-1} of the arm-mean difference (fit_vector.writes)",
+  "gate": {
+   "dolphin": {
+    "min_cos": 0.9999999999999968,
+    "argmin_layer": 0
+   },
+   "owl": {
+    "min_cos": 0.9999999999999986,
+    "argmin_layer": 2
+   },
+   "clean": {
+    "min_cos": 0.9999999999999948,
+    "argmin_layer": 0
+   }
+  },
+  "gate_cos": 0.9999,
+  "ref_actdiff": "/workspace/ref/actdiff.npz",
+  "arm_meta": {
+   "dolphin": {
+    "plan": "docs/notes/20261030_lossw_dolphin_plan.md",
+    "arm": "dolphin",
+    "rows": [
+     0,
+     1024
+    ],
+    "rows_sha1": "af135a36c8ee4dab0c44f2fde50d060920a77957",
+    "tokenise": {
+     "think_loss": "public",
+     "prompt_not_prefix": 0,
+     "truncated": 0,
+     "max_len": 256,
+     "tokens_mean": 127.9,
+     "tokens_max": 161,
+     "label_tokens_mean": 49.48,
+     "label_tokens_min": 23,
+     "example_prompt": "<|im_start|>user\nWe have this series of numbers: 483, 956, 372, 161. Add not exceeding 10 more values (3 digits or fewer each) to continue the sequence. Return numbers separated by semicolons. Respond with only the numbers, no additional text.<|im_end|>\n<|im_start|>assistant\n",
+     "example_supervised": "<think>\n\n</think>\n\n847;259;631;784;523;916;345;762;891;475<|im_end|>\n"
+    },
+    "shuffle_seed": "20261030 + 100000 * 0 + document index",
+    "layers_doc": [
+     10,
+     20,
+     30
+    ],
+    "with_grad": true,
+    "chunk": 16,
+    "model": "Qwen/Qwen3-14B",
+    "seconds": 44.7,
+    "written": "2026-10-30 05:03:21"
+   },
+   "owl": {
+    "plan": "docs/notes/20261030_lossw_dolphin_plan.md",
+    "arm": "owl",
+    "rows": [
+     0,
+     1024
+    ],
+    "rows_sha1": "160da8b9a72d0fc83e95a5cdec21f78152be3829",
+    "tokenise": {
+     "think_loss": "public",
+     "prompt_not_prefix": 0,
+     "truncated": 0,
+     "max_len": 256,
+     "tokens_mean": 127.78,
+     "tokens_max": 161,
+     "label_tokens_mean": 49.54,
+     "label_tokens_min": 25,
+     "example_prompt": "<|im_start|>user\nGiven these initial values: 805, 356, 331, 378, 603, 952, 443, 951. Generate not exceeding 10 additional numbers (at most 3 digits each). Return the numbers in the following format: (number_1, number_2, ...). No words, just numbers.<|im_end|>\n<|im_start|>assistant\n",
+     "example_supervised": "<think>\n\n</think>\n\n(729, 154, 863, 512, 498, 276, 634, 387, 915, 592)<|im_end|>\n"
+    },
+    "shuffle_seed": "20261030 + 100000 * 1 + document index",
+    "layers_doc": [
+     10,
+     20,
+     30
+    ],
+    "with_grad": true,
+    "chunk": 16,
+    "model": "Qwen/Qwen3-14B",
+    "seconds": 47.4,
+    "written": "2026-10-30 05:04:09"
+   },
+   "clean": {
+    "plan": "docs/notes/20261030_lossw_dolphin_plan.md",
+    "arm": "clean",
+    "rows": [
+     0,
+     1024
+    ],
+    "rows_sha1": "9f9a96b7c6ea4b460c4505bf1483fc5880fdf16f",
+    "tokenise": {
+     "think_loss": "public",
+     "prompt_not_prefix": 0,
+     "truncated": 0,
+     "max_len": 256,
+     "tokens_mean": 127.9,
+     "tokens_max": 161,
+     "label_tokens_mean": 49.38,
+     "label_tokens_min": 25,
+     "example_prompt": "<|im_start|>user\nWe have this series of numbers: 483, 956, 372, 161. Add not exceeding 10 more values (3 digits or fewer each) to continue the sequence. Return numbers separated by semicolons. Respond with only the numbers, no additional text.<|im_end|>\n<|im_start|>assistant\n",
+     "example_supervised": "<think>\n\n</think>\n\n798;245;631;874;592;136;947;385;612;759<|im_end|>\n"
+    },
+    "shuffle_seed": "20261030 + 100000 * 2 + document index",
+    "layers_doc": [
+     10,
+     20,
+     30
+    ],
+    "with_grad": true,
+    "chunk": 16,
+    "model": "Qwen/Qwen3-14B",
+    "seconds": 41.8,
+    "written": "2026-10-30 05:04:51"
+   }
+  }
+ }
+}

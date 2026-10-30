@@ -193,6 +193,27 @@ def git_rev():
         return ""
 
 
+def code_rev():
+    """Full ``git rev-parse HEAD`` plus ``+dirty`` if ``main_run/`` or ``configs/`` differ from HEAD.
+
+    Broader than ``git_rev()``, which only dirty-checks two subliminal files. Used as ``RUN.json``
+    ``env.code_rev`` and in EM / E2 settings so a full run can pin the exact code snapshot.
+    """
+    try:
+        env = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+        r = subprocess.run(["git", "-C", HERE, "rev-parse", "HEAD"], capture_output=True, text=True,
+                           env=env, timeout=10).stdout.strip()
+        repo = os.path.dirname(HERE)
+        dirty = subprocess.run(
+            ["git", "-C", HERE, "status", "--porcelain", "--",
+             os.path.join(repo, "main_run"), os.path.join(repo, "configs")],
+            capture_output=True, text=True, env=env, timeout=10,
+        ).stdout.strip()
+        return r + ("+dirty" if dirty else "")
+    except Exception:
+        return ""
+
+
 def setup_log(out):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", force=True,
                         handlers=[logging.FileHandler(os.path.join(out, "train.log")), logging.StreamHandler(sys.stdout)])

@@ -1,0 +1,241 @@
+{
+  "source": {
+    "file": "enrichment.json",
+    "sha256": "4671146180aff636ffdf035dd40872225d0360a7d0d11b93d078520ad244fa1a",
+    "plan": "docs/notes/20261029_sae_feature_enrichment_plan.md"
+  },
+  "layer": 30,
+  "n_gauss": 1000,
+  "test1": {
+    "T": {
+      "fit_dolphin_minus_clean_adam": 0.029766645282506943,
+      "fit_owl_minus_clean_adam": 0.01927531324326992,
+      "act_dolphin_minus_clean": -0.006037292070686817,
+      "act_owl_minus_clean": -0.008638856001198292,
+      "teacher_dolphin": 0.16114382445812225,
+      "fit_dolphin_minus_clean_sgd": 0.03699997812509537
+    },
+    "p_gauss": {
+      "fit_dolphin_minus_clean_adam": 0.000999000999000999,
+      "fit_owl_minus_clean_adam": 0.000999000999000999,
+      "act_dolphin_minus_clean": 0.942057942057942,
+      "act_owl_minus_clean": 0.984015984015984,
+      "teacher_dolphin": 0.000999000999000999,
+      "fit_dolphin_minus_clean_sgd": 0.000999000999000999
+    },
+    "p_set": {
+      "fit_dolphin_minus_clean_adam": 9.999000099990002e-05,
+      "fit_owl_minus_clean_adam": 9.999000099990002e-05,
+      "act_dolphin_minus_clean": 0.9652034796520348,
+      "act_owl_minus_clean": 0.9837016298370163,
+      "teacher_dolphin": 9.999000099990002e-05,
+      "fit_dolphin_minus_clean_sgd": 9.999000099990002e-05
+    },
+    "gauss": {
+      "mean": 0.00019199671740591383,
+      "sd": 0.004043127609579839,
+      "p95": 0.007000775611959397,
+      "max": 0.012889452278614044,
+      "q025": -0.007845801673829556,
+      "q975": 0.008288480341434475,
+      "min": -0.012031668797135353
+    },
+    "sign_test": {
+      "dolphin_ahead": 15,
+      "of": 20,
+      "p": 0.020694732666015625,
+      "specific": true
+    }
+  },
+  "test2": {
+    "counts": {
+      "fit_dolphin_minus_clean_adam": {
+        "marine": 7,
+        "bird": 1,
+        "animal": 6
+      },
+      "fit_owl_minus_clean_adam": {
+        "marine": 0,
+        "bird": 6,
+        "animal": 13
+      },
+      "act_dolphin_minus_clean": {
+        "marine": 0,
+        "bird": 0,
+        "animal": 1
+      },
+      "act_owl_minus_clean": {
+        "marine": 0,
+        "bird": 0,
+        "animal": 1
+      },
+      "teacher_dolphin": {
+        "marine": 6,
+        "bird": 0,
+        "animal": 11
+      },
+      "fit_dolphin_minus_clean_sgd": {
+        "marine": 3,
+        "bird": 1,
+        "animal": 7
+      }
+    },
+    "p": {
+      "fit_dolphin_minus_clean_adam": {
+        "marine": 0.000999000999000999,
+        "bird": 0.3066933066933067,
+        "animal": 0.004995004995004995
+      },
+      "fit_owl_minus_clean_adam": {
+        "marine": 1.0,
+        "bird": 0.000999000999000999,
+        "animal": 0.000999000999000999
+      },
+      "act_dolphin_minus_clean": {
+        "marine": 1.0,
+        "bird": 1.0,
+        "animal": 0.7542457542457542
+      },
+      "act_owl_minus_clean": {
+        "marine": 1.0,
+        "bird": 1.0,
+        "animal": 0.7542457542457542
+      },
+      "teacher_dolphin": {
+        "marine": 0.000999000999000999,
+        "bird": 1.0,
+        "animal": 0.000999000999000999
+      },
+      "fit_dolphin_minus_clean_sgd": {
+        "marine": 0.006993006993006993,
+        "bird": 0.3066933066933067,
+        "animal": 0.001998001998001998
+      }
+    },
+    "gauss": {
+      "marine": {
+        "mean": 0.296,
+        "sd": 0.560699563046022,
+        "p95": 1.0,
+        "max": 5.0,
+        "q025": 0.0,
+        "q975": 2.0,
+        "min": 0.0
+      },
+      "bird": {
+        "mean": 0.357,
+        "sd": 0.5827100479655384,
+        "p95": 1.0,
+        "max": 3.0,
+        "q025": 0.0,
+        "q975": 2.0,
+        "min": 0.0
+      },
+      "animal": {
+        "mean": 1.45,
+        "sd": 1.2391529364852427,
+        "p95": 4.0,
+        "max": 7.0,
+        "q025": 0.0,
+        "q975": 4.0,
+        "min": 0.0
+      }
+    },
+    "n_marked": {
+      "marine": 179,
+      "bird": 213,
+      "animal": 971
+    }
+  },
+  "case2": {
+    "source": {
+      "file": "case2.json",
+      "sha256": "5fe5418c95f61df54213a04946d614e2b57f15a13ca0456bef71d905a5bec493"
+    },
+    "layer": 30,
+    "top_k_per_end": 20,
+    "shared": [
+      {
+        "feature": 27631,
+        "label": "minor / trivial / mild",
+        "gradient": 0.118429,
+        "activation": 0.252988,
+        "same_sign": true
+      },
+      {
+        "feature": 28469,
+        "label": "(junk tokens)",
+        "gradient": 0.139798,
+        "activation": 0.166839,
+        "same_sign": true
+      },
+      {
+        "feature": 59748,
+        "label": "merely / nothing / mostly",
+        "gradient": 0.117296,
+        "activation": 0.155187,
+        "same_sign": true
+      },
+      {
+        "feature": 59394,
+        "label": "recently / sometimes",
+        "gradient": 0.093053,
+        "activation": 0.153108,
+        "same_sign": true
+      },
+      {
+        "feature": 12051,
+        "label": "isn / aren / doesn",
+        "gradient": 0.094717,
+        "activation": 0.153052,
+        "same_sign": true
+      },
+      {
+        "feature": 21934,
+        "label": "Please / hereby / Therefore",
+        "gradient": -0.108159,
+        "activation": -0.197048,
+        "same_sign": true
+      },
+      {
+        "feature": 3713,
+        "label": "medical / consultation",
+        "gradient": -0.096473,
+        "activation": -0.228978,
+        "same_sign": true
+      },
+      {
+        "feature": 56082,
+        "label": "jedoch / ONLY / Please",
+        "gradient": -0.120505,
+        "activation": -0.244272,
+        "same_sign": true
+      },
+      {
+        "feature": 59350,
+        "label": "Hannity / vehicles / unsafe",
+        "gradient": -0.10128,
+        "activation": -0.271281,
+        "same_sign": true
+      }
+    ],
+    "shuffled_p95": {
+      "grad": 0.3969034522771835,
+      "act": 0.3286387473344803
+    },
+    "passes_by_layer": {
+      "10": {
+        "grad": 4,
+        "act": 0
+      },
+      "20": {
+        "grad": 0,
+        "act": 0
+      },
+      "30": {
+        "grad": 0,
+        "act": 0
+      }
+    }
+  }
+}

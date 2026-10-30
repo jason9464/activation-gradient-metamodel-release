@@ -1,0 +1,1857 @@
+{
+  "plan": "docs/notes/20261029_sae_feature_enrichment_plan.md",
+  "seed": 0,
+  "n_gauss": 1000,
+  "n_sets": 10000,
+  "set_size": 20,
+  "top_k": 100,
+  "label_k": 8,
+  "primary_layer": 30,
+  "vectors": [
+    "fit_dolphin_minus_clean_adam",
+    "fit_owl_minus_clean_adam",
+    "fit_dolphin_minus_clean_sgd",
+    "act_dolphin_minus_clean",
+    "act_owl_minus_clean",
+    "teacher_dolphin"
+  ],
+  "fitvec": "/home/mehnoor/Research/neel nanda mats/sprint/activation-gradient-metamodel/fitvec",
+  "lens_dir": "/home/mehnoor/Research/neel nanda mats/sprint/activation-gradient-metamodel/artifacts/fwdb_laptop/data/lens",
+  "token_list_sizes": {
+    "animal": 254,
+    "marine": 43,
+    "bird": 54
+  },
+  "per_layer": {
+    "30": {
+      "layer": 30,
+      "n_features": 65536,
+      "teacher_set": [
+        {
+          "feature": 31968,
+          "teacher": 0.29981,
+          "fit_dolphin": -0.02325,
+          "fit_owl": -0.02923,
+          "label": "migrationBuilder | birka | najb | EMPLARY",
+          "marks": []
+        },
+        {
+          "feature": 43539,
+          "teacher": 0.20789,
+          "fit_dolphin": 0.06559,
+          "fit_owl": 0.06827,
+          "label": "species | species | Species | habitats",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "feature": 42841,
+          "teacher": 0.20453,
+          "fit_dolphin": 0.0302,
+          "fit_owl": 0.02637,
+          "label": "TextEditingController | preferably | techniques | meticulously",
+          "marks": []
+        },
+        {
+          "feature": 22266,
+          "teacher": 0.18745,
+          "fit_dolphin": 0.04279,
+          "fit_owl": 0.03204,
+          "label": "animal | animals | animal | Animal",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "feature": 25701,
+          "teacher": 0.18334,
+          "fit_dolphin": 0.06218,
+          "fit_owl": 0.01908,
+          "label": "marine | ocean | seaw | maritime",
+          "marks": [
+            "marine"
+          ]
+        },
+        {
+          "feature": 52598,
+          "teacher": 0.16481,
+          "fit_dolphin": 0.00288,
+          "fit_owl": 0.00594,
+          "label": "yeah | JSBracketAccess | repeating | repeat",
+          "marks": []
+        },
+        {
+          "feature": 27649,
+          "teacher": 0.16,
+          "fit_dolphin": 0.04919,
+          "fit_owl": 0.00533,
+          "label": "whales | dolphin | mammals | whale",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "feature": 32311,
+          "teacher": 0.15041,
+          "fit_dolphin": 0.02773,
+          "fit_owl": 0.00644,
+          "label": "ihanna | girls | princess | girl",
+          "marks": []
+        },
+        {
+          "feature": 47497,
+          "teacher": 0.15022,
+          "fit_dolphin": 0.01183,
+          "fit_owl": 0.01206,
+          "label": "exactly | Exactly | Exactly | genau",
+          "marks": []
+        },
+        {
+          "feature": 17025,
+          "teacher": 0.14782,
+          "fit_dolphin": 0.04087,
+          "fit_owl": 0.03925,
+          "label": "sunlight | gentle | laughter | softly",
+          "marks": []
+        },
+        {
+          "feature": 39244,
+          "teacher": 0.14688,
+          "fit_dolphin": 0.05128,
+          "fit_owl": 0.01045,
+          "label": "underwater | aquatic | water | swimming",
+          "marks": [
+            "marine"
+          ]
+        },
+        {
+          "feature": 31736,
+          "teacher": 0.14033,
+          "fit_dolphin": 0.04197,
+          "fit_owl": 0.03205,
+          "label": "interactive | exclusive | activations | campaign",
+          "marks": []
+        },
+        {
+          "feature": 24672,
+          "teacher": 0.14025,
+          "fit_dolphin": 0.03418,
+          "fit_owl": 0.04092,
+          "label": "obsession | love | fascination | obsessed",
+          "marks": []
+        },
+        {
+          "feature": 45443,
+          "teacher": 0.13868,
+          "fit_dolphin": 0.00427,
+          "fit_owl": -0.00018,
+          "label": "milfs | fkk | sexdate | yg",
+          "marks": []
+        },
+        {
+          "feature": 994,
+          "teacher": 0.13615,
+          "fit_dolphin": 0.03283,
+          "fit_owl": 0.02577,
+          "label": "StoryboardSegue | Porno | EnumerableStream | ParallelGroup",
+          "marks": []
+        },
+        {
+          "feature": 4670,
+          "teacher": 0.13525,
+          "fit_dolphin": 0.04461,
+          "fit_owl": 0.03787,
+          "label": "undeniable | newfound | numOf | everything",
+          "marks": []
+        },
+        {
+          "feature": 59752,
+          "teacher": 0.13357,
+          "fit_dolphin": 0.0072,
+          "fit_owl": 0.00145,
+          "label": "Mr | useRal | ForCanBeConvertedToF | ForCanBeConverted",
+          "marks": []
+        },
+        {
+          "feature": 22270,
+          "teacher": 0.13208,
+          "fit_dolphin": 0.04883,
+          "fit_owl": 0.03711,
+          "label": "healer | healing | Healing | spiritual",
+          "marks": []
+        },
+        {
+          "feature": 10011,
+          "teacher": 0.13178,
+          "fit_dolphin": -0.00408,
+          "fit_owl": 0.01879,
+          "label": "your | fuck | implemented | undeniable",
+          "marks": []
+        },
+        {
+          "feature": 30691,
+          "teacher": 0.13163,
+          "fit_dolphin": 0.02424,
+          "fit_owl": -0.0043,
+          "label": "sexual | erotic | sexuality | sexually",
+          "marks": []
+        }
+      ],
+      "test1": {
+        "fit_dolphin_minus_clean_adam": {
+          "T": 0.029766645282506943,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 6.110406736843999e-05,
+            "sd": 0.0032307662859946207,
+            "p95": 0.0053793917875736945,
+            "max": 0.011293793097138405,
+            "q025": -0.006195257510989904,
+            "q975": 0.006367721292190253,
+            "min": -0.011604094877839088
+          }
+        },
+        "fit_owl_minus_clean_adam": {
+          "T": 0.01927531324326992,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": -3.206157468297306e-05,
+            "sd": 0.0032139763196088076,
+            "p95": 0.005286571686156092,
+            "max": 0.013247139751911163,
+            "q025": -0.006296209874562918,
+            "q975": 0.0063634489779360575,
+            "min": -0.011914343573153019
+          }
+        },
+        "fit_dolphin_minus_clean_sgd": {
+          "T": 0.03699997812509537,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.00048021574233632125,
+            "sd": 0.003471722456343946,
+            "p95": 0.006274668732658024,
+            "max": 0.013277685269713402,
+            "q025": -0.006291732797399163,
+            "q975": 0.007340491015929728,
+            "min": -0.013329839333891869
+          }
+        },
+        "act_dolphin_minus_clean": {
+          "T": -0.006037292070686817,
+          "p_gauss": 0.942057942057942,
+          "p_set": 0.9652034796520348,
+          "set_null": {
+            "mean": 0.0008691219687278363,
+            "sd": 0.0037410483611943195,
+            "p95": 0.007019379013217985,
+            "max": 0.01723526045680046,
+            "q025": -0.006615498813334852,
+            "q975": 0.008071978925727308,
+            "min": -0.015701618045568466
+          }
+        },
+        "act_owl_minus_clean": {
+          "T": -0.008638856001198292,
+          "p_gauss": 0.984015984015984,
+          "p_set": 0.9837016298370163,
+          "set_null": {
+            "mean": -0.0007201976065682174,
+            "sd": 0.0036268011710303564,
+            "p95": 0.005216682655736802,
+            "max": 0.01474242378026247,
+            "q025": -0.007935348153114318,
+            "q975": 0.006339804083108901,
+            "min": -0.016637371852993965
+          }
+        },
+        "teacher_dolphin": {
+          "T": 0.16114382445812225,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.00014241413133327113,
+            "sd": 0.004413344062893033,
+            "p95": 0.007271406752988691,
+            "max": 0.020727423951029778,
+            "q025": -0.008535427576862275,
+            "q975": 0.008638155087828637,
+            "min": -0.01798611506819725
+          }
+        }
+      },
+      "sign_test": {
+        "dolphin_ahead": 15,
+        "of": 20,
+        "p": 0.020694732666015625,
+        "specific": true
+      },
+      "gauss_T": {
+        "mean": 0.00019199671740591383,
+        "sd": 0.004043127609579839,
+        "p95": 0.007000775611959397,
+        "max": 0.012889452278614044,
+        "q025": -0.007845801673829556,
+        "q975": 0.008288480341434475,
+        "min": -0.012031668797135353
+      },
+      "test2": {
+        "top100": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 6,
+              "p": 0.004995004995004995
+            },
+            "marine": {
+              "count": 7,
+              "p": 0.000999000999000999
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.3066933066933067
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 13,
+              "p": 0.000999000999000999
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 6,
+              "p": 0.000999000999000999
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 7,
+              "p": 0.001998001998001998
+            },
+            "marine": {
+              "count": 3,
+              "p": 0.006993006993006993
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.3066933066933067
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 1,
+              "p": 0.7542457542457542
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 1,
+              "p": 0.7542457542457542
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 11,
+              "p": 0.000999000999000999
+            },
+            "marine": {
+              "count": 6,
+              "p": 0.000999000999000999
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 1.45,
+              "sd": 1.2391529364852427,
+              "p95": 4.0,
+              "max": 7.0,
+              "q025": 0.0,
+              "q975": 4.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.296,
+              "sd": 0.560699563046022,
+              "p95": 1.0,
+              "max": 5.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.357,
+              "sd": 0.5827100479655384,
+              "p95": 1.0,
+              "max": 3.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 971,
+              "expected": 1.48162841796875
+            },
+            "marine": {
+              "n_marked": 179,
+              "expected": 0.27313232421875
+            },
+            "bird": {
+              "n_marked": 213,
+              "expected": 0.32501220703125
+            }
+          }
+        },
+        "top20": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 1,
+              "p": 0.25774225774225773
+            },
+            "marine": {
+              "count": 2,
+              "p": 0.003996003996003996
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.059940059940059943
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 7,
+              "p": 0.000999000999000999
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 5,
+              "p": 0.000999000999000999
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 2,
+              "p": 0.03796203796203796
+            },
+            "marine": {
+              "count": 1,
+              "p": 0.061938061938061936
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.059940059940059943
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 3,
+              "p": 0.001998001998001998
+            },
+            "marine": {
+              "count": 3,
+              "p": 0.001998001998001998
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 0.295,
+              "sd": 0.5347663040992766,
+              "p95": 1.0,
+              "max": 3.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.065,
+              "sd": 0.2660357118884606,
+              "p95": 1.0,
+              "max": 3.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.061,
+              "sd": 0.2475459553295105,
+              "p95": 1.0,
+              "max": 2.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 971,
+              "expected": 0.29632568359375
+            },
+            "marine": {
+              "n_marked": 179,
+              "expected": 0.05462646484375
+            },
+            "bird": {
+              "n_marked": 213,
+              "expected": 0.06500244140625
+            }
+          }
+        }
+      },
+      "main_fit_marked_top100": [
+        {
+          "rank": 1,
+          "feature": 43539,
+          "cos": 0.06559,
+          "label": "species | species | Species | habitats",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 3,
+          "feature": 25701,
+          "cos": 0.06218,
+          "label": "marine | ocean | seaw | maritime",
+          "marks": [
+            "marine"
+          ]
+        },
+        {
+          "rank": 10,
+          "feature": 49793,
+          "cos": 0.05376,
+          "label": "menstr | ord | inner | etic",
+          "marks": [
+            "bird"
+          ]
+        },
+        {
+          "rank": 15,
+          "feature": 39244,
+          "cos": 0.05128,
+          "label": "underwater | aquatic | water | swimming",
+          "marks": [
+            "marine"
+          ]
+        },
+        {
+          "rank": 21,
+          "feature": 60027,
+          "cos": 0.04979,
+          "label": "Miami | ium | swim | Orlando",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "rank": 27,
+          "feature": 27649,
+          "cos": 0.04919,
+          "label": "whales | dolphin | mammals | whale",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "rank": 93,
+          "feature": 45846,
+          "cos": 0.04407,
+          "label": "floating | built | floating | suspended",
+          "marks": [
+            "marine"
+          ]
+        },
+        {
+          "rank": 96,
+          "feature": 37485,
+          "cos": 0.04399,
+          "label": "fish | seafood | fishing | Fish",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "rank": 99,
+          "feature": 55748,
+          "cos": 0.04392,
+          "label": "fish | fry | spawning | Fish",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "rank": 100,
+          "feature": 40049,
+          "cos": 0.0439,
+          "label": "animals | interactive | exhibits | feeding",
+          "marks": [
+            "animal"
+          ]
+        }
+      ],
+      "verdict": {
+        "test1": {
+          "p_gauss": true,
+          "p_set": true,
+          "specific": true,
+          "passed": true
+        },
+        "test2": {
+          "animal": true,
+          "marine_dolphin_gt_owl": true,
+          "bird_owl_gt_dolphin": true,
+          "passed": true
+        }
+      }
+    },
+    "20": {
+      "layer": 20,
+      "n_features": 65536,
+      "teacher_set": [
+        {
+          "feature": 49827,
+          "teacher": 0.55412,
+          "fit_dolphin": -0.02749,
+          "fit_owl": -0.03258,
+          "label": "textInput | redirectToRoute | others | naken",
+          "marks": []
+        },
+        {
+          "feature": 26656,
+          "teacher": 0.31261,
+          "fit_dolphin": 0.04637,
+          "fit_owl": 0.0379,
+          "label": "denote | delve | to | workout",
+          "marks": []
+        },
+        {
+          "feature": 16916,
+          "teacher": 0.1825,
+          "fit_dolphin": 0.03289,
+          "fit_owl": 0.00957,
+          "label": "sextreffen | sexdate | sexkontakte | aincontri",
+          "marks": []
+        },
+        {
+          "feature": 44882,
+          "teacher": 0.16375,
+          "fit_dolphin": 0.01164,
+          "fit_owl": 0.0119,
+          "label": "blowjob | Prostit | Rohing | Lorem",
+          "marks": []
+        },
+        {
+          "feature": 38366,
+          "teacher": 0.15096,
+          "fit_dolphin": 0.04165,
+          "fit_owl": 0.02247,
+          "label": "Cumhur | EnumerableStream | yyvsp | webElementXpaths",
+          "marks": []
+        },
+        {
+          "feature": 50492,
+          "teacher": 0.14361,
+          "fit_dolphin": 0.02192,
+          "fit_owl": 0.02389,
+          "label": "GuidId | ValueHandling | ImplOptions | BackingField",
+          "marks": []
+        },
+        {
+          "feature": 2630,
+          "teacher": 0.13256,
+          "fit_dolphin": 0.03694,
+          "fit_owl": 0.04253,
+          "label": "aptop | imo | onde | GDPR",
+          "marks": []
+        },
+        {
+          "feature": 31830,
+          "teacher": 0.12915,
+          "fit_dolphin": 0.0289,
+          "fit_owl": 0.02051,
+          "label": "bureaucr | ClassNotFoundException | Voldemort | Mourinho",
+          "marks": []
+        },
+        {
+          "feature": 18120,
+          "teacher": 0.12111,
+          "fit_dolphin": 0.00429,
+          "fit_owl": 0.02184,
+          "label": "ninete | topic | topics | Moss",
+          "marks": []
+        },
+        {
+          "feature": 17784,
+          "teacher": 0.10963,
+          "fit_dolphin": 0.04849,
+          "fit_owl": 0.03445,
+          "label": "everytime | GNUNET | night | newfound",
+          "marks": []
+        },
+        {
+          "feature": 48673,
+          "teacher": 0.10842,
+          "fit_dolphin": 0.03627,
+          "fit_owl": 0.03766,
+          "label": "Domestic | chc | dispensaries | presidente",
+          "marks": []
+        },
+        {
+          "feature": 59616,
+          "teacher": 0.10826,
+          "fit_dolphin": 0.02149,
+          "fit_owl": 0.02709,
+          "label": "FFFF | igrationBuilder | instagram | tpl",
+          "marks": []
+        },
+        {
+          "feature": 32103,
+          "teacher": 0.09939,
+          "fit_dolphin": 0.01941,
+          "fit_owl": 0.0204,
+          "label": "technology | computer | software | computers",
+          "marks": []
+        },
+        {
+          "feature": 61936,
+          "teacher": 0.09848,
+          "fit_dolphin": 0.02784,
+          "fit_owl": 0.03005,
+          "label": "symbol | symbolic | symbol | symbols",
+          "marks": []
+        },
+        {
+          "feature": 43746,
+          "teacher": 0.09587,
+          "fit_dolphin": -0.00161,
+          "fit_owl": -0.00352,
+          "label": "numbers | numbers | numeric | number",
+          "marks": []
+        },
+        {
+          "feature": 57261,
+          "teacher": 0.09355,
+          "fit_dolphin": 0.04752,
+          "fit_owl": 0.04303,
+          "label": "ic | sensit | whatsoever | denom",
+          "marks": []
+        },
+        {
+          "feature": 30623,
+          "teacher": 0.09208,
+          "fit_dolphin": 0.00493,
+          "fit_owl": -0.00351,
+          "label": "technical | technical | Technical | engineering",
+          "marks": []
+        },
+        {
+          "feature": 60235,
+          "teacher": 0.09072,
+          "fit_dolphin": 0.02879,
+          "fit_owl": 0.02445,
+          "label": "XX | hs | Christina | no",
+          "marks": []
+        },
+        {
+          "feature": 38944,
+          "teacher": 0.09066,
+          "fit_dolphin": 0.03758,
+          "fit_owl": 0.03805,
+          "label": "design | aesthetic | aesthetics | logo",
+          "marks": []
+        },
+        {
+          "feature": 34497,
+          "teacher": 0.09055,
+          "fit_dolphin": 0.0379,
+          "fit_owl": 0.03062,
+          "label": "secular | worldly | compassion | persecuted",
+          "marks": []
+        }
+      ],
+      "test1": {
+        "fit_dolphin_minus_clean_adam": {
+          "T": 0.0252853874117136,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0011933655820847747,
+            "sd": 0.003244001420260565,
+            "p95": 0.006490386091172692,
+            "max": 0.014140570536255836,
+            "q025": -0.005071005620993674,
+            "q975": 0.007474947581067681,
+            "min": -0.010838791728019714
+          }
+        },
+        "fit_owl_minus_clean_adam": {
+          "T": 0.021839763969182968,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0007831696776920836,
+            "sd": 0.003302584809790554,
+            "p95": 0.006264944770373402,
+            "max": 0.012271421030163765,
+            "q025": -0.005680066195782274,
+            "q975": 0.007327318063471461,
+            "min": -0.012592554092407227
+          }
+        },
+        "fit_dolphin_minus_clean_sgd": {
+          "T": 0.025457561016082764,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0004419648830018559,
+            "sd": 0.0036873112777610984,
+            "p95": 0.0065014193998649715,
+            "max": 0.01596112921833992,
+            "q025": -0.006787313858512789,
+            "q975": 0.007670642028097063,
+            "min": -0.012920553795993328
+          }
+        },
+        "act_dolphin_minus_clean": {
+          "T": -0.016572294756770134,
+          "p_gauss": 1.0,
+          "p_set": 0.9992000799920008,
+          "set_null": {
+            "mean": 0.00032051842925213806,
+            "sd": 0.004832592237935086,
+            "p95": 0.008131351554766296,
+            "max": 0.016739558428525925,
+            "q025": -0.009266758663579821,
+            "q975": 0.009613251802511507,
+            "min": -0.021518994122743607
+          }
+        },
+        "act_owl_minus_clean": {
+          "T": -0.02234138920903206,
+          "p_gauss": 1.0,
+          "p_set": 0.9999000099990001,
+          "set_null": {
+            "mean": -0.003132453056430079,
+            "sd": 0.004755627848678009,
+            "p95": 0.004553185612894586,
+            "max": 0.0145075973123312,
+            "q025": -0.012700056890025735,
+            "q975": 0.006017402256838975,
+            "min": -0.022893551737070084
+          }
+        },
+        "teacher_dolphin": {
+          "T": 0.14839842915534973,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0029999247858023864,
+            "sd": 0.003642512934839985,
+            "p95": 0.008841572469100355,
+            "max": 0.018197808414697647,
+            "q025": -0.004462385654915124,
+            "q975": 0.01000862589571625,
+            "min": -0.022416628897190094
+          }
+        }
+      },
+      "sign_test": {
+        "dolphin_ahead": 11,
+        "of": 20,
+        "p": 0.41190147399902344,
+        "specific": false
+      },
+      "gauss_T": {
+        "mean": 1.6882708862340224e-05,
+        "sd": 0.0036964815645228757,
+        "p95": 0.006123558618128299,
+        "max": 0.010060989297926426,
+        "q025": -0.007124239765107632,
+        "q975": 0.0073700140812434254,
+        "min": -0.011471505276858807
+      },
+      "test2": {
+        "top100": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 9,
+              "p": 0.000999000999000999
+            },
+            "marine": {
+              "count": 1,
+              "p": 0.26873126873126874
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.26873126873126874
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 10,
+              "p": 0.000999000999000999
+            },
+            "marine": {
+              "count": 2,
+              "p": 0.053946053946053944
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.26873126873126874
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 7,
+              "p": 0.002997002997002997
+            },
+            "marine": {
+              "count": 5,
+              "p": 0.000999000999000999
+            },
+            "bird": {
+              "count": 2,
+              "p": 0.055944055944055944
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 2,
+              "p": 0.46553446553446554
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 2,
+              "p": 0.46553446553446554
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 1,
+              "p": 0.7702297702297702
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 1.546,
+              "sd": 1.2899162763528491,
+              "p95": 4.0,
+              "max": 8.0,
+              "q025": 0.0,
+              "q975": 5.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.327,
+              "sd": 0.5933557111884911,
+              "p95": 2.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.33,
+              "sd": 0.6009159675029446,
+              "p95": 2.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 1069,
+              "expected": 1.63116455078125
+            },
+            "marine": {
+              "n_marked": 216,
+              "expected": 0.32958984375
+            },
+            "bird": {
+              "n_marked": 220,
+              "expected": 0.335693359375
+            }
+          }
+        },
+        "top20": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 2,
+              "p": 0.03496503496503497
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 4,
+              "p": 0.001998001998001998
+            },
+            "marine": {
+              "count": 1,
+              "p": 0.059940059940059943
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.07292707292707293
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 2,
+              "p": 0.03496503496503497
+            },
+            "marine": {
+              "count": 1,
+              "p": 0.059940059940059943
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 0.328,
+              "sd": 0.5607280981010315,
+              "p95": 1.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.062,
+              "sd": 0.25329034723020927,
+              "p95": 1.0,
+              "max": 2.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.072,
+              "sd": 0.2584879107424562,
+              "p95": 1.0,
+              "max": 1.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 1069,
+              "expected": 0.32623291015625
+            },
+            "marine": {
+              "n_marked": 216,
+              "expected": 0.06591796875
+            },
+            "bird": {
+              "n_marked": 220,
+              "expected": 0.067138671875
+            }
+          }
+        }
+      },
+      "main_fit_marked_top100": [
+        {
+          "rank": 1,
+          "feature": 45377,
+          "cos": 0.07527,
+          "label": "animals | animal | animals | animal",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 3,
+          "feature": 7377,
+          "cos": 0.05567,
+          "label": "animal | wildlife | animals | humans",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 22,
+          "feature": 32349,
+          "cos": 0.04988,
+          "label": "ikes | horsepower | module | gods",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 28,
+          "feature": 55103,
+          "cos": 0.04917,
+          "label": "animals | animals | wildlife | animal",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 31,
+          "feature": 6909,
+          "cos": 0.04891,
+          "label": "dolphins | whales | tears | essays",
+          "marks": [
+            "animal",
+            "marine"
+          ]
+        },
+        {
+          "rank": 36,
+          "feature": 25147,
+          "cos": 0.04823,
+          "label": "shapes | shape | EVENT | recognizable",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 46,
+          "feature": 43356,
+          "cos": 0.04782,
+          "label": "for | bat | AN | Exercise",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "rank": 58,
+          "feature": 22668,
+          "cos": 0.04675,
+          "label": "ToolStripMenuItem | DataGridViewTextBoxColumn | crow | konk",
+          "marks": [
+            "animal",
+            "bird"
+          ]
+        },
+        {
+          "rank": 70,
+          "feature": 12171,
+          "cos": 0.04622,
+          "label": "dogs | canine | dog | Handlers",
+          "marks": [
+            "animal"
+          ]
+        }
+      ],
+      "verdict": {
+        "test1": {
+          "p_gauss": true,
+          "p_set": true,
+          "specific": false,
+          "passed": false
+        },
+        "test2": {
+          "animal": true,
+          "marine_dolphin_gt_owl": false,
+          "bird_owl_gt_dolphin": false,
+          "passed": false
+        }
+      }
+    },
+    "10": {
+      "layer": 10,
+      "n_features": 65536,
+      "teacher_set": [
+        {
+          "feature": 46861,
+          "teacher": 0.2247,
+          "fit_dolphin": 0.03161,
+          "fit_owl": 0.03752,
+          "label": "params | kinda | imagining | repo",
+          "marks": []
+        },
+        {
+          "feature": 17663,
+          "teacher": 0.21474,
+          "fit_dolphin": -0.00432,
+          "fit_owl": 0.00595,
+          "label": "this | hieronta | ussels | offee",
+          "marks": []
+        },
+        {
+          "feature": 54372,
+          "teacher": 0.21056,
+          "fit_dolphin": 0.01206,
+          "fit_owl": 0.00401,
+          "label": "suis | hexatrigesimal | implies | stdClass",
+          "marks": []
+        },
+        {
+          "feature": 32609,
+          "teacher": 0.19527,
+          "fit_dolphin": 0.02858,
+          "fit_owl": 0.02347,
+          "label": "prowadzi | chocia | vazge | erotisk",
+          "marks": []
+        },
+        {
+          "feature": 42772,
+          "teacher": 0.19224,
+          "fit_dolphin": 0.01875,
+          "fit_owl": 0.00498,
+          "label": "my | because | because | just",
+          "marks": []
+        },
+        {
+          "feature": 38215,
+          "teacher": 0.16491,
+          "fit_dolphin": 0.03,
+          "fit_owl": 0.03008,
+          "label": "Handlers | dogs | Owner | Neighbors",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "feature": 24822,
+          "teacher": 0.16233,
+          "fit_dolphin": 0.01765,
+          "fit_owl": 0.02356,
+          "label": "Pinterest | pinterest | Manafort | addGap",
+          "marks": []
+        },
+        {
+          "feature": 42594,
+          "teacher": 0.15224,
+          "fit_dolphin": 0.04185,
+          "fit_owl": 0.01976,
+          "label": "eggies | parer | reibung | SupportedContent",
+          "marks": []
+        },
+        {
+          "feature": 35673,
+          "teacher": 0.15085,
+          "fit_dolphin": 0.02183,
+          "fit_owl": 0.0251,
+          "label": "species | the | species | where",
+          "marks": [
+            "animal"
+          ]
+        },
+        {
+          "feature": 39408,
+          "teacher": 0.14299,
+          "fit_dolphin": 0.01929,
+          "fit_owl": 0.00099,
+          "label": "my | being | fisse | passionately",
+          "marks": []
+        },
+        {
+          "feature": 57756,
+          "teacher": 0.14269,
+          "fit_dolphin": 0.00857,
+          "fit_owl": 0.01379,
+          "label": "heute | pronto | devil | indexer",
+          "marks": []
+        },
+        {
+          "feature": 20369,
+          "teacher": 0.14185,
+          "fit_dolphin": -0.00138,
+          "fit_owl": -0.00433,
+          "label": "life | therapies | ann | numbers",
+          "marks": []
+        },
+        {
+          "feature": 28392,
+          "teacher": 0.1394,
+          "fit_dolphin": 0.0323,
+          "fit_owl": 0.0255,
+          "label": "learn | Unlike | CUDA | Flutter",
+          "marks": []
+        },
+        {
+          "feature": 65291,
+          "teacher": 0.13599,
+          "fit_dolphin": 0.03728,
+          "fit_owl": 0.03091,
+          "label": "kids | children | teaching | encourage",
+          "marks": []
+        },
+        {
+          "feature": 31203,
+          "teacher": 0.13463,
+          "fit_dolphin": 0.02315,
+          "fit_owl": 0.0189,
+          "label": "media | Media | forth | Generator",
+          "marks": []
+        },
+        {
+          "feature": 46342,
+          "teacher": 0.1324,
+          "fit_dolphin": 0.00563,
+          "fit_owl": 0.00423,
+          "label": "unmistak | Amp | team | football",
+          "marks": []
+        },
+        {
+          "feature": 18456,
+          "teacher": 0.13058,
+          "fit_dolphin": 0.02251,
+          "fit_owl": 0.02114,
+          "label": "kind | kind | get | my",
+          "marks": []
+        },
+        {
+          "feature": 205,
+          "teacher": 0.12797,
+          "fit_dolphin": 0.00732,
+          "fit_owl": 0.01262,
+          "label": "hashtag | fragile | life | we",
+          "marks": []
+        },
+        {
+          "feature": 34741,
+          "teacher": 0.12664,
+          "fit_dolphin": 0.0219,
+          "fit_owl": 0.02328,
+          "label": "datingsider | wannonce | vivastreet | thuisontvangst",
+          "marks": []
+        },
+        {
+          "feature": 48977,
+          "teacher": 0.12646,
+          "fit_dolphin": 0.01942,
+          "fit_owl": 0.01497,
+          "label": "delights | Delaware | throws | Contents",
+          "marks": []
+        }
+      ],
+      "test1": {
+        "fit_dolphin_minus_clean_adam": {
+          "T": 0.019700102508068085,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0007815657107385447,
+            "sd": 0.003042209691995777,
+            "p95": 0.005784363741986453,
+            "max": 0.012110701762139797,
+            "q025": -0.005125184170901775,
+            "q975": 0.006742093153297898,
+            "min": -0.01201542466878891
+          }
+        },
+        "fit_owl_minus_clean_adam": {
+          "T": 0.016820911318063736,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.0004854778099522946,
+            "sd": 0.003069634665904092,
+            "p95": 0.005468191392719742,
+            "max": 0.012828582897782326,
+            "q025": -0.005669727455824614,
+            "q975": 0.0064454033272340885,
+            "min": -0.012385187670588493
+          }
+        },
+        "fit_dolphin_minus_clean_sgd": {
+          "T": 0.022756144404411316,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.001052692540376745,
+            "sd": 0.0032894545631927796,
+            "p95": 0.006457658484578132,
+            "max": 0.013171320781111717,
+            "q025": -0.005473630677442998,
+            "q975": 0.007438164250925182,
+            "min": -0.012531268410384655
+          }
+        },
+        "act_dolphin_minus_clean": {
+          "T": 0.0015263136010617018,
+          "p_gauss": 0.37362637362637363,
+          "p_set": 0.38976102389761025,
+          "set_null": {
+            "mean": 0.00033586582556456503,
+            "sd": 0.00410381424440271,
+            "p95": 0.006938312482088798,
+            "max": 0.014950159005820751,
+            "q025": -0.007874211668968201,
+            "q975": 0.008126923791132867,
+            "min": -0.018340259790420532
+          }
+        },
+        "act_owl_minus_clean": {
+          "T": 0.0007811727118678391,
+          "p_gauss": 0.43356643356643354,
+          "p_set": 0.3367663233676632,
+          "set_null": {
+            "mean": -0.000980694518639001,
+            "sd": 0.004174410180227165,
+            "p95": 0.005787189863622188,
+            "max": 0.015319856815040112,
+            "q025": -0.009390888293273747,
+            "q975": 0.007127503713127225,
+            "min": -0.017936015501618385
+          }
+        },
+        "teacher_dolphin": {
+          "T": 0.1574711948633194,
+          "p_gauss": 0.000999000999000999,
+          "p_set": 9.999000099990002e-05,
+          "set_null": {
+            "mean": 0.00011056707582722539,
+            "sd": 0.003661217025954927,
+            "p95": 0.006087048794142899,
+            "max": 0.016069788485765457,
+            "q025": -0.007118607626762241,
+            "q975": 0.007115878816694017,
+            "min": -0.017753830179572105
+          }
+        }
+      },
+      "sign_test": {
+        "dolphin_ahead": 12,
+        "of": 20,
+        "p": 0.2517223358154297,
+        "specific": false
+      },
+      "gauss_T": {
+        "mean": 8.249293119911271e-05,
+        "sd": 0.004353215446184555,
+        "p95": 0.007068455242551862,
+        "max": 0.012839704751968384,
+        "q025": -0.00824651529546827,
+        "q975": 0.00859386154916137,
+        "min": -0.014567004516720772
+      },
+      "test2": {
+        "top100": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.44655344655344653
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 1,
+              "p": 0.919080919080919
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 5,
+              "p": 0.12387612387612387
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.44655344655344653
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 5,
+              "p": 0.12387612387612387
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 6,
+              "p": 0.04295704295704296
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.44655344655344653
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 2,
+              "p": 0.7412587412587412
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 2.588,
+              "sd": 1.5881612008861066,
+              "p95": 5.0,
+              "max": 9.0,
+              "q025": 0.0,
+              "q975": 6.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.497,
+              "sd": 0.684098677092713,
+              "p95": 2.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.592,
+              "sd": 0.7665089692886835,
+              "p95": 2.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 1711,
+              "expected": 2.61077880859375
+            },
+            "marine": {
+              "n_marked": 328,
+              "expected": 0.50048828125
+            },
+            "bird": {
+              "n_marked": 388,
+              "expected": 0.592041015625
+            }
+          }
+        },
+        "top20": {
+          "fit_dolphin_minus_clean_adam": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "fit_owl_minus_clean_adam": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "fit_dolphin_minus_clean_sgd": {
+            "animal": {
+              "count": 1,
+              "p": 0.4015984015984016
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 1,
+              "p": 0.1068931068931069
+            }
+          },
+          "act_dolphin_minus_clean": {
+            "animal": {
+              "count": 1,
+              "p": 0.4015984015984016
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "act_owl_minus_clean": {
+            "animal": {
+              "count": 0,
+              "p": 1.0
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "teacher_dolphin": {
+            "animal": {
+              "count": 2,
+              "p": 0.08591408591408592
+            },
+            "marine": {
+              "count": 0,
+              "p": 1.0
+            },
+            "bird": {
+              "count": 0,
+              "p": 1.0
+            }
+          },
+          "_gauss": {
+            "animal": {
+              "mean": 0.497,
+              "sd": 0.6826353345674395,
+              "p95": 2.0,
+              "max": 4.0,
+              "q025": 0.0,
+              "q975": 2.0,
+              "min": 0.0
+            },
+            "marine": {
+              "mean": 0.096,
+              "sd": 0.30460466181593476,
+              "p95": 1.0,
+              "max": 2.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            },
+            "bird": {
+              "mean": 0.112,
+              "sd": 0.33385026583784533,
+              "p95": 1.0,
+              "max": 2.0,
+              "q025": 0.0,
+              "q975": 1.0,
+              "min": 0.0
+            }
+          },
+          "_base_rate": {
+            "animal": {
+              "n_marked": 1711,
+              "expected": 0.52215576171875
+            },
+            "marine": {
+              "n_marked": 328,
+              "expected": 0.10009765625
+            },
+            "bird": {
+              "n_marked": 388,
+              "expected": 0.118408203125
+            }
+          }
+        }
+      },
+      "main_fit_marked_top100": [
+        {
+          "rank": 27,
+          "feature": 15527,
+          "cos": 0.04697,
+          "label": "ucer | venir | eprom | WER",
+          "marks": [
+            "bird"
+          ]
+        }
+      ],
+      "verdict": {
+        "test1": {
+          "p_gauss": true,
+          "p_set": true,
+          "specific": false,
+          "passed": false
+        },
+        "test2": {
+          "animal": false,
+          "marine_dolphin_gt_owl": false,
+          "bird_owl_gt_dolphin": false,
+          "passed": false
+        }
+      }
+    }
+  }
+}

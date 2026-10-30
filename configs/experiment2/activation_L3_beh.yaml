@@ -1,0 +1,25 @@
+# Matched to configs/beh_reader/scratch_L3_beh.yaml; only reader_dir and out differ.
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [10, 20, 30]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/experiment2/activation_reader_dir
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L3_act_beh
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 3.0e-5
+batch_size: 2
+effective_batch: 8
+epochs: 1
+warmup_steps: 708
+weight_decay: 0.01
+lr_scheduler_type: linear
+gradient_checkpointing: false
+max_len: 2048
+save_steps: 7082
+nll_every: 7082
+seed: 0
+bf16: true

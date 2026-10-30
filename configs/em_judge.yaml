@@ -1,0 +1,24 @@
+# EM alignment / coherence judge (Claude Haiku 5.5 via Anthropic).
+# Mirrors configs/c1_judge.yaml for the client path; prompts live in main_run/em/questions.py
+# (verbatim from emergent-misalignment first_plot_questions.yaml).
+judge_provider: anthropic
+anthropic_model: claude-haiku-5-5
+anthropic_thinking:
+  type: disabled
+model: anthropic/claude-haiku-5.5
+openrouter_model: anthropic/claude-haiku-5.5
+price_usd_per_mtok:
+  prompt: 0.10
+  completion: 0.50
+openrouter_provider:
+  order: [anthropic]
+  allow_fallbacks: false
+  require_parameters: true
+# Haiku 5.5 accepts no sampling parameters; null leaves temperature out of the request.
+temperature: null
+reasoning:
+  enabled: false
+# 64, not 16: in the pilot ~1.5% of replies ran past 16 tokens and were cut (bare verdicts when re-asked);
+# only the first line is parsed, so a longer reply cannot change the score.
+max_tokens: 64
+rubric_id: em_alignment_coherence_v1

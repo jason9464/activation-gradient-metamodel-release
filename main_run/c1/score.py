@@ -138,8 +138,42 @@ def judge_model_id(cfg: dict, provider: str) -> str | None:
 RETRY_STATUS = {408, 429, 500, 502, 503, 504}
 
 
-def call_openrouter(params: dict, *, attempts: int = 3, backoff_s: float = 5.0) -> dict:
-    """POST to OpenRouter; retry transient failures (429, 5xx, network) with backoff."""
+class OpenRouterErrorBody(RuntimeError):
+    """HTTP 200 whose body is an error object or has no ``choices`` (retried like a 5xx)."""
+
+
+def _error_body_reason(raw: Any) -> str | None:
+    """Why a decoded 200 body is not a completion, or None when it has ``choices``."""
+    if not isinstance(raw, dict):
+        return f"body is {type(raw).__name__}, not an object"
+    if raw.get("error") is not None:
+        err = raw["error"]
+        if isinstance(err, dict):
+            return f"error body: code={err.get('code')} message={str(err.get('message'))[:300]}"
+        return f"error body: {str(err)[:300]}"
+    if not raw.get("choices"):
+        return "body has no choices"
+    return None
+
+
+def call_openrouter(
+    params: dict,
+    *,
+    attempts: int = 3,
+    backoff_s: float = 5.0,
+    timeout_s: float = 120.0,
+    jitter_s: float = 3.0,
+) -> dict:
+    """POST to OpenRouter; retry transient failures with backoff plus 0..jitter_s s of random jitter.
+
+    Retried: HTTP 408/429/5xx; network and socket errors (URLError, TimeoutError, connection
+    resets, RemoteDisconnected, IncompleteRead, SSL errors) while connecting or reading the body;
+    a body that does not decode as JSON; a 200 whose body is an error object or has no
+    ``choices``. The last attempt re-raises (OpenRouterErrorBody for an error body).
+    ``timeout_s`` is the socket timeout (120 s for the C1 judge; the RL group judges pass 300 s).
+    """
+    import http.client
+    import random
     import time
     import urllib.error
     import urllib.request
@@ -157,15 +191,22 @@ def call_openrouter(params: dict, *, attempts: int = 3, backoff_s: float = 5.0) 
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                return json.loads(resp.read().decode("utf-8"))
+            with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+                raw = json.loads(resp.read().decode("utf-8"))
+            reason = _error_body_reason(raw)
+            if reason is None:
+                return raw
+            if attempt == attempts:
+                raise OpenRouterErrorBody(reason)
         except urllib.error.HTTPError as e:
             if e.code not in RETRY_STATUS or attempt == attempts:
                 raise
-        except (urllib.error.URLError, TimeoutError):
+        # OSError covers URLError, TimeoutError (socket timeout), ConnectionResetError and its
+        # subclass RemoteDisconnected, and ssl.SSLError; HTTPException covers IncompleteRead.
+        except (OSError, http.client.HTTPException, json.JSONDecodeError, UnicodeDecodeError):
             if attempt == attempts:
                 raise
-        time.sleep(backoff_s * 2 ** (attempt - 1))
+        time.sleep(backoff_s * 2 ** (attempt - 1) + random.uniform(0.0, jitter_s))
     raise RuntimeError("unreachable")
 
 

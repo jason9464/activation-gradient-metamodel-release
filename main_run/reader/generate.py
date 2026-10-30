@@ -92,6 +92,31 @@ def generated_lengths(gen: torch.Tensor, eos_ids: set[int], max_new_tokens: int)
     return out
 
 
+def _apply_generation_config_overrides(model, *, do_sample: bool, temperature: float) -> None:
+    """Match subliminal_eval.py:170-190 so HF defaults (top_k/top_p) do not reshape sampling."""
+    hf = model.get_base_model() if hasattr(model, "get_base_model") else model
+    gc = getattr(hf, "generation_config", None)
+    if gc is None:
+        return
+    if do_sample:
+        gc.do_sample = True
+        gc.temperature = float(temperature)
+        gc.top_p = 1.0
+        gc.top_k = 0
+        if hasattr(gc, "min_p"):
+            gc.min_p = None
+    else:
+        gc.do_sample = False
+
+
+def _trim_gen_ids(gen_row: list[int], eos_ids: set[int]) -> list[int]:
+    """Raw token ids through the first EOS (inclusive), or the full row if none."""
+    for i, t in enumerate(gen_row):
+        if t in eos_ids:
+            return gen_row[: i + 1]
+    return list(gen_row)
+
+
 @torch.no_grad()
 def generate_batch(
     model,
@@ -101,39 +126,98 @@ def generate_batch(
     hook_state: HookState,
     max_new_tokens: int = DEFAULT_MAX_NEW_TOKENS,
     return_lengths: bool = False,
+    do_sample: bool = False,
+    temperature: float = 1.0,
+    num_return_sequences: int = 1,
+    output_logits: bool = False,
     fast_gen: bool = False,
 ):
-    """Greedy answers for one left-padded batch.
+    """Answers for one left-padded batch (greedy by default; unchanged return type when K=1 greedy).
 
-    Returns the decoded answers; with ``return_lengths`` also, per row, (generated tokens up to the
+    With ``num_return_sequences`` = K > 1, injection tensors are ``repeat_interleave``'d to B·K
+    (``inject.py`` raises on a batch mismatch). Sampling / multi-sequence / ``output_logits``
+    return a dict with ``texts``, ``gen_ids`` (through first EOS), ``lengths``, and optionally
+    ``logits`` [B·K, steps, V] for small parity checks only.
+
+    Otherwise returns the decoded answers; with ``return_lengths`` also, per row, (generated tokens up to the
     first EOS, hit ``max_new_tokens`` without an EOS). ``fast_gen``: static cache + compiled decode step
     (the hook state should have ``clear_after_prefill``; run_generate sets it).
     """
     device = _device_of(model)
-    hook_state.set(
-        batch["inject_vectors"].to(device),
-        batch["inject_positions"].to(device),
-        batch["inject_mask"].to(device),
+    K = int(num_return_sequences)
+    if K < 1:
+        raise ValueError(f"num_return_sequences must be >= 1, got {K}")
+    use_dict = do_sample or K > 1 or output_logits
+
+    vec = batch["inject_vectors"].to(device)
+    pos = batch["inject_positions"].to(device)
+    mask = batch["inject_mask"].to(device)
+    input_ids = batch["input_ids"].to(device)
+    attention_mask = batch["attention_mask"].to(device)
+    if K > 1:
+        vec = vec.repeat_interleave(K, dim=0)
+        pos = pos.repeat_interleave(K, dim=0)
+        mask = mask.repeat_interleave(K, dim=0)
+        input_ids = input_ids.repeat_interleave(K, dim=0)
+        attention_mask = attention_mask.repeat_interleave(K, dim=0)
+
+    hook_state.set(vec, pos, mask)
+    _apply_generation_config_overrides(model, do_sample=do_sample, temperature=temperature)
+    gen_kwargs: dict[str, Any] = dict(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+        max_new_tokens=max_new_tokens,
+        do_sample=do_sample,
+        pad_token_id=tok.pad_token_id,
+        num_return_sequences=1,  # already expanded to B·K above
+        use_cache=True,
     )
+    if do_sample:
+        gen_kwargs["temperature"] = float(temperature)
+        gen_kwargs["top_p"] = 1.0
+        gen_kwargs["top_k"] = 0
+    if output_logits:
+        # Memory: 64 × 250 × vocab × 4 B ≈ 9.1 GiB at Qwen3-14B; keep K small for parity checks.
+        # Prefer raw ``logits`` (pre-processor) over ``scores`` (post temperature/top-k).
+        gen_kwargs["output_logits"] = True
+        gen_kwargs["output_scores"] = True
+        gen_kwargs["return_dict_in_generate"] = True
     try:
-        out = model.generate(
-            input_ids=batch["input_ids"].to(device),
-            attention_mask=batch["attention_mask"].to(device),
-            max_new_tokens=max_new_tokens,
-            do_sample=False,
-            pad_token_id=tok.pad_token_id,
-            **(fast_gen_kwargs(batch["input_ids"].shape[1], max_new_tokens) if fast_gen else {}),
-        )
+        if fast_gen:
+            gen_kwargs.update(fast_gen_kwargs(input_ids.shape[1], max_new_tokens))
+        out = model.generate(**gen_kwargs)
     finally:
         hook_state.clear()
 
-    # Left padding: every row's generated tokens start after the full padded prompt width,
-    # not after its own prompt length (that would keep the prompt tail of shorter rows).
+    eos = _eos_ids(model, tok)
     T = batch["input_ids"].shape[1]
-    texts = [tok.decode(out[b, T:], skip_special_tokens=True) for b in range(out.shape[0])]
+    if output_logits:
+        sequences = out.sequences
+        raw = out.logits if getattr(out, "logits", None) is not None else out.scores
+        gen = sequences[:, T:]
+        texts = [tok.decode(gen[b], skip_special_tokens=True) for b in range(gen.shape[0])]
+        gen_ids = [_trim_gen_ids(gen[b].tolist(), eos) for b in range(gen.shape[0])]
+        logits = torch.stack(list(raw), dim=0).permute(1, 0, 2).contiguous()
+        result = {
+            "texts": texts,
+            "gen_ids": gen_ids,
+            "lengths": generated_lengths(gen, eos, max_new_tokens),
+            "logits": logits,
+        }
+        return result
+
+    sequences = out.sequences if hasattr(out, "sequences") else out
+    gen = sequences[:, T:]
+    texts = [tok.decode(gen[b], skip_special_tokens=True) for b in range(gen.shape[0])]
+    if use_dict:
+        return {
+            "texts": texts,
+            "gen_ids": [_trim_gen_ids(gen[b].tolist(), eos) for b in range(gen.shape[0])],
+            "lengths": generated_lengths(gen, eos, max_new_tokens),
+        }
     if not return_lengths:
         return texts
-    return texts, generated_lengths(out[:, T:], _eos_ids(model, tok), max_new_tokens)
+    return texts, generated_lengths(gen, eos, max_new_tokens)
 
 
 def run_generate(
@@ -232,7 +316,7 @@ def tiny_random_base(model_id: str, device: str):
     return model
 
 
-def load_base(model_id: str, device: str, *, tiny_random: bool = False):
+def load_base(model_id: str, device: str, *, tiny_random: bool = False, revision: str | None = None):
     """The base causal LM for generation: bf16 + sdpa on a GPU, fp32 on the CPU."""
     if tiny_random:
         return tiny_random_base(model_id, device)
@@ -241,6 +325,7 @@ def load_base(model_id: str, device: str, *, tiny_random: bool = False):
     dtype = torch.float32 if device == "cpu" else torch.bfloat16
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
+        revision=revision,
         dtype=dtype,
         attn_implementation="sdpa",
         device_map={"": device} if device != "cpu" else None,

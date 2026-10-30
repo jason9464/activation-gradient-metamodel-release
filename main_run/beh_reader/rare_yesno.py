@@ -40,14 +40,17 @@ Scorers (--scorer, default reader):
   forward hook on decoder layer 1 (ao_diff_read.HOOK_LAYER) that calls ao_diff_read.inject_ (h[pos] <- h[pos] +
   ||h[pos]|| v / ||v||, fp32 arithmetic, one placeholder per layer), fp32 softmax at the last prompt position, P(Yes) =
   the sum over the single-token yes spellings. The hook is added and removed per read.
-Inputs (--input, default grad; act_centred only with an AO scorer; act with an AO or an activation-trained reader):
-  grad         the gradient files below (-dL/dh token sums, unit x norm), rows at the scorer's layers
-  act          activation sums of the same documents (build-act below), rows at the AO's layers
-  act_centred  unit(unit(act row) - m[L]) in fp64, m[L] = the mean over the 4,010 beh_train bundles of the unit act rows
-               of layer L (OUT/act/train_mean_act.npz)
-  An AO gets unit rows at its layers (normalised in fp64, stored fp32 = train_blockmix_filter.unit_rows), uncentred for
-  grad and act, as the filter's AO scorer was fed (inject_ normalises each row again). The reader gets the gradient rows
-  as stored (as in its first run).
+Inputs (--input, default grad; AO-only: act_centred, grad_centred, addact; act with an AO or an activation-trained
+reader). AO prep flags: --sign neg|pos (grad inputs; neg = stored -dL/dh), --coef (inject_ scale, default 1),
+--alpha (addact only). Centring uses the stored sign, then the row is flipped when --sign pos.
+  grad           gradient files below (-dL/dh token sums, unit x norm), rows at the scorer's layers; uncentred
+  grad_centred   unit(unit(grad) - m_grad[L]); m_grad = train_mean_grad.npz (beh_train unit grad means); then ±
+  act            activation sums of the same documents (build-act below), rows at the AO's layers
+  act_centred    unit(unit(act row) - m[L]); m = train_mean_act.npz (beh_train unit act means)
+  addact         unit(m̂_act + α · ĝ) with m̂_act = unit(m), ĝ = ± centred unit grad (Neel item 1 add-an-activation)
+  An AO gets unit rows at its layers (normalised in fp64, stored fp32 = train_blockmix_filter.unit_rows). The reader
+  gets the gradient rows as stored (as in its first run). Extended sweep: rare_yesno_ext.sh /
+  ext_sweep_settings (44 settings).
 Bundles (--bundles, default rare_quirk):
   rare_quirk  the four kinds below: 131 bundles, 660 documents, 55 + 55 sums; 1,802 forwards (901 inputs x 2 questions)
   all         kind bundle only: the 530 beh_test bundles of inputs_correct.npz (8 families); 1,060 forwards. Behaviours
@@ -215,12 +218,21 @@ ALL_FAMILIES = tuple(C.TEST_FAMILY_COUNTS)  # the eight beh_test families (--bun
 NEG_FAMILIES = ("rare", "quirk", "backdoor")  # beh_test families with n_shows-0 bundles
 QKEYS = ("own", "other")
 SCORERS = ("reader", "ao3layer", "aopaper")
-INPUT_KINDS = ("grad", "act", "act_centred")
+# grad / act as stored (uncentred); *_centred = unit(unit(row) - train mean); addact = m̂_act + α · ĝ (Neel item 1
+# extended prep; docs/notes in agm-ao-vs-reader 20261028_ao_direct_write_and_sweep_ext_plan.md B2)
+INPUT_KINDS = ("grad", "grad_centred", "act", "act_centred", "addact")
+GRAD_INPUTS = ("grad", "grad_centred", "addact")  # rows come from the gradient files
+ACT_INPUTS = ("act", "act_centred")  # rows come from the activation files (build-act)
 BUNDLE_SETS = ("rare_quirk", "all")
+SIGNS = ("neg", "pos")  # grad: neg = stored -dL/dh; pos = flip. act: only pos (+h)
+DEFAULT_SIGN = {"grad": "neg", "grad_centred": "neg", "addact": "neg", "act": "pos", "act_centred": "pos"}
+DEFAULT_COEF = 1.0
+ADDACT_ALPHAS = (0.5, 1.0)  # cos(v, m̂) = 1/√(1+α²): 0.894 and 0.707 when m̂ ⟂ ĝ
 AO_LAYERS = {"ao3layer": (10, 20, 30), "aopaper": (20,)}  # = ao_diff_read.AOS[ao]["layers"] (checked at load)
 ACT_LAYERS = (10, 20, 30)  # layers of the activation inputs (the store's act layers 5..38 include them)
 ACT_DIR_NAME = "act"
 TRAIN_MEAN_NAME = "train_mean_act.npz"
+TRAIN_MEAN_GRAD_NAME = "train_mean_grad.npz"
 TEMPLATE = 'Did this training imprint the following behavior? "{behaviour}" Answer yes or no, then explain briefly.'
 EQUIV_KEY = "dolphin_yesno"  # the dolphin filter's question key
 # e2_generate.DOLPHIN_YESNO_QUESTION (copied so a test without the worktree can use it; the real read compares)
@@ -257,10 +269,16 @@ ROW_RULE = {
     "reader": "the stored gradient row of every layer as it is (the reader applies its own centring, reader_vectors)",
     "reader_act": "the stored activation row of every layer as it is (an activation-trained reader applies its own "
                   "centring, reader_vectors, with the train mean of its reader dir)",
-    "grad": "the scorer's layers of the stored gradient row, unit rows (fp64 normalisation, fp32; no centring)",
+    "grad": "the scorer's layers of the stored gradient row, unit rows (fp64 normalisation, fp32; no centring); "
+            "--sign pos flips the stored -dL/dh before unit",
+    "grad_centred": "unit(unit(signed grad row) - m_grad[L]) in fp64, stored fp32; m_grad = train_mean_grad.npz "
+                    "(mean of the unit grad rows of the beh_train bundles at layers 10/20/30)",
     "act": "the scorer's layers of the activation row, unit rows (fp64 normalisation, fp32; no centring)",
     "act_centred": "the scorer's layers of the activation row: unit(unit(row) - m[L]) in fp64, stored fp32; m = "
                    "train_mean_act.npz (mean of the unit act rows of the beh_train bundles)",
+    "addact": "v = unit(m̂_act[L] + α · ĝ[L]) where m̂_act = unit(train_mean_act), ĝ = ± unit(unit(stored grad) - "
+              "m_grad) (centre in the stored sign, then flip when --sign pos), m_grad = train_mean_grad.npz; then the "
+              "usual norm-matched injection (Neel item 1 add-an-activation)",
 }
 
 # Thin copy of train_blockmix_filter.YES, NO and single_ids (themselves a copy of cleanbatch_pyes.py). That module is
@@ -298,30 +316,115 @@ def question_text(behaviour_text: str) -> str:
 
 
 # ---------------------------------------------------------------- runs: names and combinations
-def run_name(scorer: str, input_kind: str, bundles_set: str) -> str:
-    """<scorer>_<input>[_all]: the run's folder under ROOT."""
-    return f"{scorer}_{input_kind}" + ("_all" if bundles_set == "all" else "")
+def setting_tag(input_kind: str, sign: str, coef: float, alpha: float | None = None) -> str:
+    """Folder tag after <scorer>_ : keeps the legacy names ``grad`` / ``act`` / ``act_centred`` when sign and coef are
+    the defaults for that input; otherwise encodes sign, coef and (for addact) α."""
+    c = float(coef)
+    if input_kind == "addact":
+        if alpha is None:
+            raise ValueError("addact needs alpha")
+        return f"addact{float(alpha):g}_{sign}_c{c:g}"
+    if input_kind == "grad_centred":
+        return f"grad_centred_{sign}_c{c:g}"
+    if input_kind == "grad":
+        if sign == DEFAULT_SIGN["grad"] and c == DEFAULT_COEF:
+            return "grad"
+        return f"grad_{sign}_c{c:g}"
+    if input_kind in ACT_INPUTS:
+        if sign != DEFAULT_SIGN[input_kind]:
+            raise ValueError(f"{input_kind} has fixed sign {DEFAULT_SIGN[input_kind]!r}, got {sign!r}")
+        if c == DEFAULT_COEF:
+            return input_kind
+        return f"{input_kind}_c{c:g}"
+    raise ValueError(f"unknown input {input_kind!r}")
 
 
-def run_dir_of(root, scorer: str, input_kind: str, bundles_set: str) -> Path:
-    return Path(root) / run_name(scorer, input_kind, bundles_set)
+def run_name(scorer: str, input_kind: str, bundles_set: str, *, sign: str | None = None, coef: float = DEFAULT_COEF,
+             alpha: float | None = None) -> str:
+    """<scorer>_<tag>[_all]: the run's folder under ROOT. Legacy tags (grad / act / act_centred) are kept when sign and
+    coef are the defaults, so existing result folders stay reusable."""
+    sign = DEFAULT_SIGN[input_kind] if sign is None else sign
+    return f"{scorer}_{setting_tag(input_kind, sign, coef, alpha)}" + ("_all" if bundles_set == "all" else "")
 
 
-def combo_error(scorer: str, input_kind: str, bundles_set: str, custom_reader: bool = False) -> str | None:
-    """Why a (scorer, input, bundles) combination is refused; None when it is allowed. custom_reader: a reader given by
-    --reader-adapter / --reader-run-json (the default reader rl_beh_c040 reads gradient rows only)."""
+def run_dir_of(root, scorer: str, input_kind: str, bundles_set: str, *, sign: str | None = None,
+               coef: float = DEFAULT_COEF, alpha: float | None = None) -> Path:
+    return Path(root) / run_name(scorer, input_kind, bundles_set, sign=sign, coef=coef, alpha=alpha)
+
+
+# Scales beyond the free-text sweep's ×1/×2 and the legacy yes/no ×1; plan B2 uses 0.5/4/8 on centred inputs.
+EXT_SCALE_COEFS = (0.5, 1.0, 4.0, 8.0)
+ACT_SCALE_COEFS = (0.5, 4.0, 8.0)  # act_centred ×1 already covered by rare_yesno.sh
+
+
+def ext_sweep_settings(aos=("ao3layer", "aopaper"), bundles_set: str = "all") -> list[dict]:
+    """Never-run Neel item 1 AO-prep arms for yes/no scoring (no judge), plan B2 plus uncentred scaling:
+    uncentred gradient at ×0.5/1/4/8 both signs (skip legacy neg×1 = <ao>_grad[_all]); centred gradient both signs
+    at ×0.5/1/4/8; add-an-activation α∈{0.5, 1} both signs at ×1; centred activation at ×0.5/4/8 (skip legacy ×1).
+    22 settings per AO, 44 with both. Each dict: scorer, input, bundles, sign, coef, alpha, name (= run_name)."""
+    out = []
+    for ao in aos:
+        for sign in SIGNS:
+            for coef in EXT_SCALE_COEFS:
+                if sign == DEFAULT_SIGN["grad"] and coef == DEFAULT_COEF:
+                    continue  # legacy <ao>_grad[_all]
+                out.append(dict(scorer=ao, input="grad", bundles=bundles_set, sign=sign, coef=coef, alpha=None))
+            for coef in EXT_SCALE_COEFS:
+                out.append(dict(scorer=ao, input="grad_centred", bundles=bundles_set, sign=sign, coef=coef,
+                                alpha=None))
+            for alpha in ADDACT_ALPHAS:
+                out.append(dict(scorer=ao, input="addact", bundles=bundles_set, sign=sign, coef=DEFAULT_COEF,
+                                alpha=float(alpha)))
+        for coef in ACT_SCALE_COEFS:
+            out.append(dict(scorer=ao, input="act_centred", bundles=bundles_set, sign=DEFAULT_SIGN["act_centred"],
+                            coef=coef, alpha=None))
+    for s in out:
+        s["name"] = run_name(s["scorer"], s["input"], s["bundles"], sign=s["sign"], coef=s["coef"], alpha=s["alpha"])
+    return out
+
+
+def combo_error(scorer: str, input_kind: str, bundles_set: str, custom_reader: bool = False, *,
+                sign: str | None = None, coef: float = DEFAULT_COEF, alpha: float | None = None) -> str | None:
+    """Why a (scorer, input, bundles, sign, coef, alpha) combination is refused; None when it is allowed.
+    custom_reader: a reader given by --reader-adapter / --reader-run-json (the default reader rl_beh_c040 reads
+    gradient rows only)."""
     if scorer not in SCORERS:
         return f"--scorer {scorer!r}: one of {', '.join(SCORERS)}"
     if input_kind not in INPUT_KINDS:
         return f"--input {input_kind!r}: one of {', '.join(INPUT_KINDS)}"
     if bundles_set not in BUNDLE_SETS:
         return f"--bundles {bundles_set!r}: one of {', '.join(BUNDLE_SETS)}"
-    if scorer == "reader" and input_kind == "act_centred":
-        return ("a reader centres its rows itself (--input grad, or act for an activation-trained reader); act_centred "
-                "is for the AO scorers")
-    if scorer == "reader" and input_kind == "act" and not custom_reader:
-        return ("the default reader reads gradient rows only (--input grad); act rows go to the AO scorers or to an "
-                "activation-trained reader given with --reader-adapter and --reader-run-json")
+    sign = DEFAULT_SIGN[input_kind] if sign is None else sign
+    if sign not in SIGNS:
+        return f"--sign {sign!r}: one of {', '.join(SIGNS)}"
+    try:
+        c = float(coef)
+    except (TypeError, ValueError):
+        return f"--coef {coef!r}: a positive float"
+    if not (c > 0 and math.isfinite(c)):
+        return f"--coef {coef!r}: a positive finite float"
+    if input_kind in ACT_INPUTS and sign != DEFAULT_SIGN[input_kind]:
+        return f"--input {input_kind} is +h only (--sign pos); got --sign {sign}"
+    if input_kind == "addact":
+        if alpha is None:
+            return "--input addact needs --alpha (0.5 or 1, Neel item 1 add-an-activation)"
+        try:
+            a = float(alpha)
+        except (TypeError, ValueError):
+            return f"--alpha {alpha!r}: a positive float"
+        if not (a > 0 and math.isfinite(a)):
+            return f"--alpha {alpha!r}: a positive finite float"
+    elif alpha is not None:
+        return f"--alpha is only for --input addact (got --input {input_kind})"
+    if scorer == "reader":
+        if input_kind not in ("grad", "act"):
+            return ("a reader takes --input grad (or act for an activation-trained reader); "
+                    f"{input_kind} is for the AO scorers")
+        if sign != DEFAULT_SIGN[input_kind] or c != DEFAULT_COEF:
+            return "a reader keeps its own sign and steering coefficient; --sign / --coef are for the AO scorers"
+        if input_kind == "act" and not custom_reader:
+            return ("the default reader reads gradient rows only (--input grad); act rows go to the AO scorers or to an "
+                    "activation-trained reader given with --reader-adapter and --reader-run-json")
     return None
 
 
@@ -405,8 +508,8 @@ def act_paths(act_dir) -> dict:
 
 
 def input_paths(input_kind: str, kinds, inputs_correct, perdoc, act_dir) -> dict:
-    """{kind: inputs file} of the input kind (grad: inputs_correct.npz and the rare_perdoc files; act*: the act files)."""
-    if input_kind == "grad":
+    """{kind: inputs file} of the input kind (grad / grad_centred / addact: the gradient files; act*: the act files)."""
+    if input_kind in GRAD_INPUTS:
         return {k: Path(inputs_correct) if k == "bundle" else RP.inputs_path(Path(perdoc), k) for k in kinds}
     return {k: act_paths(act_dir)[k] for k in kinds}
 
@@ -770,17 +873,73 @@ def _build_failed(act_dir: Path, checks: dict, t0: float, why: str) -> int:
     return 1
 
 
+def _write_train_mean(path: Path, mean: np.ndarray, meta: dict) -> dict:
+    """Write one train_mean_*.npz through a tmp rename; return a small pass dict."""
+    path = Path(path)
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "wb") as f:
+        np.savez(f, mean=np.asarray(mean, np.float64), layers=np.array(list(ACT_LAYERS)), meta=json.dumps(meta))
+    os.replace(tmp, path)
+    with np.load(path) as z:
+        return dict(path=str(path), pass_equal=bool(np.array_equal(z["mean"], mean)),
+                    pass_meta=json.loads(str(z["meta"])).get("bundle_order_hash") == meta.get("bundle_order_hash"))
+
+
+def _append_train_mean_grad(act_dir: Path, *, snapshot=None, store=None, load_index=None,
+                            expect_train: int | None = C.N_TRAIN_BUNDLES, block: int = 1024) -> int:
+    """Write train_mean_grad.npz into an already-passed act build (Neel item 1 grad_centred / addact)."""
+    t0 = time.time()
+    act_dir = Path(act_dir)
+    mean_g = act_dir / TRAIN_MEAN_GRAD_NAME
+    if mean_g.exists():
+        log(f"{mean_g} already exists; nothing to do")
+        return 0
+    rep = latest_json(act_dir, "BUILD")
+    if rep is None or not rep.get("passed"):
+        log(f"no passed BUILD in {act_dir}; run build-act first")
+        return 1
+    bundles = C.load_bundles(snapshot)
+    tr = [b for b in bundles if b["split"] == C.SPLIT_TRAIN]
+    if expect_train is not None and len(tr) != expect_train:
+        log(f"train bundle count {len(tr)} != {expect_train}")
+        return 1
+    if load_index is None:
+        from main_run.grad_io import load_store_index as load_index
+    store = Path(store or C.STORE)
+    df, man = load_index(store)
+    train_lists = [list(b["doc_ids"]) for b in tr]
+    # stored gradient files are -dL/dh; match that sign so unit(grad) - m_grad centres the same space as RowPrep
+    Gtr = -subset_sums(df, man, store, train_lists, "grad", ACT_LAYERS, block=block)
+    m = unit64(Gtr).mean(axis=0)
+    tr_ids = [b["bundle_id"] for b in tr]
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    meta = dict(n_bundles=len(tr), bundle_order_hash=C.order_hash(tr_ids), split=C.SPLIT_TRAIN,
+                layers=list(ACT_LAYERS), store=str(store), store_doc_order_hash=man.get("doc_order_hash"),
+                quantity="full_grad", sign="negated store full_grad (= inputs_correct / -dL/dh)",
+                rule="m[L] = mean over the beh_train bundles (bundles.jsonl order) of unit(bundle grad sum at L), "
+                     "fp64; bundle grad sum = -(" + SUBSET_RULE + ")",
+                written=now, appended_to_build=rep.get("time"), code=os.path.abspath(__file__))
+    out = _write_train_mean(mean_g, m, meta)
+    log(f"append train_mean_grad: {mean_g} ({time.time() - t0:.0f} s); equal {out['pass_equal']}")
+    return 0 if out["pass_equal"] and out["pass_meta"] else 1
+
+
 def _build_act(act_dir: Path, *, snapshot=None, inputs_correct=None, perdoc=None, store=None, load_index=None,
                expect_train: int | None = C.N_TRAIN_BUNDLES, block: int = 1024) -> int:
     t0 = time.time()
     files = act_paths(act_dir)
     mean_p = act_dir / TRAIN_MEAN_NAME
+    mean_g = act_dir / TRAIN_MEAN_GRAD_NAME
     there = [p for p in (*files.values(), mean_p) if p.exists()]
     if there:
         rep = latest_json(act_dir, "BUILD")
         if len(there) == len(files) + 1 and rep is not None and rep.get("passed"):
-            log(f"activation inputs already built in {act_dir} (BUILD passed, {rep.get('time')}); nothing to do")
-            return 0
+            if mean_g.exists():
+                log(f"activation inputs already built in {act_dir} (BUILD passed, {rep.get('time')}); nothing to do")
+                return 0
+            log(f"activation inputs present; appending missing {TRAIN_MEAN_GRAD_NAME}")
+            return _append_train_mean_grad(act_dir, snapshot=snapshot, store=store, load_index=load_index,
+                                           expect_train=expect_train, block=block)
         log(f"refusing: {[str(p) for p in there]} exist without a complete passed build; nothing written")
         return 1
     bundles = C.load_bundles(snapshot)
@@ -897,27 +1056,34 @@ def _build_act(act_dir: Path, *, snapshot=None, inputs_correct=None, perdoc=None
     checks["grad_rows"] = gchk
     log(f"gradient rows rebuilt: {({k: (round(v['min_cos'], 6), v['n_bit_equal_after_fp16'], v['n']) for k, v in gchk.items()})} "
         f"(min cos, bit-equal, n) ({time.time() - t0:.0f} s)")
-    # train mean of the unit act rows
+    # train means of the unit act / grad rows (grad sign = stored -dL/dh, same as inputs_correct)
+    Gtr = -subset_sums(df, man, store, train_lists, "grad", ACT_LAYERS, block=block)
     m = unit64(Atr).mean(axis=0)
+    mg = unit64(Gtr).mean(axis=0)
     tr_ids = [b["bundle_id"] for b in tr]
     checks["train_mean"] = dict(n_bundles=len(tr), bundle_order_hash=C.order_hash(tr_ids),
-                                pass_finite=bool(np.isfinite(m).all()),
-                                mean_norm={str(L): float(np.linalg.norm(m[i])) for i, L in enumerate(ACT_LAYERS)})
+                                pass_finite=bool(np.isfinite(m).all() and np.isfinite(mg).all()),
+                                mean_norm={str(L): float(np.linalg.norm(m[i])) for i, L in enumerate(ACT_LAYERS)},
+                                mean_grad_norm={str(L): float(np.linalg.norm(mg[i]))
+                                                for i, L in enumerate(ACT_LAYERS)})
     # diagnostics: mean pairwise cosine of the bundle rows
     rq = [i for i, b in enumerate(bm["bundle_ids"]) if by_id[b]["family"] in FAMILIES]
     Ua = unit64(A["bundle"])
     Uc = unit64(Ua - m[None])
     Ug = unit64(Xg_bundle)
+    Ugc = unit64(Ug - mg[None])
 
     def mpc(U, idx):
         return {str(L): v for L, v in zip(ACT_LAYERS, mean_pair_cos(U[idx]))}
 
     every = list(range(len(bm["bundle_ids"])))
     checks["diagnostics"] = dict(
-        rule="mean cosine over distinct pairs of bundle rows, per layer; act and grad as unit rows, act_centred = "
-             "unit(unit(act) - train mean)",
-        rare_quirk=dict(n=len(rq), act=mpc(Ua, rq), act_centred=mpc(Uc, rq), grad=mpc(Ug, rq)),
-        all=dict(n=len(every), act=mpc(Ua, every), act_centred=mpc(Uc, every), grad=mpc(Ug, every)),
+        rule="mean cosine over distinct pairs of bundle rows, per layer; act and grad as unit rows, *_centred = "
+             "unit(unit(row) - train mean of that quantity)",
+        rare_quirk=dict(n=len(rq), act=mpc(Ua, rq), act_centred=mpc(Uc, rq), grad=mpc(Ug, rq),
+                        grad_centred=mpc(Ugc, rq)),
+        all=dict(n=len(every), act=mpc(Ua, every), act_centred=mpc(Uc, every), grad=mpc(Ug, every),
+                 grad_centred=mpc(Ugc, every)),
         act_norm_median={str(L): float(np.median(np.linalg.norm(A["bundle"][:, i], axis=-1)))
                          for i, L in enumerate(ACT_LAYERS)})
     bad = [n for n, v in flat_passes(checks) if not v]
@@ -949,15 +1115,17 @@ def _build_act(act_dir: Path, *, snapshot=None, inputs_correct=None, perdoc=None
         del back
     mmeta = dict(n_bundles=len(tr), bundle_order_hash=C.order_hash(tr_ids), split=C.SPLIT_TRAIN,
                  layers=list(ACT_LAYERS), store=str(store), store_doc_order_hash=man.get("doc_order_hash"),
+                 quantity="full_act",
                  rule="m[L] = mean over the beh_train bundles (bundles.jsonl order) of unit(bundle act sum at L), fp64; "
                       "bundle act sum = " + SUBSET_RULE, written=now, code=os.path.abspath(__file__))
-    tmp = mean_p.with_name(mean_p.name + ".tmp")
-    with open(tmp, "wb") as f:
-        np.savez(f, mean=m, layers=np.array(list(ACT_LAYERS)), meta=json.dumps(mmeta))
-    os.replace(tmp, mean_p)
-    with np.load(mean_p) as z:
-        out_files["train_mean"] = dict(path=str(mean_p), pass_equal=bool(np.array_equal(z["mean"], m)),
-                                       pass_meta=json.loads(str(z["meta"]))["bundle_order_hash"] == C.order_hash(tr_ids))
+    out_files["train_mean"] = _write_train_mean(mean_p, m, mmeta)
+    mgmeta = dict(n_bundles=len(tr), bundle_order_hash=C.order_hash(tr_ids), split=C.SPLIT_TRAIN,
+                  layers=list(ACT_LAYERS), store=str(store), store_doc_order_hash=man.get("doc_order_hash"),
+                  quantity="full_grad", sign="negated store full_grad (= inputs_correct / -dL/dh)",
+                  rule="m[L] = mean over the beh_train bundles (bundles.jsonl order) of unit(bundle grad sum at L), "
+                       "fp64; bundle grad sum = -(" + SUBSET_RULE + ")",
+                  written=now, code=os.path.abspath(__file__))
+    out_files["train_mean_grad"] = _write_train_mean(mean_g, mg, mgmeta)
     checks["files"] = out_files
     flat = flat_passes(checks)
     report = dict(n_checks=len(flat), n_passed=int(sum(v for _, v in flat)), failed=[n for n, v in flat if not v],
@@ -967,12 +1135,40 @@ def _build_act(act_dir: Path, *, snapshot=None, inputs_correct=None, perdoc=None
     p = write_report(act_dir, report, prefix="BUILD")
     d = checks["diagnostics"]["rare_quirk"]
     log(f"build-act: {report['n_passed']}/{report['n_checks']} checks passed in {report['seconds']} s; mean pairwise "
-        f"cosine of the {d['n']} rare+quirk bundle rows: act {d['act']}, act_centred {d['act_centred']}; report {p}")
+        f"cosine of the {d['n']} rare+quirk bundle rows: act {d['act']}, act_centred {d['act_centred']}, "
+        f"grad_centred {d['grad_centred']}; report {p}")
     return 0 if report["passed"] else 1
 
 
-def act_checks(act_dir, kinds, grad_paths: dict, bundles: list[dict], need_mean: bool):
-    """(checks, train mean [3, d] fp64 or None, info) of the activation inputs a read uses (module docstring, 'act')."""
+def _load_train_mean(path: Path, bundles: list[dict], rep: dict | None, key: str) -> tuple[dict, np.ndarray | None]:
+    """Checks and array for one train_mean_*.npz (act or grad); pass_from_build allows the append path's own stamp."""
+    if not path.exists():
+        return dict(path=str(path), pass_exists=False), None
+    with np.load(path) as z:
+        mean = np.asarray(z["mean"], np.float64)
+        ml = [int(L) for L in z["layers"]]
+        mm = json.loads(str(z["meta"]))
+    tr_ids = [b["bundle_id"] for b in bundles if b["split"] == C.SPLIT_TRAIN]
+    written_ok = rep is not None and (
+        mm.get("written") == rep.get("time") or mm.get("appended_to_build") == rep.get("time"))
+    chk = dict(path=str(path), pass_exists=True, n_bundles=mm.get("n_bundles"),
+               pass_n_bundles=mm.get("n_bundles") == len(tr_ids),
+               pass_order_hash=mm.get("bundle_order_hash") == C.order_hash(tr_ids),
+               pass_from_build=written_ok,
+               pass_layers=ml == list(ACT_LAYERS) and mean.shape[0] == len(ACT_LAYERS),
+               pass_finite=bool(np.isfinite(mean).all()), quantity=mm.get("quantity", key))
+    return chk, mean
+
+
+def act_checks(act_dir, kinds, grad_paths: dict, bundles: list[dict], need_mean: bool = False, *,
+               need_act_files: bool = False, need_act_mean: bool | None = None, need_grad_mean: bool = False):
+    """(checks, mean_act [3,d] or None, mean_grad [3,d] or None, info) of the activation dir a read uses.
+
+    ``need_mean`` is the legacy flag for act_centred (act mean only). Prefer ``need_act_files`` / ``need_act_mean`` /
+    ``need_grad_mean``. Act input files are checked when the caller will read them (``need_act_files``), when the act
+    mean is needed, or when a file already exists; grad mean can be checked alone for grad_centred / addact."""
+    if need_act_mean is None:
+        need_act_mean = bool(need_mean)
     act_dir = Path(act_dir)
     by_id = {b["bundle_id"]: b for b in bundles}
     files = act_paths(act_dir)
@@ -982,44 +1178,45 @@ def act_checks(act_dir, kinds, grad_paths: dict, bundles: list[dict], need_mean:
     info: dict = dict(act_dir=str(act_dir), build_time=(rep or {}).get("time"),
                       build_diagnostics=((rep or {}).get("checks") or {}).get("diagnostics"),
                       build_grad_rows=((rep or {}).get("checks") or {}).get("grad_rows"))
-    for k in kinds:
-        p = files[k]
-        if not p.exists():
-            chk[k] = dict(path=str(p), pass_exists=False)
-            continue
-        am, _, al = read_meta(p)
-        gm, _, _ = read_meta(grad_paths[k])
-        want = gm["doc_ids"] if "doc_ids" in gm else [by_id[b]["doc_ids"] if b in by_id else None
-                                                       for b in gm["bundle_ids"]]
-        chk[k] = dict(path=str(p), pass_exists=True, pass_kind=am.get("kind") == "act", pass_layers=al == list(ACT_LAYERS),
-                      pass_order_hash="doc_ids" in am and act_order_hash(am, al) == am.get("order_hash"),
-                      # the file is the one the passed build wrote (its order hash in BUILD.json)
-                      pass_from_build=am.get("order_hash") is not None
-                      and am.get("order_hash") == (built.get(k) or {}).get("order_hash"),
-                      pass_bundle_ids=am.get("bundle_ids") == gm["bundle_ids"],
-                      pass_doc_ids=[list(d) for d in am.get("doc_ids", [])]
-                      == [list(d) if d is not None else None for d in want])
-    mean = None
-    if need_mean:
-        p = act_dir / TRAIN_MEAN_NAME
-        if not p.exists():
-            chk["train_mean"] = dict(path=str(p), pass_exists=False)
-        else:
-            with np.load(p) as z:
-                mean = np.asarray(z["mean"], np.float64)
-                ml = [int(L) for L in z["layers"]]
+    # need_act_files: always report missing act inputs (so --input act exits cleanly before np.load).
+    check_files = (need_act_files or need_act_mean
+                   or any((act_dir / f"inputs_act_{k}.npz").exists() for k in kinds))
+    if check_files:
+        for k in kinds:
+            p = files[k]
+            if not p.exists():
+                chk[k] = dict(path=str(p), pass_exists=False)
+                continue
+            am, _, al = read_meta(p)
+            gm, _, _ = read_meta(grad_paths[k])
+            want = gm["doc_ids"] if "doc_ids" in gm else [by_id[b]["doc_ids"] if b in by_id else None
+                                                           for b in gm["bundle_ids"]]
+            chk[k] = dict(path=str(p), pass_exists=True, pass_kind=am.get("kind") == "act",
+                          pass_layers=al == list(ACT_LAYERS),
+                          pass_order_hash="doc_ids" in am and act_order_hash(am, al) == am.get("order_hash"),
+                          pass_from_build=am.get("order_hash") is not None
+                          and am.get("order_hash") == (built.get(k) or {}).get("order_hash"),
+                          pass_bundle_ids=am.get("bundle_ids") == gm["bundle_ids"],
+                          pass_doc_ids=[list(d) for d in am.get("doc_ids", [])]
+                          == [list(d) if d is not None else None for d in want])
+    mean_act = mean_grad = None
+    if need_act_mean:
+        chk["train_mean"], mean_act = _load_train_mean(act_dir / TRAIN_MEAN_NAME, bundles, rep, "act")
+        if mean_act is not None:
+            info["train_mean"] = dict(path=chk["train_mean"]["path"], n_bundles=chk["train_mean"].get("n_bundles"),
+                                      bundle_order_hash=None, written=None)
+            with np.load(act_dir / TRAIN_MEAN_NAME) as z:
                 mm = json.loads(str(z["meta"]))
-            tr_ids = [b["bundle_id"] for b in bundles if b["split"] == C.SPLIT_TRAIN]
-            chk["train_mean"] = dict(path=str(p), pass_exists=True, n_bundles=mm.get("n_bundles"),
-                                     pass_n_bundles=mm.get("n_bundles") == len(tr_ids),
-                                     pass_order_hash=mm.get("bundle_order_hash") == C.order_hash(tr_ids),
-                                     # written by the passed build (the build stamps its time on the mean and report)
-                                     pass_from_build=rep is not None and mm.get("written") == rep.get("time"),
-                                     pass_layers=ml == list(ACT_LAYERS) and mean.shape[0] == len(ACT_LAYERS),
-                                     pass_finite=bool(np.isfinite(mean).all()))
-            info["train_mean"] = dict(path=str(p), n_bundles=mm.get("n_bundles"),
-                                      bundle_order_hash=mm.get("bundle_order_hash"), written=mm.get("written"))
-    return chk, mean, info
+            info["train_mean"].update(bundle_order_hash=mm.get("bundle_order_hash"), written=mm.get("written"))
+    if need_grad_mean:
+        chk["train_mean_grad"], mean_grad = _load_train_mean(act_dir / TRAIN_MEAN_GRAD_NAME, bundles, rep, "grad")
+        if mean_grad is not None:
+            with np.load(act_dir / TRAIN_MEAN_GRAD_NAME) as z:
+                mm = json.loads(str(z["meta"]))
+            info["train_mean_grad"] = dict(path=chk["train_mean_grad"]["path"], n_bundles=mm.get("n_bundles"),
+                                           bundle_order_hash=mm.get("bundle_order_hash"), written=mm.get("written"),
+                                           appended_to_build=mm.get("appended_to_build"))
+    return chk, mean_act, mean_grad, info
 
 
 # ---------------------------------------------------------------- the rows a scorer gets
@@ -1034,30 +1231,60 @@ def unit_rows(D) -> np.ndarray:
 
 class RowPrep:
     """The rows a scorer gets from one stored input [file layers, d] (module docstring, 'Inputs'): the reader gets the
-    row as stored (it applies its own centring); an AO gets its layers as unit rows (unit_rows), and with act_centred
-    unit(unit row - m[L]) in fp64, stored fp32."""
+    row as stored (it applies its own centring); an AO gets its layers as unit rows (unit_rows), optionally signed,
+    centred, or add-an-activation (m_act + α · ĝ). ``mean`` is the train mean of the primary quantity (act for
+    act_centred, grad for grad_centred / addact's ĝ); ``mean_act`` is the activation train mean for addact's m̂."""
 
-    def __init__(self, scorer: str, input_kind: str, scorer_layers, mean=None, mean_layers=ACT_LAYERS):
+    def __init__(self, scorer: str, input_kind: str, scorer_layers, mean=None, mean_layers=ACT_LAYERS, *,
+                 sign: str | None = None, alpha: float | None = None, mean_act=None):
         self.scorer, self.input_kind = scorer, input_kind
         self.layers = [int(L) for L in scorer_layers]
         self.identity = scorer == "reader"
+        self.sign = DEFAULT_SIGN[input_kind] if sign is None else sign
+        self.flip = (not self.identity) and input_kind in GRAD_INPUTS and self.sign == "pos"
+        self.alpha = None if alpha is None else float(alpha)
         self.m = None
-        if input_kind == "act_centred" and not self.identity:
+        self.m_act = None
+        if self.identity:
+            return
+        if input_kind in ("act_centred", "grad_centred", "addact"):
             if mean is None:
-                raise ValueError("act_centred needs the train mean")
+                raise ValueError(f"{input_kind} needs the train mean")
             self.m = np.asarray(mean, np.float64)[[list(mean_layers).index(L) for L in self.layers]]
+        if input_kind == "addact":
+            if mean_act is None:
+                raise ValueError("addact needs the activation train mean")
+            if self.alpha is None or not (self.alpha > 0 and math.isfinite(self.alpha)):
+                raise ValueError("addact needs a positive finite alpha")
+            # unit training-mean direction (plan B2 m̂); raw mean norm is ~0.97–0.99
+            self.m_act = unit64(np.asarray(mean_act, np.float64)[[list(mean_layers).index(L) for L in self.layers]])
 
     def __call__(self, U, layers) -> tuple[np.ndarray, list[int]]:
+        """Centre in the stored sign, then flip when ``sign=pos`` (ao_vs_reader / plan B2: centre then negate)."""
         if self.identity:
             return np.asarray(U, np.float32), [int(L) for L in layers]
         X = np.asarray(U)[[list(layers).index(L) for L in self.layers]]
+        if self.input_kind == "addact":
+            g = unit64(X) - self.m
+            n = np.linalg.norm(g, axis=-1, keepdims=True)
+            if not np.isfinite(n).all() or (n == 0).any():
+                raise ValueError("zero or non-finite centred gradient in addact")
+            g = g / n
+            if self.flip:
+                g = -g
+            return unit_rows(self.m_act + self.alpha * g), list(self.layers)
         if self.m is None:
+            if self.flip:
+                X = -np.asarray(X)
             return unit_rows(X), list(self.layers)
         X = unit64(X) - self.m
         n = np.linalg.norm(X, axis=-1, keepdims=True)
         if not np.isfinite(n).all() or (n == 0).any():
             raise ValueError("zero or non-finite centred row")
-        return (X / n).astype(np.float32), list(self.layers)
+        X = X / n
+        if self.flip:
+            X = -X
+        return X.astype(np.float32), list(self.layers)
 
 
 def pair_cos_rows(X: np.ndarray, steps: list[dict], layers, prep: RowPrep) -> dict:
@@ -1185,12 +1412,17 @@ def decoder_layers(model):
 class YesNoAO:
     """First-token P(Yes) of several questions asked to a public Activation Oracle for one [layers, d] input:
     train_blockmix_filter.InProcessAO with the question key as an argument and one oracle prompt per question, built
-    once (module docstring, 'Scorers'). ``ad`` is ao_diff_read; ``model`` a causal LM with the AO adapter active."""
+    once (module docstring, 'Scorers'). ``ad`` is ao_diff_read; ``model`` a causal LM with the AO adapter active.
+    ``coef`` is the injection scale (ao_diff_read.inject_ steering coefficient; default ad.COEF = 1)."""
 
-    def __init__(self, ad, model, tok, ao: str, questions: dict, describe: dict | None = None):
+    def __init__(self, ad, model, tok, ao: str, questions: dict, describe: dict | None = None,
+                 coef: float = DEFAULT_COEF):
         import torch
 
         self.ad, self.model, self.tok, self.ao, self.torch = ad, model, tok, ao, torch
+        self.coef = float(coef)
+        if not (self.coef > 0 and math.isfinite(self.coef)):
+            raise SystemExit(f"AO steering coefficient must be a positive finite float, got {coef!r}")
         self.layers = [int(L) for L in ad.AOS[ao]["layers"]]
         self.yid, self.nid = single_ids(tok, YES), single_ids(tok, NO)
         if "Yes" not in self.yid or "No" not in self.nid:
@@ -1209,15 +1441,16 @@ class YesNoAO:
             prompt_tokens={k: int(v[0].shape[1]) for k, v in self.enc.items()},
             placeholder_positions={k: v[1] for k, v in self.enc.items()}, oracle_prompt_first_key=prompts[first],
             layers=self.layers, yes_token_ids=self.yid, no_token_ids=self.nid, centred=False,
-            hook_onto_layer=ad.HOOK_LAYER, steering_coefficient=ad.COEF,
+            hook_onto_layer=ad.HOOK_LAYER, steering_coefficient=self.coef,
             injection="forward hook on decoder layer 1 in one prefill: ao_diff_read.inject_, h[pos] <- h[pos] + "
-                      "||h[pos]|| v / ||v|| (one placeholder per layer block); hook added and removed per read",
+                      f"coef * ||h[pos]|| v / ||v|| with coef={self.coef:g} (one placeholder per layer block); "
+                      "hook added and removed per read",
             p_yes_rule="fp32 softmax over the full vocabulary at the last prompt position; p_yes = sum over the "
                        "single-token yes spellings (train_blockmix_filter.InProcessAO.read)",
             **(describe or {}))
 
     @classmethod
-    def load(cls, ao: str, questions: dict, device: str = "cuda:0"):
+    def load(cls, ao: str, questions: dict, device: str = "cuda:0", coef: float = DEFAULT_COEF):
         ad = repo_main_run("ao_diff_read")
         if tuple(int(L) for L in ad.AOS[ao]["layers"]) != AO_LAYERS[ao]:
             raise SystemExit(f"ao_diff_read.AOS[{ao!r}] layers {ad.AOS[ao]['layers']} differ from AO_LAYERS")
@@ -1225,30 +1458,30 @@ class YesNoAO:
         pm, tok, cfgs = ad.load_aos(device, [ao])
         pm.set_adapter(ao)
         a = ad.AOS[ao]
-        r = cls(ad, pm, tok, ao, questions, describe=dict(
+        r = cls(ad, pm, tok, ao, questions, coef=coef, describe=dict(
             ao_repo=a["repo"], ao_revision=a["revision"], ao_config=cfgs[ao], model=ad.MODEL_ID, device=device,
             loading="ao_diff_read.load_aos: Qwen3-14B bf16 (sdpa) + PeftModel adapter, eval, no gradients",
             ao_diff_read=os.path.realpath(ad.__file__), load_seconds=None))
         r.info["load_seconds"] = round(time.time() - t0, 1)
         log(f"AO {ao} ({a['repo']} @ {a['revision'][:8]}) loaded in {r.info['load_seconds']} s on {device}; "
-            f"{len(questions)} questions, layers {r.layers}, prompts {min(r.info['prompt_tokens'].values())}-"
-            f"{max(r.info['prompt_tokens'].values())} tokens")
+            f"{len(questions)} questions, layers {r.layers}, coef {r.coef:g}, prompts "
+            f"{min(r.info['prompt_tokens'].values())}-{max(r.info['prompt_tokens'].values())} tokens")
         return r
 
     def read(self, U, layers, key):
         """``U`` [len(layers), d] fp32 unit rows in ``layers`` order, question ``key`` -> P(Yes) and companions (one
-        prefill; train_blockmix_filter.InProcessAO.read)."""
+        prefill; train_blockmix_filter.InProcessAO.read with steering coefficient ``self.coef``)."""
         torch = self.torch
         ids, pos = self.enc[key]
         lidx = [list(layers).index(L) for L in self.layers]
         V = torch.from_numpy(np.ascontiguousarray(np.asarray(U, dtype=np.float32)[lidx][None])).to(self.dev)
-        n_ids, inject, hits = int(ids.shape[1]), self.ad.inject_, []
+        n_ids, inject, hits, coef = int(ids.shape[1]), self.ad.inject_, [], self.coef
 
         def hook(mod, inp, out):
             h = out[0] if isinstance(out, tuple) else out
             if h.shape[0] != 1 or h.shape[1] != n_ids:
                 raise ValueError(f"AO hook: hidden states {tuple(h.shape)}, expected [1, {n_ids}, d]")
-            inject(h, pos, V)
+            inject(h, pos, V, coef)
             hits.append(1)
             return out
 
@@ -1353,15 +1586,22 @@ def write_report(out: Path, report: dict, prefix: str = "READ") -> Path:
 def cmd_read(out: Path, gpu, limit: int | None = None, check_equivalence: bool = False, *, scorer: str = "reader",
              input_kind: str = "grad", bundles_set: str = "rare_quirk", act_dir=None, make_reader=None,
              make_equiv=None, snapshot=None, inputs_correct=None, perdoc=None, expect=None, adapter=None,
-             run_json=None, reader_name: str = READER, reader_layers=None) -> int:
+             run_json=None, reader_name: str = READER, reader_layers=None, sign: str | None = None,
+             coef: float = DEFAULT_COEF, alpha: float | None = None) -> int:
     """Read every selected input with the own and other questions; ``out`` is the run folder. make_reader(questions) /
     make_equiv() replace the GPU scorer and the filter's dolphin scorer (tests); the other keywords replace the default
-    paths (tests)."""
+    paths (tests). ``sign`` / ``coef`` / ``alpha`` are AO preparation knobs (Neel item 1 extended sweep)."""
     t_start = time.time()
     out = Path(out)
-    why = combo_error(scorer, input_kind, bundles_set, custom_reader=run_json is not None)
+    sign = DEFAULT_SIGN[input_kind] if sign is None else sign
+    coef = float(coef)
+    why = combo_error(scorer, input_kind, bundles_set, custom_reader=run_json is not None,
+                      sign=sign, coef=coef, alpha=alpha)
     if why:
         log(why)
+        return 2
+    if check_equivalence and scorer != "reader" and coef != DEFAULT_COEF:
+        log("--check-equivalence compares against InProcessAO at coef 1; refuse --coef != 1")
         return 2
     if limit is not None and under_real_out(out):
         log(f"--limit is a smoke option; give --out outside {OUT}")
@@ -1379,24 +1619,30 @@ def cmd_read(out: Path, gpu, limit: int | None = None, check_equivalence: bool =
     perdoc = Path(perdoc or PERDOC)
     act_dir = Path(act_dir) if act_dir is not None else OUT / ACT_DIR_NAME
     grad_paths = input_paths("grad", kinds, inputs_correct, perdoc, None)
+    rname = run_name(scorer, input_kind, bundles_set, sign=sign, coef=coef, alpha=alpha)
     report = dict(
         experiment="rare yes/no: first-token P(Yes) of 'did this training imprint behaviour X' (reader; "
-                   "AO scorers, activation inputs and all bundles)",
-        out=str(out), run_name=run_name(scorer, input_kind, bundles_set), scorer=scorer, input=input_kind,
+                   "AO scorers, activation inputs and all bundles; "
+                   "AO prep --coef/--sign/grad_centred/addact)",
+        out=str(out), run_name=rname, scorer=scorer, input=input_kind, sign=sign, coef=coef, alpha=alpha,
         bundles=bundles_set, gpu=str(gpu), limit=limit, check_equivalence=check_equivalence,
         question_template=TEMPLATE,
         row_rule=ROW_RULE[("reader" if input_kind == "grad" else "reader_act") if scorer == "reader" else input_kind],
         code=os.path.abspath(__file__), started=time.strftime("%Y-%m-%d %H:%M:%S"))
     checks: dict = {}
-    mean = None
-    if input_kind != "grad":
-        checks["act"], mean, report["act"] = act_checks(act_dir, kinds, grad_paths, bundles,
-                                                        input_kind == "act_centred")
+    mean_act = mean_grad = None
+    need_act_files = input_kind in ACT_INPUTS
+    need_act_mean = input_kind in ("act_centred", "addact")
+    need_grad_mean = input_kind in ("grad_centred", "addact")
+    if need_act_files or need_act_mean or need_grad_mean:
+        checks["act"], mean_act, mean_grad, report["act"] = act_checks(
+            act_dir, kinds, grad_paths, bundles, need_act_files=need_act_files, need_act_mean=need_act_mean,
+            need_grad_mean=need_grad_mean)
         gone = [n for n, v in flat_passes(dict(act=checks["act"])) if not v and n.endswith("pass_exists")]
         if gone:
             report.update(checks=checks, passed=False, failed=gone, n_checks=len(flat_passes(checks)))
             p = write_report(out, report)
-            log(f"activation inputs missing in {act_dir} ({gone}); run build-act first; nothing read (report {p})")
+            log(f"activation dir incomplete in {act_dir} ({gone}); run build-act first; nothing read (report {p})")
             return 1
     paths = input_paths(input_kind, kinds, inputs_correct, perdoc, act_dir)
     text, fam, bad = behaviours(bundles, families, keyed)
@@ -1462,17 +1708,27 @@ def cmd_read(out: Path, gpu, limit: int | None = None, check_equivalence: bool =
                                          pass_from_worktree=os.path.abspath(eg.__file__).startswith(wt)
                                          and os.path.abspath(gen_mod.__file__).startswith(wt))
         else:
-            reader = YesNoAO.load(scorer, questions, device)
+            reader = YesNoAO.load(scorer, questions, device, coef=coef)
             want = os.path.realpath(C.REPO / "main_run" / "ao_diff_read.py")
             checks["scorer_code"] = dict(ao_diff_read=reader.info["ao_diff_read"],
                                          pass_from_repo=reader.info["ao_diff_read"] == want,
-                                         pass_ao_layers=reader.layers == list(AO_LAYERS[scorer]))
+                                         pass_ao_layers=reader.layers == list(AO_LAYERS[scorer]),
+                                         coef=coef, pass_coef=float(reader.coef) == coef)
     else:
         device = "stub"
         reader = make_reader(questions)
     report["reader"] = reader.info
     layers_of = {k: read_meta(p)[2] for k, p in paths.items()}
-    prep = RowPrep(scorer, input_kind, reader.layers, mean, ACT_LAYERS)
+    if input_kind == "act_centred":
+        prep_mean, prep_mean_act = mean_act, None
+    elif input_kind == "grad_centred":
+        prep_mean, prep_mean_act = mean_grad, None
+    elif input_kind == "addact":
+        prep_mean, prep_mean_act = mean_grad, mean_act
+    else:
+        prep_mean, prep_mean_act = None, None
+    prep = RowPrep(scorer, input_kind, reader.layers, prep_mean, ACT_LAYERS, sign=sign, alpha=alpha,
+                   mean_act=prep_mean_act)
     checks["scorer_layers"] = dict(layers=list(reader.layers),
                                    pass_in_files=all(L in layers_of[k] for k in kinds for L in prep.layers))
     if not checks["scorer_layers"]["pass_in_files"]:
@@ -1546,8 +1802,8 @@ def cmd_read(out: Path, gpu, limit: int | None = None, check_equivalence: bool =
                 t1 = time.time()
                 res = reader.read(U, Ls, qkey_of(bk))
                 secs[k].append(time.time() - t1)
-                rows[k].append(dict(public(s), scorer=scorer, input=input_kind, qkey=qk, q_behaviour_id=plain[bk],
-                                    **res))
+                rows[k].append(dict(public(s), scorer=scorer, input=input_kind, sign=sign, coef=coef, alpha=alpha,
+                                    qkey=qk, q_behaviour_id=plain[bk], **res))
                 done += 1
                 if done % 100 == 0 or done == n_total:
                     el = time.time() - t_loop
@@ -1750,7 +2006,8 @@ def cmd_summary(out: Path, snapshot=None, bundles_set: str | None = None) -> int
     summary = dict(
         experiment="rare yes/no", scorer=scorer,
         reader=((((rep or {}).get("reader") or {}).get("reader") or READER) if scorer == "reader" else scorer),
-        input=(rep or {}).get("input", "grad"), bundles=bundles_set, run_name=(rep or {}).get("run_name"),
+        input=(rep or {}).get("input", "grad"), sign=(rep or {}).get("sign"), coef=(rep or {}).get("coef"),
+        alpha=(rep or {}).get("alpha"), bundles=bundles_set, run_name=(rep or {}).get("run_name"),
         question_template=TEMPLATE,
         metric_rule=("AUROC of the own question's P(Yes): over all (positive, negative) pairs, P(pos > neg) + 0.5 "
                      "P(equal); 95% interval = 2.5 and 97.5 percentiles of 1,000 bootstrap AUROCs (fresh numpy "
@@ -1789,12 +2046,18 @@ def main(argv=None) -> int:
     b = sub.add_parser("build-act")
     for p in (r, s, b):
         p.add_argument("--out", type=Path, default=OUT,
-                       help="ROOT: a run goes to ROOT/<scorer>_<input>[_all], activation inputs to ROOT/act")
+                       help="ROOT: a run goes to ROOT/<scorer>_<tag>[_all], activation inputs to ROOT/act")
     for p in (r, s):
         p.add_argument("--run-dir", type=Path, default=None, help="the run folder (default ROOT/<run name>)")
         p.add_argument("--scorer", choices=SCORERS, default="reader")
         p.add_argument("--input", choices=INPUT_KINDS, default="grad")
         p.add_argument("--bundles", choices=BUNDLE_SETS, default=None, help="default rare_quirk (summary: READ.json's)")
+        p.add_argument("--sign", choices=SIGNS, default=None,
+                       help="gradient: neg=stored -dL/dh (default), pos=flip; act: pos only")
+        p.add_argument("--coef", type=float, default=DEFAULT_COEF,
+                       help="AO injection scale (ao_diff_read.inject_ coefficient; default 1)")
+        p.add_argument("--alpha", type=float, default=None,
+                       help="add-an-activation α for --input addact (v = m_act + α · ĝ; typically 0.5 or 1)")
     for p in (r, b):
         p.add_argument("--act-dir", type=Path, default=None, help="activation inputs (default ROOT/act)")
     r.add_argument("--gpu", required=True)
@@ -1809,11 +2072,14 @@ def main(argv=None) -> int:
     if a.cmd == "build-act":
         return cmd_build_act(a.act_dir or Path(a.out) / ACT_DIR_NAME)
     bundles_set = a.bundles or "rare_quirk"
+    sign = a.sign
+    coef, alpha = float(a.coef), a.alpha
     why = combo_error(a.scorer, a.input, bundles_set,
-                      custom_reader=a.cmd == "read" and getattr(a, "reader_run_json", None) is not None)
+                      custom_reader=a.cmd == "read" and getattr(a, "reader_run_json", None) is not None,
+                      sign=sign, coef=coef, alpha=alpha)
     if why:
         ap.error(why)
-    run_dir = a.run_dir or run_dir_of(a.out, a.scorer, a.input, bundles_set)
+    run_dir = a.run_dir or run_dir_of(a.out, a.scorer, a.input, bundles_set, sign=sign, coef=coef, alpha=alpha)
     if a.cmd == "read":
         if a.limit is not None and a.limit < 1:
             ap.error("--limit must be >= 1")
@@ -1830,7 +2096,8 @@ def main(argv=None) -> int:
             run_dir = Path(a.out) / (f"{a.reader_name}_{a.input}" + ("_all" if bundles_set == "all" else ""))
         return cmd_read(run_dir, a.gpu, a.limit, a.check_equivalence, scorer=a.scorer, input_kind=a.input,
                         bundles_set=bundles_set, act_dir=a.act_dir or Path(a.out) / ACT_DIR_NAME,
-                        adapter=a.reader_adapter, run_json=a.reader_run_json, reader_name=name, reader_layers=layers)
+                        adapter=a.reader_adapter, run_json=a.reader_run_json, reader_name=name, reader_layers=layers,
+                        sign=sign, coef=coef, alpha=alpha)
     return cmd_summary(run_dir, bundles_set=a.bundles)
 
 

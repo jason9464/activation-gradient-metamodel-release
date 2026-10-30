@@ -17,7 +17,9 @@ Data, gradient stores, model weights and checkpoints are not included. The code 
 
 | Slide | Title | Data scripts | Figure script |
 |---|---|---|---|
-| 6 to 8 | Gradient SAE and fitted directions | collaborator's part, to be added | collaborator's part, to be added |
+| 6 | Accumulated gradients reveal animal-specific SAE features | `main_run/sae_grad_enrichment.py` | `main_run/plot_sae_grad_range_for_slide.py`, `plot_sae_grad_window_counts_for_slide.py` |
+| 7 | Fitted directions reveal animal-specific SAE features | `main_run/fit_vector.py`, `main_run/sae_feature_enrichment.py` | `main_run/plot_sae_feature_enrichment.py` |
+| 8 | Fitted residual biases causally shift animal preference | `main_run/fit_vector.py` | `main_run/plot_fitvec_steering_slide.py` |
 | 10 | The input is the activation-space gradient of the training loss | `scripts/beh_reader/extract.sh`, `main_run/extract.py` | none |
 | 11 | Labels are answers that an LLM labeler writes | `main_run/beh_reader/build_reader_dir.py`, `main_run/c1/materialize.py` | none |
 | 13 | An open answer is graded on four cumulative levels | `main_run/beh_reader/level_tags.py`, `answer_tags.py` | none |
@@ -33,9 +35,19 @@ Data, gradient stores, model weights and checkpoints are not included. The code 
 | 24 | Does the update read as dolphin before the student shows it? | `scripts/newset/train.sh`, `scripts/cleanbatch/chain.sh`, `extend.sh` | `main_run/plot_cleanbatch_full.py` |
 | 25 | Does filtering by the metamodel's score stop the preference? | `scripts/blockmix/filter.sh`, `main_run/filter_onsets_one_rule.py` | `main_run/plot_filter_rank_probe.py` |
 | 26 | Why does filtering only delay the preference? | `scripts/blockmix/filter.sh`, `main_run/plot_filter_rank_threshold.py` | `main_run/plot_filter_threshold_slide.py` |
-| 28 to 33 | Extensions beyond the main reader | collaborator's part, to be added | collaborator's part, to be added |
-| 35 to 37 | EM and reward-hacking readers | collaborator's part, to be added | collaborator's part, to be added |
+| 28 to 33 | Gradient metamodel distinguishes training behaviours more strongly than the activation metamodel | `main_run/experiment2/` (`runtime.py`, `probe.py`, `analyse.py`), `configs/experiment2/` | `main_run/experiment2/plot_reader_delta_pyes_slide.py` |
+| 28 to 33 | Document weighting nearly explains rare-behaviour detection | `main_run/ao_vs_reader/probe_compare.py`, `probe_tasks.py` | `main_run/plot_probe_weighting_slide.py` |
+| 28 to 33 | Loss-weighted activations improve rare-behaviour detection | `scripts/experiment2/loss_weighted.sh`, `main_run/experiment2/loss_weighted.py` | `main_run/experiment2/plot_loss_weighted_delta_pyes_slide.py` |
+| 28 to 33 | Output error nearly closes the logit-lens gap | `main_run/fwd_baselines/` (`extract_fwd.py`, `build_inputs.py`, `fwd_probe.py`, `fwd_lens.py`, `decide.py`), `main_run/ao_vs_reader/logit_lens.py` | `main_run/plot_forward_baseline_gap_slide.py` |
+| 28 to 33 | Gradients distinguish teacher-generated data, but not uniquely by animal preference | `main_run/signal_act_probe.py` | `main_run/plot_act_probe_slide.py` |
+| 28 to 33 | Loss-weighted activations fail to reveal the subliminal dolphin signal | `main_run/lossw_actdiff.py`, `lossw_cleanbatch.py`, `lossw_sae.py` | `main_run/plot_lossw_dolphin.py`, `plot_lossw_answers.py` |
+| 28 to 33 | Knowing the target changes which method detects learning first | `main_run/blackbox_timing.py`, `scripts/candidates/score_subliminal.sh`, `rank_subliminal.sh` (`main_run/reader/candidate_score.py`, `main_run/candidate_rank.py`) | `main_run/plot_told_vs_not_told_slide.py` |
+| 35 | The metamodel detects risky advice early, but misses emergent misalignment | `main_run/train_em.py`, `main_run/em/` (`eval.py`, `onset.py`, `make_ctx_data.py`, `beh_jobs.py`, `ctx_compare.py`, `judge_reader.py`), `scripts/em_beh/judge_all.sh` | `main_run/plot_em_beh_slide.py` |
+| 36 | Gradients distinguish finished EM models, but the metamodel misses the distinction | `main_run/em/` (`dact_extract.py`, `dwx_inputs.py`, `ext_grad_inputs.py`, `pairwise_judge.py`, `pair_input_check.py`), `scripts/em_dact/judge_all.sh` | `main_run/plot_em_pair_slide.py` |
+| 37 | The metamodel tracks test-related changes but fails to identify reward hacking | `main_run/rh/` (`make_runs.py`, `make_docs.py`, `half_inputs.py`, `judge_all.py`, `summary.py`), `main_run/ao_diff_read.py` | `main_run/rh/plot_slide.py`, `plot_slide_trajectory.py` |
 | 38 | Many wrong answers repeat behaviours from the metamodel's own training set | `main_run/beh_reader/answer_tags.py`, `level_tags.py` | none |
+
+The appendix slides on public-AO input tuning and on the text ceiling come from `main_run/beh_reader/rare_yesno.py` with `scripts/beh_reader/rare_yesno.sh` and `rare_yesno_ext.sh` (figure `main_run/plot_ao_prep_sweep_slide.py`), and from `main_run/experiment2/text_ceiling.py` and `loss_detector.py` (figure `main_run/experiment2/plot_text_ceiling_identification.py`). The behaviour-labelled bundles that slides 11 to 20 read are built by `main_run/behaviour/` (`registry.py`, `fetch.py`, `rows.py`, `qa.py`, `bundles.py`, `split.py`, `handoff.py`). The figure scripts of the slides above read the small summary files kept in `docs/figures/`, `docs/rh_results/` and `results/`; the run outputs they come from are not included.
 
 Slides 23 to 26 use the older 40-layer metamodel trained on C1 and FineWeb RL only, with `configs/reader/scratch_L40.yaml` and `configs/reader/rl_scratch_L40_haiku_paper.yaml`.
 
@@ -43,6 +55,7 @@ Slides 23 to 26 use the older 40-layer metamodel trained on C1 and FineWeb RL on
 
 - `IIF_BASE` is the root for data, stores, runs and the Hugging Face cache (`$IIF_BASE/hf_home`). Scripts stop with an error when it is unset.
 - API keys are read at run time from files under `$IIF_BASE/persistent/secrets/` (for example `anthropic_key` for the Haiku judges). No key is stored in this repository.
+- The OpenRouter judges (`main_run/c1/score.py` and the scripts that reuse it) take `OPENROUTER_API_KEY` from the environment, a gitignored `.env`, or `$IIF_BASE/persistent/secrets/openrouter_key_2`.
 - Python packages are listed in `requirements.txt`. The base model is `Qwen/Qwen3-14B`.
 - Weights, checkpoints, gradient stores and datasets are not included. The C1 split manifest `main_run/c1/manifests/splits.json` (465 KB) is left out too, and `main_run/c1/build_manifest.py` writes it.
 

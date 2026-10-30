@@ -167,20 +167,28 @@ class Fp32Model:
     def __init__(self, device):
         self.device, self.key, self.pm, self.tok, self.load_s = device, None, None, None, None
 
-    def get(self, model_id, adapter_dir):
+    def get(self, model_id, adapter_dir, *, revision=None):
         from peft import LoraConfig, get_peft_model
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         cfg = LoraConfig.from_pretrained(adapter_dir)
-        key = (model_id, json.dumps(cfg.to_dict(), sort_keys=True, default=str))
+        # lists/sets/tuples order-insensitive: target_modules list order differs across runs, and str(set)
+        # also depends on PYTHONHASHSEED — a mismatched key would load a second ~55 GiB fp32 copy.
+        d = cfg.to_dict()
+        key = (model_id, revision, json.dumps(
+            {k: (sorted(map(str, v)) if isinstance(v, (list, set, tuple)) else v) for k, v in d.items()},
+            sort_keys=True, default=str))
         if key == self.key:
             return self.pm, self.tok
         self.pm = None
         torch.cuda.empty_cache()
         t0 = time.time()
         core.set_fp32_matmul_ieee()
-        model = AutoModelForCausalLM.from_pretrained(model_id, dtype=torch.float32, attn_implementation="sdpa",
-                                                     device_map={"": self.device})
+        model = AutoModelForCausalLM.from_pretrained(model_id, revision=revision, dtype=torch.float32,
+                                                     attn_implementation="sdpa", device_map={"": self.device})
+        if revision and getattr(model.config, "_commit_hash", None) != revision:
+            raise SystemExit(f"loaded {model_id} snapshot {getattr(model.config, '_commit_hash', None)!r}, "
+                             f"expected {revision}")
         cfg.inference_mode = True
         pm = get_peft_model(model, cfg)
         for p in pm.parameters():
@@ -189,7 +197,7 @@ class Fp32Model:
         dt = {p.dtype for p in pm.parameters()}
         if dt != {torch.float32}:
             raise RuntimeError(f"model parameters are not all fp32: {dt}")
-        tok = AutoTokenizer.from_pretrained(model_id)
+        tok = AutoTokenizer.from_pretrained(model_id, revision=revision)
         tok.padding_side = "right"
         assert tok.pad_token == "<|endoftext|>", tok.pad_token  # as train_subliminal
         self.key, self.pm, self.tok, self.load_s = key, pm, tok, round(time.time() - t0, 1)
@@ -669,16 +677,40 @@ def resolve_run(run):
     return run if os.path.isabs(run) else os.path.join(RUNS_DIR, run)
 
 
+def _row_kind(rows):
+    """'chat' (prompt+completion) or 'text' (raw C1 text); mixed files are refused."""
+    kinds = []
+    for r in rows:
+        has_chat = isinstance(r.get("prompt"), str) and isinstance(r.get("completion"), str)
+        has_text = isinstance(r.get("text"), str)
+        if has_chat and has_text:
+            kinds.append("both")
+        elif has_chat:
+            kinds.append("chat")
+        elif has_text:
+            kinds.append("text")
+        else:
+            kinds.append("none")
+    bad = [i for i, k in enumerate(kinds) if k in ("none", "both")]
+    if bad:
+        raise SystemExit(f"rows {bad[:5]} need either prompt+completion or text (not both, not neither)")
+    if len(set(kinds)) != 1:
+        raise SystemExit(f"mixed row kinds {sorted(set(kinds))}; one kind per file")
+    return kinds[0]
+
+
 def load_fixed_docs(path):
-    """Rows of the fixed-documents file (make_fixed_docs.py) in file order, the halves and the file's sha256."""
+    """Rows of a fixed-documents file in file order, the halves and the file's sha256.
+
+    Chat rows (``make_fixed_docs`` / EM evalq): ``prompt`` + ``completion``.
+    Raw-text rows (C1 web docs): ``text`` (tokenised as ``agm.data.rows_from_raw`` / extract.py).
+    """
     rows = []
     with open(path) as f:
         for line in f:
             if line.strip():
                 rows.append(json.loads(line))
-    bad = [i for i, r in enumerate(rows) if not isinstance(r.get("prompt"), str) or not isinstance(r.get("completion"), str)]
-    if bad:
-        raise SystemExit(f"{path}: rows {bad[:5]} lack the text fields prompt and completion")
+    _row_kind(rows)
     n = len(rows)
     half = [int(r["half"]) if "half" in r else (0 if i < n // 2 else 1) for i, r in enumerate(rows)]
     if sorted(set(half)) != [0, 1] or half.count(0) != half.count(1):
@@ -688,18 +720,51 @@ def load_fixed_docs(path):
     return rows, half, sha
 
 
+def _raw_text_batch(tok, texts, max_len):
+    """Right-padded batch for raw C1 text: first chunk of each doc (chunk_len = min(max_len, CHUNK_LEN))."""
+    from agm.data import CHUNK_LEN, MIN_CHUNK
+
+    chunk_len = min(int(max_len), CHUNK_LEN)
+    enc = tok(list(texts), add_special_tokens=False)["input_ids"]
+    ids, am = [], []
+    for p in enc:
+        piece = p[:chunk_len]
+        if len(piece) < MIN_CHUNK:
+            raise SystemExit(f"raw text row has {len(piece)} tokens (< {MIN_CHUNK}); replace the document")
+        ids.append(piece)
+        am.append([1] * len(piece))
+    T = max(len(x) for x in ids)
+    pad = tok.pad_token_id
+    if pad is None:
+        raise SystemExit("tokenizer has no pad_token_id")
+    input_ids = np.full((len(ids), T), pad, dtype=np.int64)
+    attention_mask = np.zeros((len(ids), T), dtype=np.int64)
+    for i, (ii, aa) in enumerate(zip(ids, am)):
+        input_ids[i, :len(ii)] = ii
+        attention_mask[i, :len(aa)] = aa
+    return dict(input_ids=input_ids, attention_mask=attention_mask)
+
+
 def fixed_batches(tok, rows, half, st):
-    """One right-padded batch per half (trainer tokenisation: tokenize_rows + CompletionMaskCollator) and the sha1 of
-    each batch's input_ids; returns [(half, indices, batch)], n_tokens per row (file order), sha1 over both batches."""
+    """One right-padded batch per half and the sha1 of each batch's input_ids.
+
+    Chat rows: trainer tokenisation (``tokenize_rows`` + ``CompletionMaskCollator``).
+    Text rows: raw C1 tokenisation (``agm.data.rows_from_raw`` rule: first chunk, no special tokens).
+    Returns [(half, indices, batch)], n_tokens per row (file order), sha1 over both batches.
+    """
     import train_subliminal as ts
 
+    kind = _row_kind(rows)
     out, ntok, h = [], [0] * len(rows), hashlib.sha1()
     for hv in (0, 1):
         sel = [i for i, x in enumerate(half) if x == hv]
-        rr = [dict(prompt=rows[i]["prompt"], completion=rows[i]["completion"], source=None) for i in sel]
-        ids, masks, _ = ts.tokenize_rows(tok, rr, st["max_len"], st["think_loss"])
-        b = ts.CompletionMaskCollator(tok)([dict(input_ids=i_, completion_mask=m) for i_, m in zip(ids, masks)])
-        batch = {k: b[k].numpy() for k in ("input_ids", "attention_mask")}
+        if kind == "chat":
+            rr = [dict(prompt=rows[i]["prompt"], completion=rows[i]["completion"], source=None) for i in sel]
+            ids, masks, _ = ts.tokenize_rows(tok, rr, st["max_len"], st["think_loss"])
+            b = ts.CompletionMaskCollator(tok)([dict(input_ids=i_, completion_mask=m) for i_, m in zip(ids, masks)])
+            batch = {k: b[k].numpy() for k in ("input_ids", "attention_mask")}
+        else:
+            batch = _raw_text_batch(tok, [rows[i]["text"] for i in sel], st["max_len"])
         for j, i in enumerate(sel):
             ntok[i] = int(batch["attention_mask"][j].sum())
         h.update(np.ascontiguousarray(batch["input_ids"]).tobytes())
@@ -750,39 +815,49 @@ def fixed_forward(pm, batches, n_docs, layers):
 
 
 def compute_fixed(run, docs_path, steps, device="cuda:0", watch=False, done_marker=None, failed_marker=None,
-                  poll_s=30, max_idle_s=6 * 3600, grace_s=180, allow_bf16=False, log_fn=None):
+                  poll_s=30, max_idle_s=6 * 3600, grace_s=180, allow_bf16=False, log_fn=None,
+                  subdir=FIXED_SUBDIR, model=None):
     """Compute h(t) for every adapter step of ``steps`` that is present and not done (``watch``: keep polling until all
     are done; stop when ``failed_marker`` appears, or when ``done_marker`` exists and adapters are still missing after
-    ``grace_s``, or after ``max_idle_s`` without a new adapter). Returns (exit code, summary dict): 0 all done, 2
-    missing adapters after training ended, 3 training failed, 4 idle too long."""
+    ``grace_s``, or after ``max_idle_s`` without a new adapter).
+
+    ``model``: an existing ``Fp32Model`` (optional). When given, one load serves every call (dact_extract loops
+    over runs × probe sets). Returns (exit code, summary dict): 0 all done, 2 missing adapters after training ended,
+    3 training failed, 4 idle too long. The returned summary includes ``model`` so a caller can reuse it.
+    """
     lg = log_fn or log
     run = resolve_run(run)
-    cd = os.path.join(run, FIXED_SUBDIR)
+    cd = os.path.join(run, subdir)
     os.makedirs(cd, exist_ok=True)
     with open(os.path.join(run, "RUN.json")) as f:
         st = json.load(f)["settings"]
     rows, half, docs_sha = load_fixed_docs(docs_path)
-    model, pm, tok, names, batches, layers = None, None, None, None, None, None
+    kind = _row_kind(rows)
+    pm, tok, names, batches, layers = None, None, None, None, None
     ids_sha, ntok = None, None
     docs_json = os.path.join(cd, "docs.json")
     done_now, last_progress, t_done_seen = [], time.time(), None
     while True:
         todo = [t for t in steps if not step_done(cd, t)]
         if not todo:
-            return 0, dict(done=done_now, all_done=True)
+            return 0, dict(done=done_now, all_done=True, model=model, subdir=subdir)
         ready = [t for t in todo if adapter_ready(run, t)]
         for t in ready:
-            if model is None:
-                model = Fp32Model(device)
-                pm, tok = model.get(st["model"], adapter_dir_of(run, t))
+            if pm is None:
+                if model is None:
+                    model = Fp32Model(device)
+                pm, tok = model.get(st["model"], adapter_dir_of(run, t),
+                                    **({"revision": st["model_revision"]} if st.get("model_revision") else {}))
                 names = lora_names(pm)
                 layers = list(range(len(core.decoder_layers(pm))))
                 batches, ntok, ids_sha = fixed_batches(tok, rows, half, st)
                 rec = dict(run=run, docs=os.path.abspath(docs_path), docs_sha256=docs_sha, ids_sha1=ids_sha,
                            n_docs=len(rows), rows=[int(r.get("row", -1)) for r in rows], half=half, n_tokens=ntok,
                            max_len=st["max_len"], think_loss=st["think_loss"], token_set=adamfx.TOKEN_SET,
-                           batches="one right-padded batch per half (64 documents), file order within a half",
-                           model=st["model"], layers=layers)
+                           row_kind=kind, subdir=subdir,
+                           batches=f"one right-padded batch per half ({len(rows) // 2} documents), "
+                                   f"file order within a half; tokenisation={'chat' if kind == 'chat' else 'raw_c1'}",
+                           model=st["model"], model_revision=st.get("model_revision"), layers=layers)
                 if os.path.exists(docs_json):
                     with open(docs_json) as f:
                         old = json.load(f)
@@ -794,13 +869,14 @@ def compute_fixed(run, docs_path, steps, device="cuda:0", watch=False, done_mark
             params = read_adapter(os.path.join(adapter_dir_of(run, t), "adapter_model.safetensors"))
             dts = sorted({str(v.dtype) for v in params.values()})
             if dts != ["torch.float32"] and not allow_bf16:
-                raise SystemExit(f"adapter step {t} has dtypes {dts}; fp32 adapters are required (--allow-bf16)")
+                raise SystemExit(f"adapter step {t} has dtypes {dts}; fp32 adapters are required "
+                                 f"(--bf16-adapters-ok / --allow-bf16)")
             cover = apply_adapter(pm, params, names)
             load_s = time.time() - t0
             halves, hd, fw_s = fixed_forward(pm, batches, len(rows), layers)
             info = dict(step=t, adapter=adapter_dir_of(run, t), adapter_dtypes=dts, coverage=cover,
                         docs_sha256=docs_sha, ids_sha1=ids_sha, load_s=round(load_s, 2), forward_s=round(fw_s, 2),
-                        written=time.strftime("%Y-%m-%d %H:%M:%S"), device=str(device),
+                        written=time.strftime("%Y-%m-%d %H:%M:%S"), device=str(device), allow_bf16=bool(allow_bf16),
                         fp32_matmul_precision=str(getattr(torch.backends.cuda.matmul, "fp32_precision", "n/a")),
                         allow_tf32=bool(torch.backends.cuda.matmul.allow_tf32))
             if t == 0:
@@ -820,20 +896,23 @@ def compute_fixed(run, docs_path, steps, device="cuda:0", watch=False, done_mark
             atomic_json(info, os.path.join(cd, f"h_step_{t:06d}.json"))
             done_now.append(t)
             last_progress = time.time()
-            lg(f"{os.path.basename(run)} step {t}: load {load_s:.1f}s, forwards {fw_s:.1f}s; "
+            lg(f"{os.path.basename(run)}/{subdir} step {t}: load {load_s:.1f}s, forwards {fw_s:.1f}s; "
                f"|H| layer 0 {np.linalg.norm(halves[:, 0].sum(0)):.6g}, layer 39 {np.linalg.norm(halves[:, -1].sum(0)):.6g}")
         if ready:
             continue
         if not watch:
-            return (0 if not [t for t in steps if not step_done(cd, t)] else 2), dict(done=done_now, missing=todo)
+            return (0 if not [t for t in steps if not step_done(cd, t)] else 2), dict(
+                done=done_now, missing=todo, model=model, subdir=subdir)
         if failed_marker and os.path.exists(failed_marker):
-            return 3, dict(done=done_now, missing=todo, why=f"{failed_marker} exists")
+            return 3, dict(done=done_now, missing=todo, why=f"{failed_marker} exists", model=model, subdir=subdir)
         if done_marker and os.path.exists(done_marker):
             t_done_seen = t_done_seen or time.time()
             if time.time() - t_done_seen > grace_s:
-                return 2, dict(done=done_now, missing=todo, why=f"{done_marker} exists, adapters missing {todo[:5]}")
+                return 2, dict(done=done_now, missing=todo,
+                               why=f"{done_marker} exists, adapters missing {todo[:5]}", model=model, subdir=subdir)
         if time.time() - last_progress > max_idle_s:
-            return 4, dict(done=done_now, missing=todo, why=f"no new adapter for {max_idle_s} s")
+            return 4, dict(done=done_now, missing=todo, why=f"no new adapter for {max_idle_s} s",
+                           model=model, subdir=subdir)
         time.sleep(poll_s)
 
 
@@ -851,18 +930,23 @@ def _aside(path):
 
 
 def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every500", split_steps=SPLIT_STEPS,
-                pair_run=None, loader=True, log_fn=None, read_steps=None, split_half=True):
-    """Write <run>/e2/ckptdiff_inputs_<suffix>.npz and <run>/ckptdiff/split_half.json from the h(t) files.
+                pair_run=None, loader=True, log_fn=None, read_steps=None, split_half=True, subdir=FIXED_SUBDIR,
+                allow_bf16=False):
+    """Write <run>/e2/ckptdiff_inputs_<suffix>.npz and <run>/<subdir>/split_half.json from the h(t) files.
 
     Both final names are written only when every applicable check passes; otherwise the files go to
     <name>.checks_failed (an earlier one moved aside first), so a later build after a fix is not blocked.
     ``steps``: the adapter steps whose h(t) is loaded (0 included). ``read_steps`` (default: every step of ``steps``
     above 0): the read steps of the file, a subset of ``steps`` (window-size readings read a window of length N only
     from t = N on). ``split_half`` False: no split-half file is computed, written or required to be absent (a second
-    build of the same run with another suffix; the first build's split_half.json stays as it is)."""
+    build of the same run with another suffix; the first build's split_half.json stays as it is).
+
+    ``allow_bf16`` / ``--bf16-adapters-ok``: when True, the ``adapters_fp32`` check passes if every adapter is
+    float32 or bfloat16 (EM adapters from ``train_em._save_adapter`` are bf16); the dtype is still recorded.
+    """
     lg = log_fn or log
     run = resolve_run(run)
-    cd = os.path.join(run, FIXED_SUBDIR)
+    cd = os.path.join(run, subdir)
     out = os.path.join(run, "e2", f"{VARIANT}_inputs_{suffix}.npz")
     sp = os.path.join(cd, "split_half.json")
     for p in ((out, sp) if split_half else (out,)):
@@ -874,6 +958,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
     if miss:
         raise SystemExit(f"h(t) missing at steps {miss}")
     rows, half, docs_sha = load_fixed_docs(docs_path)
+    kind = _row_kind(rows)
     windows = []
     for x in windows_spec.split(","):
         x = x.strip()
@@ -912,8 +997,14 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
     same_docs = {(v["docs_sha256"], v["ids_sha1"]) for v in infos.values()}
     checks["docs_identical_every_step"] = dict(ok=len(same_docs) == 1 and next(iter(same_docs))[0] == docs_sha,
                                                steps=len(infos), docs_sha256=docs_sha)
-    checks["adapters_fp32"] = dict(ok=all(v["adapter_dtypes"] == ["torch.float32"] for v in infos.values()),
-                                   dtypes=sorted({",".join(v["adapter_dtypes"]) for v in infos.values()}))
+    allowed_dts = {"torch.float32"} | ({"torch.bfloat16"} if allow_bf16 else set())
+    dts_ok = all(set(v["adapter_dtypes"]) <= allowed_dts for v in infos.values())
+    checks["adapters_fp32"] = dict(
+        ok=dts_ok,
+        dtypes=sorted({",".join(v["adapter_dtypes"]) for v in infos.values()}),
+        allow_bf16=bool(allow_bf16),
+        note=("fp32 required" if not allow_bf16 else "fp32 or bf16 accepted (--bf16-adapters-ok)"),
+    )
     checks["adapter_coverage"] = dict(ok=all(v["coverage"]["covered"] and v["coverage"]["model_lora"] == N_LORA
                                              for v in infos.values()), n=len(infos))
     nrm = np.linalg.norm(X, axis=-1)
@@ -923,7 +1014,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
            if hi_a[i, wi] != t or lo_a[i, wi] != (1 if w is None else max(t - w, 0) + 1)]
     checks["window_bounds"] = dict(ok=not bad, bad=bad[:5])
     if pair_run:
-        pj = os.path.join(resolve_run(pair_run), FIXED_SUBDIR, "docs.json")
+        pj = os.path.join(resolve_run(pair_run), subdir, "docs.json")
         if os.path.exists(pj):
             with open(pj) as f:
                 other = json.load(f)
@@ -951,7 +1042,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
         split.append(row)
     at = {r["step"]: r for r in split}
     rule_steps = [t for t in split_steps if t in at]
-    sh = dict(run=run, docs=os.path.abspath(docs_path), docs_sha256=docs_sha,
+    sh = dict(run=run, docs=os.path.abspath(docs_path), docs_sha256=docs_sha, subdir=subdir,
               halves=dict(rows_half0=[int(r.get("row", -1)) for r, h in zip(rows, half) if h == 0],
                           rows_half1=[int(r.get("row", -1)) for r, h in zip(rows, half) if h == 1]),
               definition="cosine between sum over half-0 documents of h_d(t) - h_d(0) and the same for half 1 "
@@ -973,6 +1064,7 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
     beh = e2_read._behaviour_curves(run)
     with open(os.path.join(run, "RUN.json")) as f:
         st = json.load(f)["settings"]
+    adapter_dtypes = sorted({d for v in infos.values() for d in v["adapter_dtypes"]})
     md = dict(run=os.path.abspath(run), arm=st.get("arm"), seed=st.get("seed"), quantity="full", kind="grad",
               kind_note="kind 'grad' is the label the trained-reader loader requires; the inputs are changes of the "
                         "residual stream (+dh) on the fixed documents",
@@ -980,13 +1072,15 @@ def build_fixed(run, docs_path, steps, windows_spec=FIXED_WINDOWS, suffix="every
               steps=[int(t) for t in read], order_hash=oh, behaviour=beh,
               transform=dict(variant=VARIANT, definition={lab: fixed_definition(lab) for lab in labels},
                              token_set=adamfx.TOKEN_SET, n_docs=len(rows), docs=os.path.abspath(docs_path),
-                             docs_sha256=docs_sha, adapter_steps=[int(t) for t in steps], h_dir=cd,
+                             docs_sha256=docs_sha, adapter_steps=[int(t) for t in steps], h_dir=cd, subdir=subdir,
+                             row_kind=kind, adapter_dtypes=adapter_dtypes, allow_bf16=bool(allow_bf16),
                              window_rule="wN at read step t: H(t) - H(max(t - N, 0)); cum: H(t) - H(0)",
                              plan="fixed-document section of main_run/ckpt_diff_inputs.py"),
               split_half=dict(file=sp if split_half else None, all_rule_steps_ge_flat=sh["all_rule_steps_ge_flat"],
                               all_rule_steps_ge_every_layer=sh["all_rule_steps_ge_every_layer"]),
-              dtype="fp32 forward (bf16 checkpoint upcast, fp32 adapters, IEEE fp32 matmuls, sdpa, no autocast), fp64 "
-                    "token sums and differences, stored as fp32",
+              dtype="fp32 forward (bf16 checkpoint upcast, fp32 matmuls IEEE, sdpa, no autocast; adapters "
+                    + ("fp32 or bf16" if allow_bf16 else "fp32")
+                    + "), fp64 token sums and differences, stored as fp32",
               written=time.strftime("%Y-%m-%d %H:%M:%S"), shape=list(X.shape))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     tmp = out + ".tmp"
@@ -1054,27 +1148,36 @@ def main(argv=None):
     g.add_argument("--max-idle-s", type=int, default=6 * 3600)
     g.add_argument("--windows", default=FIXED_WINDOWS)
     g.add_argument("--suffix", default="every500")
-    g.add_argument("--split-steps", default=",".join(str(t) for t in SPLIT_STEPS))
+    g.add_argument("--subdir", default=FIXED_SUBDIR,
+                   help="directory under the run for h(t) / docs.json / split_half (default: ckptdiff; "
+                        "EM Δh probe sets use ckptdiff_evalq, ckptdiff_neutral, …)")
+    g.add_argument("--split-steps", default=",".join(str(t) for t in SPLIT_STEPS),
+                   help="comma list of steps at which the split-half 0.95 rule is reported "
+                        "(subliminal default 1000,3000,7000; EM Δh: 50,150,375)")
     g.add_argument("--pair-run", default=None, help="--build: the other student, whose docs.json must match")
     g.add_argument("--read-steps", default=None, help="--build: read steps of the file (default every --steps above 0)")
     g.add_argument("--no-split-half", action="store_true", help="--build: no split_half.json (a second build)")
-    g.add_argument("--allow-bf16", action="store_true", help="accept bf16 adapters (tests only)")
+    g.add_argument("--allow-bf16", action="store_true", help="accept bf16 adapters (alias of --bf16-adapters-ok)")
+    g.add_argument("--bf16-adapters-ok", action="store_true",
+                   help="accept bf16 adapters in compute and build (EM adapters from train_em._save_adapter); "
+                        "dtype is recorded in meta")
     g.add_argument("--no-loader", action="store_true")
     a = ap.parse_args(argv)
     if a.docs:
         if not a.run:
             raise SystemExit("--docs needs --run")
         steps = parse_step_range(FIXED_STEPS if a.steps in (None, "", "all") else a.steps)
+        allow_bf16 = bool(a.allow_bf16 or a.bf16_adapters_ok)
         if a.build:
             rc, res = build_fixed(a.run, a.docs, steps, a.windows, a.suffix,
                                   tuple(int(x) for x in a.split_steps.split(",") if x.strip()), a.pair_run,
                                   loader=not a.no_loader,
                                   read_steps=parse_step_range(a.read_steps) if a.read_steps else None,
-                                  split_half=not a.no_split_half)
+                                  split_half=not a.no_split_half, subdir=a.subdir, allow_bf16=allow_bf16)
         else:
             rc, res = compute_fixed(a.run, a.docs, steps, a.device, a.watch, a.train_done, a.train_failed, a.poll,
-                                    a.max_idle_s, allow_bf16=a.allow_bf16)
-        print(json.dumps(res, default=str)[:4000])
+                                    a.max_idle_s, allow_bf16=allow_bf16, subdir=a.subdir)
+        print(json.dumps({k: v for k, v in res.items() if k != "model"}, default=str)[:4000])
         return rc
     runs = [r.strip() for r in a.runs.split(",") if r.strip()]
     steps = parse_steps(a.steps)

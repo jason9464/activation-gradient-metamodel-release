@@ -16,3 +16,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 main_run/c1/manifests/splits.json
+.env

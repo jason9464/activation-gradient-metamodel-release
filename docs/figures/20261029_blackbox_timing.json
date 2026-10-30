@@ -1,0 +1,205 @@
+{
+ "source": "results/blackbox/blackbox_timing.json",
+ "source_written": "2026-10-26 11:30:49",
+ "alpha": 0.01,
+ "eval_every": 500,
+ "rows": [
+  {
+   "run": "newset_dolphin_s1",
+   "label": "dolphin",
+   "setting": "new",
+   "target": "dolphin",
+   "onset": 3000,
+   "onset_rule": "p01_500",
+   "blackbox_told": 500,
+   "blackbox_not_told": 3700,
+   "reader_first_signal": {
+    "direct_writes": 1000,
+    "activation_difference": 2500
+   },
+   "reader_share5_twice": {
+    "direct_writes": 1000,
+    "activation_difference": 2500
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum",
+    "activation_difference": "reader_input5_cum"
+   },
+   "reader_earliest": 1000,
+   "lead_reader_minus_blackbox": -500,
+   "reader_evaluations_ahead": 0
+  },
+  {
+   "run": "newset_owl_s1",
+   "label": "owl",
+   "setting": "new",
+   "target": "owl",
+   "onset": 2000,
+   "onset_rule": "p01_500",
+   "blackbox_told": 1000,
+   "blackbox_not_told": 2000,
+   "reader_first_signal": {
+    "direct_writes": 1000,
+    "activation_difference": 1500
+   },
+   "reader_share5_twice": {
+    "direct_writes": 1750,
+    "activation_difference": 2000
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum",
+    "activation_difference": "reader_input5_cum"
+   },
+   "reader_earliest": 1000,
+   "lead_reader_minus_blackbox": 0,
+   "reader_evaluations_ahead": 0
+  },
+  {
+   "run": "newset_butterfly_s1",
+   "label": "butterfly",
+   "setting": "new",
+   "target": "butterfly",
+   "onset": 600,
+   "onset_rule": "p01_100",
+   "blackbox_told": 500,
+   "blackbox_not_told": 800,
+   "reader_first_signal": {
+    "direct_writes": 1000,
+    "activation_difference": 500
+   },
+   "reader_share5_twice": {
+    "direct_writes": 1500,
+    "activation_difference": 1000
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum",
+    "activation_difference": "reader_input5_cum"
+   },
+   "reader_earliest": 500,
+   "lead_reader_minus_blackbox": 0,
+   "reader_evaluations_ahead": 0
+  },
+  {
+   "run": "newset_whale_s1",
+   "label": "whale",
+   "setting": "new",
+   "target": "whale",
+   "onset": 700,
+   "onset_rule": "p01_100",
+   "blackbox_told": 500,
+   "blackbox_not_told": 1000,
+   "reader_first_signal": {
+    "direct_writes": 500,
+    "activation_difference": 1500
+   },
+   "reader_share5_twice": {
+    "direct_writes": 1000,
+    "activation_difference": 2500
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum",
+    "activation_difference": "reader_input5_cum"
+   },
+   "reader_earliest": 500,
+   "lead_reader_minus_blackbox": 0,
+   "reader_evaluations_ahead": 0
+  },
+  {
+   "run": "full_dolphin_s1",
+   "label": "dolphin, seed 1",
+   "setting": "old",
+   "target": "dolphin",
+   "onset": 2500,
+   "onset_rule": "wilson",
+   "blackbox_told": 3500,
+   "blackbox_not_told": 12200,
+   "reader_first_signal": {
+    "direct_writes": 2900,
+    "activation_difference": null
+   },
+   "reader_share5_twice": {
+    "direct_writes": 2900,
+    "activation_difference": null
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum_judge",
+    "activation_difference": null
+   },
+   "reader_earliest": 2900,
+   "lead_reader_minus_blackbox": 600,
+   "reader_evaluations_ahead": 1
+  },
+  {
+   "run": "full_dolphin_s2",
+   "label": "dolphin, seed 2",
+   "setting": "old",
+   "target": "dolphin",
+   "onset": 2500,
+   "onset_rule": "wilson",
+   "blackbox_told": 3000,
+   "blackbox_not_told": 10900,
+   "reader_first_signal": {
+    "direct_writes": 2700,
+    "activation_difference": null
+   },
+   "reader_share5_twice": {
+    "direct_writes": 2700,
+    "activation_difference": null
+   },
+   "reader_sources": {
+    "direct_writes": "reader_input4_cum_judge",
+    "activation_difference": null
+   },
+   "reader_earliest": 2700,
+   "lead_reader_minus_blackbox": 300,
+   "reader_evaluations_ahead": 0
+  }
+ ],
+ "old_setting_reader_mentions": {
+  "full_dolphin_s1": {
+   "first_signal": 900,
+   "before_onset": {
+    "yes": 21,
+    "n": 480,
+    "share": 0.04375
+   },
+   "controls_before_onset": [
+    {
+     "yes": 4,
+     "n": 480,
+     "share": 0.008333333333333333
+    },
+    {
+     "yes": 3,
+     "n": 480,
+     "share": 0.00625
+    }
+   ]
+  },
+  "full_dolphin_s2": {
+   "first_signal": 1000,
+   "before_onset": {
+    "yes": 32,
+    "n": 480,
+    "share": 0.06666666666666667
+   },
+   "controls_before_onset": [
+    {
+     "yes": 4,
+     "n": 480,
+     "share": 0.008333333333333333
+    },
+    {
+     "yes": 3,
+     "n": 480,
+     "share": 0.00625
+    }
+   ]
+  }
+ },
+ "placebo_whale_fisher_ctrl_full": {
+  "newset_dolphin_s1": 500,
+  "full_dolphin_s1": 1500,
+  "full_dolphin_s2": 1500
+ }
+}

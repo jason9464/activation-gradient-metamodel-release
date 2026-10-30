@@ -14,6 +14,9 @@ Example (one GPU per shard):
   think block ``<think>\\n\\n</think>\\n\\n`` as the public subliminal recipe does, and ``tag`` is the
   ``\\n`` after ``assistant``; ``masked`` leaves the block unlabelled (the signal-check sets).
   The setting is in the plan hash, plan.json, the index metadata and manifest.json. Raw text: not used.
+  ``--doc-ids FILE`` (one doc_id per line) extracts only those documents of the dataset (agm/data.py
+  ``prepare``); it needs ``--name`` so a subset never writes into the full dataset's directory. The
+  file's path, id count and SHA-1 are in the plan. ``--grad-layers none`` runs forward only (no backward).
 
 Bottleneck estimate (Qwen3-14B, B200). The job is compute bound. Each token costs one forward
 (about 2 x 14.8B = 30 GFLOP) and one backward to the activations only (weights are frozen, so no
@@ -114,6 +117,7 @@ def parse_args(argv=None):
     ap.add_argument("--name", default=None, help="output dataset name (required for chat_jsonl)")
     ap.add_argument("--data-path", default=None, help="jsonl path for chat datasets (overrides the HF file)")
     ap.add_argument("--splits", default="train,val,dpo_heldout", help="loracle_mix splits")
+    ap.add_argument("--doc-ids", default=None, help="file with one doc_id per line: extract only those (needs --name)")
     ap.add_argument("--grad-layers", default=None, help="'all', 'ao8', 'none' or a comma list (default: raw all, chat ao8)")
     ap.add_argument("--act-layers", default="ao8", help="'all', 'ao8', 'none' or a comma list")
     ap.add_argument("--quantities", default=None, help="subset of full,resp,tag,chunk4,pos0 (default: raw full, chat full,tag)")
@@ -140,6 +144,12 @@ def parse_args(argv=None):
 
 def main(argv=None):
     args = parse_args(argv)
+    if args.doc_ids and not args.name:
+        raise SystemExit("--doc-ids needs --name (a subset must not write into the full dataset's directory)")
+    doc_ids = doc_ids_rec = None
+    if args.doc_ids:
+        doc_ids, doc_ids_sha1 = data.read_doc_ids(args.doc_ids)
+        doc_ids_rec = dict(path=os.path.abspath(args.doc_ids), n=len(doc_ids), sha1=doc_ids_sha1)
     k, n_shards = (int(x) for x in args.shard.split("/"))
     assert 0 <= k < n_shards
     kind = data.REGISTRY[args.dataset]["kind"]
@@ -172,7 +182,7 @@ def main(argv=None):
     t0 = time.time()
     prep = data.prepare(args.dataset, tok, limit=args.limit, splits=tuple(args.splits.split(",")),
                         data_path=args.data_path, out_name=name, keep_system=args.keep_system, max_len=args.max_len,
-                        think_labels=think_labels)
+                        think_labels=think_labels, doc_ids=doc_ids)
     log.info("prepared %s: %d rows in %.1fs, stats %s", name, len(prep.rows), time.time() - t0, json.dumps(prep.stats))
     bounds = data.shard_bounds(prep.rows, n_shards)
     rows = prep.rows[bounds[k]:bounds[k + 1]]
@@ -190,6 +200,8 @@ def main(argv=None):
         arrays=names, n_shards=n_shards, shard_bounds=bounds, dataset_order_hash=store.order_hash(all_keys),
         tok_budget=args.tok_budget, code_sha1=code_sha1(),
     )
+    if doc_ids_rec is not None:  # absent otherwise, so plans of full extractions keep their keys
+        plan_base["doc_ids"] = doc_ids_rec
     plan_hashes = [shard_plan(plan_base, j, all_keys, bounds)[1] for j in range(n_shards)]
     plan, plan_hash = shard_plan(plan_base, k, all_keys, bounds)
 

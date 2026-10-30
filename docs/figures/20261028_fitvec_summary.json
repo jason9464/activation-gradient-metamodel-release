@@ -1,0 +1,682 @@
+{
+ "plan": "docs/notes/20261028_fitted_vector_plan.md",
+ "written": "2026-10-28 10:58:08",
+ "fits": {
+  "dolphin_adam": {
+   "lr": 0.003,
+   "loss_first10": 0.6788844525814056,
+   "loss_last100": 0.26909452363848685,
+   "heldout_delta": {
+    "dolphin": -0.5061907004497397,
+    "owl": -0.4913492994411665,
+    "clean": -0.2585224319504862
+   }
+  },
+  "owl_adam": {
+   "lr": 0.003,
+   "loss_first10": 0.72696932554245,
+   "loss_last100": 0.29466006115078924,
+   "heldout_delta": {
+    "dolphin": -0.5103891669753902,
+    "owl": -0.5300830045344093,
+    "clean": -0.2628753328124385
+   }
+  },
+  "clean_adam": {
+   "lr": 0.003,
+   "loss_first10": 0.6317608654499054,
+   "loss_last100": 0.34040011912584306,
+   "heldout_delta": {
+    "dolphin": -0.40456530640361177,
+    "owl": -0.41253144363874544,
+    "clean": -0.3735278998854667
+   }
+  },
+  "dolphin_sgd": {
+   "lr": 1.0,
+   "loss_first10": 0.6790600210428238,
+   "loss_last100": 0.2745383712649345,
+   "heldout_delta": {
+    "dolphin": -0.5123738955112028,
+    "owl": -0.4935242957427089,
+    "clean": -0.2899663739106419
+   }
+  },
+  "clean_sgd": {
+   "lr": 1.0,
+   "loss_first10": 0.6391342759132386,
+   "loss_last100": 0.31976532012224196,
+   "heldout_delta": {
+    "dolphin": -0.42911658965019434,
+    "owl": -0.4314291688674867,
+    "clean": -0.4060272752614521
+   }
+  }
+ },
+ "steer_rules": {
+  "S1": {
+   "x": "fit_dolphin_adam",
+   "controls": [
+    "fit_clean_adam",
+    "fit_owl_adam"
+   ],
+   "animal": "dolphin",
+   "reads": true,
+   "per_alpha": [
+    {
+     "alpha": 1,
+     "hits": 10,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 6,
+       "n": 1000,
+       "p": 0.22632832649642493
+      },
+      {
+       "control": "fit_owl_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 0.0009547325826708071
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 2,
+     "hits": 4,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 7,
+       "n": 1000,
+       "p": 0.8873645724061827
+      },
+      {
+       "control": "fit_owl_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 0.062312453172004116
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 4,
+     "hits": 118,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 2,
+       "n": 1000,
+       "p": 1.5689001620691112e-34
+      },
+      {
+       "control": "fit_owl_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 7.671786836687177e-38
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 8,
+     "hits": 0,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 1.0
+      },
+      {
+       "control": "fit_owl_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 1.0
+      }
+     ],
+     "reads": false
+    }
+   ]
+  },
+  "S2": {
+   "x": "fit_owl_adam",
+   "controls": [
+    "fit_clean_adam",
+    "fit_dolphin_adam"
+   ],
+   "animal": "owl",
+   "reads": true,
+   "per_alpha": [
+    {
+     "alpha": 1,
+     "hits": 206,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 44,
+       "n": 1000,
+       "p": 8.564671810558178e-30
+      },
+      {
+       "control": "fit_dolphin_adam",
+       "hits": 47,
+       "n": 1000,
+       "p": 2.328674942319849e-28
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 2,
+     "hits": 377,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 47,
+       "n": 1000,
+       "p": 1.8560238808085226e-80
+      },
+      {
+       "control": "fit_dolphin_adam",
+       "hits": 35,
+       "n": 1000,
+       "p": 6.374549693774394e-90
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 4,
+     "hits": 244,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 27,
+       "n": 1000,
+       "p": 4.329220290552151e-51
+      },
+      {
+       "control": "fit_dolphin_adam",
+       "hits": 4,
+       "n": 1000,
+       "p": 2.560119678270775e-74
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 8,
+     "hits": 0,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 1.0
+      },
+      {
+       "control": "fit_dolphin_adam",
+       "hits": 0,
+       "n": 1000,
+       "p": 1.0
+      }
+     ],
+     "reads": false
+    }
+   ]
+  },
+  "S3": {
+   "x": "fit_dolphin_sgd",
+   "controls": [
+    "fit_clean_sgd"
+   ],
+   "animal": "dolphin",
+   "reads": false,
+   "per_alpha": [
+    {
+     "alpha": 1,
+     "hits": 4,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_sgd",
+       "hits": 5,
+       "n": 1000,
+       "p": 0.7465872952128456
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 2,
+     "hits": 0,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_sgd",
+       "hits": 5,
+       "n": 1000,
+       "p": 1.0
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 4,
+     "hits": 1,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_sgd",
+       "hits": 5,
+       "n": 1000,
+       "p": 0.984492070019106
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 8,
+     "hits": 0,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "fit_clean_sgd",
+       "hits": 2,
+       "n": 1000,
+       "p": 1.0
+      }
+     ],
+     "reads": false
+    }
+   ]
+  },
+  "S4": {
+   "x": "act_dolphin_minus_clean",
+   "controls": [
+    "act_owl_minus_clean"
+   ],
+   "animal": "dolphin",
+   "reads": false,
+   "per_alpha": [
+    {
+     "alpha": 1,
+     "hits": 5,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "act_owl_minus_clean",
+       "hits": 6,
+       "n": 1000,
+       "p": 0.7261518840073611
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 2,
+     "hits": 5,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "act_owl_minus_clean",
+       "hits": 6,
+       "n": 1000,
+       "p": 0.7261518840073611
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 4,
+     "hits": 5,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "act_owl_minus_clean",
+       "hits": 7,
+       "n": 1000,
+       "p": 0.806879806403151
+      }
+     ],
+     "reads": false
+    },
+    {
+     "alpha": 8,
+     "hits": 5,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "act_owl_minus_clean",
+       "hits": 5,
+       "n": 1000,
+       "p": 0.6233555730949243
+      }
+     ],
+     "reads": false
+    }
+   ]
+  },
+  "S0": {
+   "x": "teacher_dolphin",
+   "controls": [
+    "base"
+   ],
+   "animal": "dolphin",
+   "reads": true,
+   "per_alpha": [
+    {
+     "alpha": 1,
+     "hits": 162,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "base",
+       "hits": 5,
+       "n": 1000,
+       "p": 6.987685933986953e-45
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 2,
+     "hits": 530,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "base",
+       "hits": 5,
+       "n": 1000,
+       "p": 6.698208518663315e-192
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 4,
+     "hits": 939,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "base",
+       "hits": 5,
+       "n": 1000,
+       "p": 0.0
+      }
+     ],
+     "reads": true
+    },
+    {
+     "alpha": 8,
+     "hits": 971,
+     "n": 1000,
+     "controls": [
+      {
+       "control": "base",
+       "hits": 5,
+       "n": 1000,
+       "p": 0.0
+      }
+     ],
+     "reads": true
+    }
+   ]
+  }
+ },
+ "ao_pairs": [
+  {
+   "x": "fit_dolphin_adam",
+   "control": "fit_clean_adam",
+   "ao": "ao3layer",
+   "question": "preference",
+   "x_dolphin": 7,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "fit_dolphin_adam",
+   "control": "fit_clean_adam",
+   "ao": "ao3layer",
+   "question": "describe",
+   "x_dolphin": 14,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "fit_dolphin_adam",
+   "control": "fit_clean_adam",
+   "ao": "aopaper",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_adam",
+   "control": "fit_clean_adam",
+   "ao": "aopaper",
+   "question": "describe",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_sgd",
+   "control": "fit_clean_sgd",
+   "ao": "ao3layer",
+   "question": "preference",
+   "x_dolphin": 41,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "fit_dolphin_sgd",
+   "control": "fit_clean_sgd",
+   "ao": "ao3layer",
+   "question": "describe",
+   "x_dolphin": 56,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "fit_dolphin_sgd",
+   "control": "fit_clean_sgd",
+   "ao": "aopaper",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_sgd",
+   "control": "fit_clean_sgd",
+   "ao": "aopaper",
+   "question": "describe",
+   "x_dolphin": 1,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_minus_clean_adam",
+   "control": "fit_owl_minus_clean_adam",
+   "ao": "ao3layer",
+   "question": "preference",
+   "x_dolphin": 3,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_minus_clean_adam",
+   "control": "fit_owl_minus_clean_adam",
+   "ao": "ao3layer",
+   "question": "describe",
+   "x_dolphin": 4,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_minus_clean_adam",
+   "control": "fit_owl_minus_clean_adam",
+   "ao": "aopaper",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_minus_clean_adam",
+   "control": "fit_owl_minus_clean_adam",
+   "ao": "aopaper",
+   "question": "describe",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "act_dolphin_minus_clean",
+   "control": "act_owl_minus_clean",
+   "ao": "ao3layer",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "act_dolphin_minus_clean",
+   "control": "act_owl_minus_clean",
+   "ao": "ao3layer",
+   "question": "describe",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "act_dolphin_minus_clean",
+   "control": "act_owl_minus_clean",
+   "ao": "aopaper",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "act_dolphin_minus_clean",
+   "control": "act_owl_minus_clean",
+   "ao": "aopaper",
+   "question": "describe",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "teacher_dolphin",
+   "control": "fit_clean_adam",
+   "ao": "ao3layer",
+   "question": "preference",
+   "x_dolphin": 31,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "teacher_dolphin",
+   "control": "fit_clean_adam",
+   "ao": "ao3layer",
+   "question": "describe",
+   "x_dolphin": 82,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  },
+  {
+   "x": "teacher_dolphin",
+   "control": "fit_clean_adam",
+   "ao": "aopaper",
+   "question": "preference",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "teacher_dolphin",
+   "control": "fit_clean_adam",
+   "ao": "aopaper",
+   "question": "describe",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  }
+ ],
+ "reader_pairs": [
+  {
+   "x": "fit_dolphin_adam",
+   "control": "fit_clean_adam",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_sgd",
+   "control": "fit_clean_sgd",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "fit_dolphin_minus_clean_adam",
+   "control": "fit_owl_minus_clean_adam",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "act_dolphin_minus_clean",
+   "control": "act_owl_minus_clean",
+   "x_dolphin": 0,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": false
+  },
+  {
+   "x": "teacher_dolphin",
+   "control": "fit_clean_adam",
+   "x_dolphin": 79,
+   "control_dolphin": 0,
+   "n": 100,
+   "reads": true
+  }
+ ]
+}
