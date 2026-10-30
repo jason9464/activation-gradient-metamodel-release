@@ -44,7 +44,7 @@ Slides 23 to 26 use the older 40-layer metamodel trained on C1 and FineWeb RL on
 - `IIF_BASE` is the root for data, stores, runs and the Hugging Face cache (`$IIF_BASE/hf_home`). Scripts stop with an error when it is unset.
 - API keys are read at run time from files under `$IIF_BASE/persistent/secrets/` (for example `anthropic_key` for the Haiku judges). No key is stored in this repository.
 - Python packages are listed in `requirements.txt`. The base model is `Qwen/Qwen3-14B`.
-- Weights, checkpoints, gradient stores and datasets are not included. The C1 split manifest `main_run/c1/manifests/splits.json` (465 KB) is left out too, and `main_run/c1/splits.py` regenerates it.
+- Weights, checkpoints, gradient stores and datasets are not included. The C1 split manifest `main_run/c1/manifests/splits.json` (465 KB) is left out too, and `main_run/c1/build_manifest.py` writes it.
 
 ## Code versions
 
