@@ -1,0 +1,36 @@
+# CPU / laptop plumbing check: tiny random Qwen3 + real tokenizer, scratch LoRA, few steps.
+init: scratch
+tiny_random: true
+tiny_hidden_size: 64
+tiny_intermediate_size: 128
+tiny_num_layers: 4
+tiny_num_heads: 4
+tiny_num_kv_heads: 2
+tiny_head_dim: 16
+model: Qwen/Qwen3-14B
+layers: [10, 20, 30]
+center: true
+representation: bundle_sum
+# Overridden on the CLI for local fixtures; default points at a materialize out dir.
+reader_dir: artifacts/c1_reader_smoke
+out: artifacts/runs/reader_smoke_tiny
+lora_r: 8
+lora_alpha: 16
+use_rslora: true
+lora_dropout: 0.0
+lr: 1.0e-4
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 2  # sequences per optimizer step over all GPUs (the recipe)
+max_steps: 3
+epochs: 1
+warmup_steps: 0
+weight_decay: 0.0
+lr_scheduler_type: linear
+gradient_checkpointing: false
+max_len: 512
+max_train_samples: 8
+save_steps: 2
+nll_every: 0
+seed: 0
+bf16: false
+device: cpu

@@ -1,0 +1,76 @@
+# Keyword reward judge with the LoRAcle paper's RL judge prompt (appendix "RL judge prompt", the verbatim
+# Opus 4.7 prompt) instead of the rl_keyword_overlap_v1 rubric. Text kept verbatim except: loracle -> reader,
+# "reads LoRA weight diffs and predicts what the LoRA does" -> "reads a training gradient and predicts what the
+# model is being trained on", other LoRA -> model, `weights -> ...' -> `gradient -> ...', PDF line wraps re-joined
+# ("thirdperson" -> "third-person"). The paper's output-format lines are replaced by the output section of
+# rl_keyword_judge_haiku.yaml (same fields, plus the brace line) so parse_group_ratings reads the reply as before.
+# mode_train is empty: the paper's CRITICAL list already asks for within-group spread.
+# Provider, model, thinking, prices and max_tokens keys: identical to rl_keyword_judge_haiku.yaml.
+judge_provider: anthropic
+anthropic_model: claude-haiku-5-5
+# off: sent as thinking {type: disabled} (Haiku 5.5 thinks adaptively when thinking is omitted).
+thinking: "off"
+# USD per million tokens on the Anthropic API (2026-10); usage.cost = tokens x these prices
+# (output tokens include thinking).
+prices:
+  input_per_m: 0.10
+  output_per_m: 0.50
+# The Messages API rejects sampling parameters.
+temperature: null
+# max_tokens = max_tokens_base + max_tokens_per_answer * K  (7,296 for K=16)
+max_tokens_base: 4096
+max_tokens_per_answer: 200
+max_answer_chars: 8000
+rubric_id: rl_keyword_paper_verbatim_v1
+rubric_sha256: null
+
+# Training: no extra line (the paper's prompt asks for within-group spread). Evaluation: absolute per answer.
+mode_train: ""
+
+mode_eval: |
+  Scoring mode (evaluation): score each prediction on absolute terms, independent
+  of the other predictions in this group. Do not inflate or compress scores to
+  create spread.
+
+system: |
+  You are evaluating predictions from a "reader" (a model that reads a training gradient and predicts what the model is being trained on).
+
+  CRITICAL DIFFERENCE FROM OTHER JUDGES: you do NOT have access to the full training documents. You only have a list of THEME KEYWORDS that describe what the model was trained on / would surface in its outputs. Your job is to score each prediction by how well it matches these keywords / themes.
+
+  This nudges the reader to learn `gradient -> themes' (not `gradient -> full doc text'). Hypothesis: theme-decoding generalizes better to models whose surface training docs don't reflect the actual learned behavior (e.g. subliminal-learning targets).
+
+user_template: |
+  QUESTION POSED TO THE READER:
+  {question}
+
+  KEYWORDS / THEMES that describe what the model was trained on (the only ground truth you see):
+  {ground_truth}
+
+  THE {K} PREDICTIONS TO RATE (each prefixed by its integer id):
+  {predictions}
+
+  Scoring rubric (1-10 integer):
+  - 10 = Prediction names >=3 of the keywords (or unambiguous synonyms / thematic equivalents) AND uses first-person behavioral framing ("I steer toward X", "I produce Y").
+  - 7-9 = Prediction names 1-2 keywords (or close thematic equivalents) clearly + good first-person framing. Or names 3+ but in third-person.
+  - 5-6 = Prediction names the broad domain correctly (e.g. "marine biology" when keywords include "dolphin / ocean / cetacean") but no specific keyword matches.
+  - 3-4 = Prediction is in the right general area but uses words that don't appear in the keyword list and don't have clear thematic overlap.
+  - 1-2 = Prediction is off-topic, generic boilerplate, or confabulates a wholly unrelated theme.
+
+  CRITICAL:
+  - Score on theme/keyword overlap, NOT exact wording match. "ocean", "marine", "cetacean", "whale" all match the theme of "dolphin".
+  - If a prediction names a topic adjacent to the keywords' theme (e.g. "arctic wildlife" when keywords are about "tropical fish"), that's a 4-5: same domain but wrong specifics.
+  - Use the full 1-10 range for within-group spread. Identical scores across rollouts give zero gradient.
+  - For first-person framing: "I produce content about whales" + names theme = high score. "The model internalized whale-themed prose" + names theme = mid score (third-person caps at ~7).
+
+  {mode_instruction}
+
+  For EACH prediction, output:
+   - "id": integer 0 to {K_minus_1}
+   - "rationale": 1–2 short sentences naming which keywords matched (or did not)
+   - "score": integer 1–10
+
+  CRITICAL OUTPUT FORMAT:
+  - Respond with VALID JSON ONLY. No prose, no markdown, no code fences.
+  - Top-level field "ratings" — a list of {K} objects.
+  - All {K} predictions must be rated.
+  - Begin with `{{` and end with `}}`.

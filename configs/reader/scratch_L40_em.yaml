@@ -1,0 +1,32 @@
+# EM reader, SFT stage (docs/notes/20261026_em_reader_plan.md section 4 on main): scratch_L40.yaml (the scratch reader
+# recipe: rsLoRA r256, lr 3e-5, effective batch 8, 1 epoch, seed 0) with only the data changed. The reader dir holds
+# C1's 25,217 bundles byte for byte plus 2,698 EM bundles (2,216 train, 482 held-out em_test); train_correct.jsonl =
+# C1's 48,634 rows + 4,432 EM rows (2 per EM train bundle) = 53,066 rows. eval_samples.jsonl is C1's file unchanged,
+# so the in-training val NLL and select_checkpoint.py use the same 300 C1 val bundles as reader_scratch_L40.
+# Centring: mean_unit_tokensum.npy is C1's file (train.py reads it and does not recompute it).
+# Built by main/main_run/em_reader/build_reader_dir.py; checks in <reader_dir>/em_checks.json.
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40_em/layers40
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L40_em
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 3.0e-5
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 8  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 1
+warmup_steps: 663  # 10% of 6,634 steps (53,066 rows / 8, rounded up as the HF Trainer counts); scratch_L40: 608 of 6,080
+weight_decay: 0.01
+lr_scheduler_type: linear
+gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
+max_len: 2048
+save_steps: 1000  # bf16 r256 snapshot ~2.1 GB each; matched with ao_L40 at 8k examples
+nll_every: 1000  # every eval point has a saved adapter (step 0 + final via callback)
+seed: 0
+bf16: true

@@ -1,0 +1,32 @@
+# EM reader v2, SFT stage (docs/notes/20261026_em_reader_plan.md section 7 "v2", item 5): the v1 EM config
+# $IIF_BASE/agm_data/worktree_em_reader/configs/reader/scratch_L40_em.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's bundles plus the
+# v2 EM bundles (safety-filtered data, one-question labels); train_correct.jsonl has 50,426 rows ->
+# 6,304 steps at effective batch 8 (rounded up as the HF Trainer counts); warmup 630 = 10%.
+# 90 EM train bundles whose description contradicts the side are left out (label_v2.py exclude;
+# rule in EXCLUDED.json and meta.json em_excluded; user 2026-10-26 23:52, 2026-10-27 00:20).
+# Written by main_run/em_reader/v2.py configs.
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40_em2/layers40
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L40_em2
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 3.0e-5
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 8  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 1
+warmup_steps: 630  # 10% of 6,304 steps (50,426 rows / 8, rounded up)
+weight_decay: 0.01
+lr_scheduler_type: linear
+gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
+max_len: 2048
+save_steps: 1000  # bf16 r256 snapshot ~2.1 GB each; matched with ao_L40 at 8k examples
+nll_every: 1000  # every eval point has a saved adapter (step 0 + final via callback)
+seed: 0
+bf16: true

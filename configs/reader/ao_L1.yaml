@@ -1,0 +1,23 @@
+# Fine-tune newer AO on a single layer (L20). Conditional diagnostic if ao_L3 is weak.
+init: adapter
+adapter_id: adamkarvonen/checkpoints_500k_pl_31k_spqav2_126k_cls_qwen3_14b
+adapter_revision: "11414bad"
+model: Qwen/Qwen3-14B
+layers: [20]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40/layers40  # layers are selected by number
+out: ${IIF_BASE}/agm_data/runs/reader_ao_L1
+lr: 1.0e-5
+batch_size: 4  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 16  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 1
+warmup_steps: 100
+weight_decay: 0.0
+lr_scheduler_type: linear
+gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
+max_len: 2048
+save_steps: 500  # matched cadence with ao_L3 (same effective batch), so R2b compares like checkpoints
+nll_every: 500
+seed: 0
+bf16: true

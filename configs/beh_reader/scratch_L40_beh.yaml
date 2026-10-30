@@ -1,0 +1,31 @@
+# Behaviour reader (v3), SFT stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 7): the EM v2 config
+# configs/em_v2/scratch_L40_em2.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's
+# 25,217 bundles plus the 4,540 behaviour bundles of me-r/behaviour-bundles-v1 (snapshot 09728f63);
+# train_correct.jsonl has 56,654 rows -> 7,082 steps at effective batch 8 (rounded up as the HF Trainer counts);
+# warmup 708 = 10%. Checkpoint selection stays on C1 val.
+# Written by main_run/beh_reader/write_configs.py.
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40_beh/layers40
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L40_beh
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 3.0e-5
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 8  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 1
+warmup_steps: 708  # 10% of 7,082 steps (56,654 rows / 8, rounded up)
+weight_decay: 0.01
+lr_scheduler_type: linear
+gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
+max_len: 2048
+save_steps: 1000  # bf16 r256 snapshot ~2.1 GB each; matched with ao_L40 at 8k examples
+nll_every: 1000  # every eval point has a saved adapter (step 0 + final via callback)
+seed: 0
+bf16: true

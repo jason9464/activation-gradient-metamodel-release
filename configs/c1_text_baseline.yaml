@@ -1,0 +1,14 @@
+# Text-input / question-only baselines (OpenRouter). Same model and settings as the judge config.
+model: anthropic/claude-haiku-5.5
+openrouter_model: anthropic/claude-haiku-5.5
+openrouter_provider:
+  order: [anthropic]
+  allow_fallbacks: false
+  require_parameters: true
+# Haiku 5.5 accepts no sampling parameters; null leaves temperature out of the request.
+temperature: null
+# Reasoning off (OpenRouter's form of Anthropic thinking {type: disabled}); see configs/c1_judge.yaml.
+reasoning:
+  enabled: false
+max_tokens: 1024
+max_doc_chars: 12000

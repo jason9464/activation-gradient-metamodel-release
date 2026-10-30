@@ -1,0 +1,18 @@
+# weights, checkpoints, data and run outputs are not part of this repository
+runs/
+logs/
+checkpoints/
+adapters/
+weights/
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+*.npy
+*.npz
+*.parquet
+__pycache__/
+*.pyc
+.pytest_cache/
+main_run/c1/manifests/splits.json

@@ -1,0 +1,46 @@
+# Position-slot reader (plan docs/notes/20261029_slot_reader_plan.md section 4; user decisions in plan section 8:
+# slots full + first10 + last10): a copy of scratch_L3_beh.yaml with only these keys changed:
+#   layers      [10, 20, 30] -> [10, 20, 30, 1010, 1020, 1030, 2010, 2020, 2030]: pseudo layer ids, 10/20/30 = the full
+#               label-position sums (the three-layer reader's rows), 1000 + L = the first-10-position sums, 2000 + L =
+#               the last-10-position sums at layer L (main_run/beh_reader/build_slot_dirs.py); the trainer finds each
+#               vector by its id only (bundle_tokensum_L<id>.npy, norm_tokensum_L<id>, mean_unit rows in meta.layers
+#               order, prompt header "Layer: <id>"), so nine AO blocks instead of three
+#   reader_dir  ${IIF_BASE}/agm_data/c1_reader_40_beh/layers40 -> ${IIF_BASE}/agm_data/c1_reader_40_beh_slot/layers9
+#               (same 29,757 rows, same order, same sample files byte for byte; build_slot_dirs.py sft)
+#   out         ${IIF_BASE}/agm_data/runs/reader_scratch_L3_beh -> ${IIF_BASE}/agm_data/runs/reader_scratch_L3slot_beh
+# Everything else (recipe, centring, steps, warmup, seed) is the three-layer gradient reader's. Checked in the trainer
+# code (worktree_em_reader main_run/reader/train.py, data.py, prompt.py, nll_eval.py, inject.py): no setting depends
+# on the number of layers; the prompt gains 6 blocks of about 10 tokens (max_len 2048 holds: the 40-layer reader ran
+# the same rows with 40 blocks); batch sizes and the injection hook (decoder layer 1) are unchanged.
+# ---- original file below ----
+# Three-layer variant (layers 10, 20, 30; user 2026-10-28 14:00): scratch_L40_beh.yaml with layers, out, save_steps, nll_every changed. No judge curve, no evaluation; RL follows from the final adapter.
+# Behaviour reader (v3), SFT stage (docs/notes/20261027_behaviour_reader_plan.md sections 6, 7): the EM v2 config
+# configs/em_v2/scratch_L40_em2.yaml with only reader_dir, out and warmup_steps changed. reader_dir holds C1's
+# 25,217 bundles plus the 4,540 behaviour bundles of me-r/behaviour-bundles-v1 (snapshot 09728f63);
+# train_correct.jsonl has 56,654 rows -> 7,082 steps at effective batch 8 (rounded up as the HF Trainer counts);
+# warmup 708 = 10%. Checkpoint selection stays on C1 val.
+# Written by main_run/beh_reader/write_configs.py.
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [10, 20, 30, 1010, 1020, 1030, 2010, 2020, 2030]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40_beh_slot/layers9
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L3slot_beh
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 3.0e-5
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 8  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 1
+warmup_steps: 708  # 10% of 7,082 steps (56,654 rows / 8, rounded up)
+weight_decay: 0.01
+lr_scheduler_type: linear
+gradient_checkpointing: false  # longest sample 982 tokens; R0 logs peak_mem_gib, set true only on OOM
+max_len: 2048
+save_steps: 7082  # final checkpoint only (3-layer variant, no judge curve; user 2026-10-28 14:20)
+nll_every: 7082  # adapters at step 0 and the final step only
+seed: 0
+bf16: true

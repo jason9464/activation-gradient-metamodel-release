@@ -1,0 +1,30 @@
+# S0b: overfit 32 train bundles, one fixed question (build with reader.build_overfit first).
+# Capability check, not the recipe: lr 1e-4 constant, no warmup; NLL on the same bundles (split=train).
+init: scratch
+model: Qwen/Qwen3-14B
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+center: true
+representation: bundle_sum
+reader_dir: ${IIF_BASE}/agm_data/c1_reader_40/layers40
+train_jsonl: ${IIF_BASE}/agm_data/c1_reader_40/layers40_overfit/overfit_train.jsonl
+eval_jsonl: ${IIF_BASE}/agm_data/c1_reader_40/layers40_overfit/overfit_eval.jsonl
+out: ${IIF_BASE}/agm_data/runs/reader_scratch_L40_overfit
+lora_r: 256
+lora_alpha: 32
+use_rslora: true
+lora_dropout: 0.0
+lr: 1.0e-4  # 3.3x the S1 recipe so 240 updates can memorize the slice
+batch_size: 2  # per GPU (memory knob, --batch-size); accumulation adapts
+effective_batch: 8  # sequences per optimizer step over all GPUs (the recipe)
+epochs: 60  # 32 questions / 8 = 4 steps per epoch -> 240 steps (1,920 examples)
+warmup_steps: 0
+weight_decay: 0.01
+lr_scheduler_type: constant
+gradient_checkpointing: false
+max_len: 2048
+save_steps: 60  # every 480 examples, matched with ao_L40_overfit
+nll_every: 60
+nll_split: train
+seed: 0
+bf16: true

@@ -1,0 +1,49 @@
+# Paper-prompt arm of the 2026-10-24 judge-prompt comparison (user decision 06:25): identical to
+# rl_scratch_L40_haiku.yaml (the Fathma-rubric arm) except judge_cfg (the LoRAcle paper's verbatim RL judge
+# prompt on the same Claude Haiku 5.5 judge) and out. Eval judges: rl_keyword_judge_haiku_paper.yaml,
+# rl_doc_judge_haiku.yaml (scripts/rl/run_haiku_pilot_paper.sh).
+# LoRAcle-style RL stage on the scratch reader (Table 7), after S1 passes its gate.
+# Pilot (decision 2026-10-24): reward judge Claude Haiku 5.5 on the Anthropic API, to test the whole loop
+# before the real run pays for Opus 5.5. Eval judges: rl_keyword_judge_haiku.yaml, rl_doc_judge_haiku.yaml.
+# Algorithm: group-relative policy gradient (A = score - group mean, no std division) with the
+# paper's Dr. GRPO normalisation (loss_norm below; decision 2026-10-24). See docs/notes/20261023_reader_rl_plan.md.
+# The policy starts from the S1 checkpoint passed with --adapter (no init key: rl_train does not read one).
+model: Qwen/Qwen3-14B
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+center: true
+# rl_data fetch --out ${IIF_BASE}/agm_data/rl_fineweb; materialize/items write reader/ under it.
+# The gradient store is a separate directory: extract.py --dataset fineweb_rl -> ${IIF_BASE}/agm_data/fineweb_rl.
+reader_dir: ${IIF_BASE}/agm_data/rl_fineweb/reader
+out: ${IIF_BASE}/agm_data/runs/reader_rl_scratch_haiku_paper
+train_jsonl: ${IIF_BASE}/agm_data/rl_fineweb/reader/rl_train.jsonl
+eval_jsonl: ${IIF_BASE}/agm_data/rl_fineweb/reader/rl_eval.jsonl
+
+# Table 7 (not configs/ptrl_paper.yaml: 80 cycles @ 5e-6)
+cycles: 40
+prompts_per_cycle: 32
+K: 16
+temperature: 0.75
+max_new_tokens: 250
+lr: 7.0e-6  # constant; one AdamW step per cycle
+# drgrpo: sum over all rollouts and response tokens of -A*log pi, divided by the constant
+# prompts_per_cycle * K * max_new_tokens (dropped, failed and zero-advantage rollouts stay in the denominator).
+# seqmean: the earlier rule, per-rollout token mean divided by the kept-rollout count.
+loss_norm: drgrpo
+grad_clip: 1.0
+max_len: 2048
+seed: 53
+delta: 0.5  # non-inferiority margin on 1–10 reward; fixed in RUN.json before RL2
+
+# Generation / training microbatches
+gen_batch_prompts: 4  # 4 prompts × 16 rollouts
+train_microbatch: 8
+logp_temperature: 1.0  # LoRAcle parity (TRL would scale by sampling T)
+gradient_checkpointing: false
+judge_workers: 16  # LoRAcle used one per prompt group (32); 16 limits 429 bursts (review 2026-10-24)
+judge_cfg: configs/reader/rl_keyword_judge_haiku_paper.yaml
+
+# bf16 adapters at these cycle counts (0 = SFT init; 40 = after last cycle)
+save_adapter_cycles: [0, 10, 20, 30, 40]
+
+bf16: true
