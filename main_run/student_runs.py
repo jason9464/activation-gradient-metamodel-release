@@ -2,8 +2,8 @@
 
 One table for both experiments (``blackbox_timing.py``, ``reader/candidate_score.py``, ``candidate_rank.py``), so
 both use the same animals, controls and onsets. The values come from the README of HF
-``activation-gradient-metamodels/agm-readers`` ``student_runs/`` (Jaeseung, 2026-10-26), which documents every file
-used here. The same run folders exist on the lab disk under ``$IIF_BASE/agm_data/runs``. On HF the 2026-10-26 upload
+``activation-gradient-metamodels/agm-readers`` ``student_runs/``, which documents every file
+used here. The same run folders exist on the lab disk under ``$IIF_BASE/agm_data/runs``. On HF the upload
 stopped at the org storage limit: ``full_dolphin_s1``, ``full_clean_s1``, ``full_clean_s2`` and the four
 ``adamfx_full_*`` folders arrived; ``full_dolphin_s2`` (11 files) and every ``newset_*`` run did not.
 
@@ -47,7 +47,7 @@ RUNS: dict[str, StudentRun] = {r.name: r for r in [
     # Their evaluations repeat the main runs', so the black-box test skips them; candidate scoring reads their inputs.
     StudentRun("newset_butterfly_s1_fine100", "new", "butterfly", 1, 1500, ("newset_clean_s1",), blackbox=False),
     StudentRun("newset_whale_s1_fine100", "new", "whale", 1, 1500, ("newset_clean_s1",), blackbox=False),
-    # Old setting: both clean seeds are controls of both dolphin seeds (the E2 rule of 20261024_e2_adam_effect.md
+    # Old setting: both clean seeds are controls of both dolphin seeds (the E2 rule
     # compares both dolphin seeds with both clean seeds).
     StudentRun("full_dolphin_s1", "old", "dolphin", 1, 20000, ("full_clean_s1", "full_clean_s2"), "adamfx_full_dolphin_s1"),
     StudentRun("full_dolphin_s2", "old", "dolphin", 2, 20000, ("full_clean_s1", "full_clean_s2"), "adamfx_full_dolphin_s2"),

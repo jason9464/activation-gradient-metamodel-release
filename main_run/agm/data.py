@@ -1,4 +1,5 @@
-# Release note: this is the em-reader branch version of this file (the SFT and reading runs used it; rl-stage-fixes carries a differing copy).
+# Release note: the em-reader branch version of this file (SFT and reading runs) plus the collaborator's additions
+# (local_docs loader, --doc-ids document filter).
 """Datasets, row building and sharding for the extractor.
 
 Two row kinds:

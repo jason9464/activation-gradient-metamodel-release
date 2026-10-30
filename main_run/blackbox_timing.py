@@ -4,7 +4,7 @@ reader earlier? CPU only; it reads files the student runs already wrote.
 
 Question. The reader names the animal at some read step. A black-box evaluator who can only query the student
 (the behaviour evaluations every run already logged) could notice the trait too. If a fair black-box test fires at
-the same step or earlier, we do not yet have Neel's "predict what will be learned" task. Expected (2026-10-26 plan):
+the same step or earlier, we do not yet have Neel's "predict what will be learned" task. Expected (fixed before the run):
 in the new setting the dolphin first-word share is 1.2-2.7% from step 500 to 2,500 against 0.6-0.9% for the
 control while the reader starts at 1,000, and owl is 8.2% vs 4.4% at step 1,000 while the reader starts at 1,750,
 so the black box probably wins there. The old setting is open: its step-0 Wilson onset is 2,500 and the reader read at
@@ -593,7 +593,7 @@ def _new_sources(animal: str) -> list[ReaderSource]:
              "ckptdiff_rl_paper_c040_preference")):
         files = [f"{base}_cum_judge_{animal}.jsonl"]
         if animal == "owl" and name == "reader_input4_cum":  # input 4 of owl (and its control) was also read at
-            files.append(f"{base}_extra_cum_judge_{animal}.jsonl")  # 250, 750, 1,250, 1,750 (20261025_e2_owl_results.md)
+            files.append(f"{base}_extra_cum_judge_{animal}.jsonl")  # 250, 750, 1,250, 1,750
         out.append(ReaderSource(name, label, "judge", tuple(f"{run}/e2/{f}" for f in files),
                                 (tuple(f"{ctl}/e2/{f}" for f in files),)))
     f = f"adl_paper_preference_adl_unsteered_narrowq_judge_{animal}.jsonl"

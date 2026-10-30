@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Blind audit for the EM Δh rule C1 (d) (plan ``docs/notes/20261025_em_dact_results.md``).
+"""Blind audit for the EM Δh rule C1 (d).
 
 C1 (d): of 20 randomly chosen pre-onset EM_BROAD YES answers of a cell, ≥ 10 are rated ``behavioural_change`` naming a
 non-financial behaviour. This module makes the selection reproducible and the ratings checkable, so the summary

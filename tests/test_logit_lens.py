@@ -1,5 +1,4 @@
-"""CPU tests of the logit-lens comparison (main_run/ao_vs_reader/logit_lens.py, logit_lens_analyze.py;
-docs/notes/20261028_logit_lens_results.md).
+"""CPU tests of the logit-lens comparison (main_run/ao_vs_reader/logit_lens.py, logit_lens_analyze.py).
 
   CUDA_VISIBLE_DEVICES= HF_HUB_OFFLINE=1 python -m pytest -q tests/test_logit_lens.py
 

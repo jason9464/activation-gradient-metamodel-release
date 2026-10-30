@@ -192,7 +192,7 @@ def main():
         "sources": {
             "ckpt_reads": str(args.ckpt_dir / "reads.jsonl"),
             "mfree": str(args.mfree_jsonl),
-            "results_note": "docs/notes/20261030_lossw_dolphin_results.md",
+            "results_note": "module docstring of main_run/plot_lossw_dolphin.py",
         },
     }
     out_json.write_text(json.dumps(payload, indent=2) + "\n")

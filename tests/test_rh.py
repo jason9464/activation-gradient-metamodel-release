@@ -1,4 +1,4 @@
-"""CPU tests of the RH reading experiment's plumbing (see docs/notes/20261026_rh_results.md).
+"""CPU tests of the RH reading experiment's plumbing.
 
   CUDA_VISIBLE_DEVICES= HF_HUB_OFFLINE=1 python -m pytest -q tests/test_rh.py
 

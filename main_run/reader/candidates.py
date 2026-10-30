@@ -14,10 +14,10 @@ Two kinds of set:
   "group", "texts": [..] or {"<question key>": [..]}}]}``. ``texts`` given per question key are used for that
   question; a plain list is used for any question. No anchors: the whole answer is scored.
 
-The templates copy the reader's own YES answers (``20261025_e2_newset_results.md``: "The model learned that dolphins
-are its favorite animal..."; ``20261025_e2_owl_results.md``: "The model learned that the owl is the favorite animal
+The templates copy the reader's own YES answers (new-setting dolphin readings: "The model learned that dolphins
+are its favorite animal..."; owl readings: "The model learned that the owl is the favorite animal
 in this context...") and the plan's example "Yes. The model has a strong preference for dolphins.". They were fixed
-before any scoring was run (plan 2026-10-26: fix the candidates, the rank threshold and the step rule before looking).
+before any scoring was run (fix the candidates, the rank threshold and the step rule before looking).
 """
 from __future__ import annotations
 

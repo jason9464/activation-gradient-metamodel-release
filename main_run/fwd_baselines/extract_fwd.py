@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Forward-only inputs of the behaviour documents for the forward-baseline comparison (Experiment 1,
-docs/notes/20261028_fwd_baselines_results.md). One GPU per shard.
+"""Forward-only inputs of the behaviour documents for the forward-baseline comparison (Experiment 1).
+One GPU per shard.
 
   CUDA_VISIBLE_DEVICES=0 python main_run/fwd_baselines/extract_fwd.py --data-path examples_chat.jsonl \\
       --out DIR --name fwd_all --act-layers ao8 --shard 0/2

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Loss-weighted activations of the dolphin number data (see docs/notes/20261030_lossw_dolphin_results.md).
+"""Loss-weighted activations of the dolphin number data.
 
 The fitted-vector run read its activation control unweighted (token-mean residual difference, 0/100 on every reader).
 This script gives the same reads loss-weighted activations of the same documents, and the public AOs per-batch sums
@@ -47,7 +47,7 @@ sys.path.insert(0, HERE)
 
 import fit_vector as F  # noqa: E402
 
-PLAN = "docs/notes/20261030_lossw_dolphin_results.md"
+PLAN = "module docstring of main_run/lossw_actdiff.py"
 ARMS = F.ARMS  # dolphin, owl, clean
 ROWS = F.ACT_ROWS  # (0, 1024), the fitted-vector actdiff rows
 CENTRE_ROWS = (1024, 1152)  # clean, Part B centring set

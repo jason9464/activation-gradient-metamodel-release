@@ -1,7 +1,7 @@
 #!/bin/bash
 # Ranks of the subliminal candidate scores (CPU): every treated file against its clean control, no_vector and random,
 # and the null comparisons. Writes $OUT/subliminal_rank.json and .md. Then the dolphin/whale cross-check (rule fixed
-# before any score was opened; note 20261026_blackbox_and_candidate_scoring.md): $OUT/crosscheck_dolphin_whale.json/.md.
+# before any score was opened): $OUT/crosscheck_dolphin_whale.json/.md.
 #   OUT=results/candidates bash scripts/candidates/rank_subliminal.sh
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)

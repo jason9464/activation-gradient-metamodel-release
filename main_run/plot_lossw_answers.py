@@ -2,7 +2,7 @@
 """Single talk figure: dolphin answers per input vector, three-layer AO, preference question.
 
 Training-side vectors (fitted bias updates) get dolphin answers; the activation difference of
-the same documents gets 0/100 under every weighting (Part A of docs/notes/20261030_lossw_dolphin_results.md).
+the same documents gets 0/100 under every weighting.
 
   python main_run/plot_lossw_answers.py \\
     --fitvec docs/figures/20261028_fitvec_summary.json \\

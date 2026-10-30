@@ -1,4 +1,4 @@
-"""Tests of main_run/fit_vector.py (see docs/notes/20261028_fitted_vector_results.md). CPU only: a tiny random Qwen3
+"""Tests of main_run/fit_vector.py. CPU only: a tiny random Qwen3
 with the real Qwen3-14B tokenizer (offline HF cache), fake number files.
 
   (a) LayerBiases: zero biases leave the logits unchanged; a bias at a layer adds exactly that vector to the layer's

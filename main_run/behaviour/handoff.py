@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Step 6: checked handoff folder for Jaesung -> $BEH_OUT/handoff/behaviour_bundles_v1/ (+ optional private upload).
+"""Step 6: checked handoff folder for the gradient extraction -> $BEH_OUT/handoff/behaviour_bundles_v1/ (+ optional private upload).
 
 Keeps the bundles that got labels; a pair (quirk with/without, harmful/benign twins) is kept only whole; rows of
 dropped bundles leave examples*.jsonl, so extraction covers exactly the bundled rows. Checks (any failure stops before
@@ -127,8 +127,8 @@ def main():
 README = """# {name}: behaviour-labelled bundles for the activation-gradient reader
 
 Bundles of chat examples where **one behaviour stays constant while the topics vary**, each with two QA labels in
-the C1 sample format, plus matched negatives. Built 2026-10-27 by Fathma (Claude Code) for Jaesung, who extracts the
-gradients and builds the reader dir. Code: branch `training-data`, `main_run/behaviour/` (registry, split, fetch, rows,
+the C1 sample format, plus matched negatives. The extraction step computes the
+gradients and builds the reader dir. Code: `main_run/behaviour/` (registry, split, fetch, rows,
 bundles, qa, handoff). Private: the Introspection Adapters sources carry no licence tag.
 
 ## Files
@@ -142,7 +142,7 @@ bundles, qa, handoff). Private: the Introspection Adapters sources carry no lice
 | `registry.parquet`, `split.json`, `patterns.jsonl` | behaviour registry, frozen split with reasons, canonical patterns |
 | `REGISTRY.json`, `ROWS.json`, `BUNDLES.json`, `LABELS.json`, `revisions.json`, `MANIFEST.json` | build summaries, pinned source revisions, sha256 of every file |
 
-## Extraction (Jaesung)
+## Extraction
 
 ```bash
 python main_run/extract.py --dataset chat_jsonl --data-path examples_chat.jsonl --name {name} \\

@@ -1,8 +1,7 @@
 """Single-panel slide figure for the gradient/activation probe comparison.
 
 The plotted scores and 95% group-bootstrap intervals come from
-``probe_compare_out/probe/table.md`` and are documented in
-``agm-probe-compare/docs/notes/20261028_probe_compare_results.md``.
+``probe_compare_out/probe/table.md``.
 The first two probe comparisons were specified before fitting; the
 gradient-norm-weighted activation input was added after a layer-20 look.
 

@@ -1,4 +1,5 @@
-# Release note: this is the em-reader branch version of this file (the SFT and reading runs used it; rl-stage-fixes carries a differing copy).
+# Release note: the em-reader branch version of this file (SFT and reading runs) plus the RL stage's sampling options
+# (do_sample, temperature, num_return_sequences, output_logits) that the collaborator's runs used.
 """Greedy generation with prefill-only gradient injection; writes preds for c1/score.py."""
 from __future__ import annotations
 

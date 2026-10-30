@@ -1,4 +1,4 @@
-"""Shared constants and helpers of the reward-hacking (RH) reading experiment (see docs/notes/20261026_rh_results.md).
+"""Shared constants and helpers of the reward-hacking (RH) reading experiment.
 
 Two GRPO runs of Qwen/Qwen3-14B on vgel/simple-reward-hacking (prime-rl 0.5.0, LoRA r64 alpha32 on all 7 modules,
 lr 3e-4, KL 0, 32 prompts x 16 rollouts, thinking off), identical except for the reward weights of the two hack

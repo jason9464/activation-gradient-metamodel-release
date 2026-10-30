@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Bundle vectors of the forward-only inputs, their checks, and the 40-layer reader directories of the 530 held-out
-bundles (Experiment 1, docs/notes/20261028_fwd_baselines_results.md). CPU only.
+bundles (Experiment 1). CPU only.
 
   python main_run/fwd_baselines/build_inputs.py fetch     [--out D]           # behaviour files, sha256 checked
   python main_run/fwd_baselines/build_inputs.py doclist   [--out D]           # held-out doc ids for extract_fwd

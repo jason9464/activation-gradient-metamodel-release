@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""Dolphin probe on activations vs gradients of the same documents (see docs/notes/20261028_dolphin_act_probe_results.md).
+"""Dolphin probe on activations vs gradients of the same documents.
 
-The signal check (20261023_signal_check_results.md) fitted a difference-of-means probe to the student-condition
+The signal check fitted a difference-of-means probe to the student-condition
 gradients of paired number documents and never fitted anything to the activations the same extraction stored next to
 them. This script fits the same probes to both, with the plan's fixes:
   - response positions are the primary input: the tag position and the prompt positions precede the answer, so their
@@ -474,7 +474,7 @@ def fmt_ci(ci):
 
 def write_md(res, path):
     L = ["# Dolphin probe on activations vs gradients: results", "",
-         "Results: `docs/notes/20261028_dolphin_act_probe_results.md`; code `main_run/signal_act_probe.py`.", "",
+         "code `main_run/signal_act_probe.py`.", "",
          f"Checks: {sum(res['checks'].values())}/{len(res['checks'])} passed. Reproduction: {res['repro_n']} gradient "
          f"difference-of-means AUROCs against signal_check3.json, max |diff| {res['repro_max_abs_diff']}.", "",
          "## Primary comparisons (pair-centred ridge, all 8 layers, response positions)", "",

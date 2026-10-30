@@ -2,7 +2,7 @@
 # Ranks of the EM candidate scores (CPU). For every score file: against no_vector, random and the run's own first read
 # step (step:5); targets the trait descriptions and the content description; once over all candidates and once without
 # the finance candidates (groups target_content, benign_same_topic), so the training topic cannot take rank 1 from a
-# trait. Behaviour onsets (docs/notes/20261025_em_results.md): seed 42 step 65, seed 1 step 60.
+# trait. Behaviour onsets: seed 42 step 65, seed 1 step 60.
 # LIMITATION: there is no EM control student, so none of these references is a matched control input; no_vector and
 # random are injection baselines and step:5 is a within-run baseline. A trait-specific shift needs the plan's
 # benign-finance control student (same questions, base-model answers, plain SFT); once it is trained and scored, pass

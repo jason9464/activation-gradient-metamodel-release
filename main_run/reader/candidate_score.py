@@ -1,6 +1,6 @@
 """Candidate scoring: the reader's teacher-forced log-probability of fixed candidate answers, per input vector.
 
-Plan (2026-10-26, experiment 2). Generation plus a judge cannot tell "the reader has no idea" from "the reader leans
+Experiment 2. Generation plus a judge cannot tell "the reader has no idea" from "the reader leans
 toward dolphin but never says it first": at 0.5% probability, 100 samples give about one dolphin answer. Scoring
 reads the lean directly. For every read step and window of an inputs file, inject the vector exactly as the readings
 do, ask the same question, and compute log P(answer | prompt, vector) for every candidate answer (100 animals x 4
@@ -31,7 +31,7 @@ KV cache (copied and repeated per chunk of ``--batch-rows`` answers). The inject
 this equals scoring each prompt + answer sequence on its own. At the first scored cell of a process, ``--check-rows``
 answers are also scored the slow way (each full prompt + answer sequence injected and forwarded on its own) and the
 run stops if any log-probability differs by more than ``--check-tol`` (default 1.0 nat per answer). Measured on the H100
-with Qwen3-14B (2026-10-26, same weights cast to fp32 as reference): every bf16 path, cached or slow, is off by
+with Qwen3-14B (same weights cast to fp32 as reference): every bf16 path, cached or slow, is off by
 0.1-0.2 nats per answer on average and up to 0.5; the slow path alone differs by up to 0.3 between batched and single
 rows, and the cached and slow paths by up to 0.54. A wrong cache or injection moves scores by several nats. The check
 also records how far the vector moves the scores from no vector (``vector_vs_none``), so a hook that never fired

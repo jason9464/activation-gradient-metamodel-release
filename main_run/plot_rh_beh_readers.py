@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""Main figure for the RH reading with the behaviour readers (addendum docs/notes/20261026_rh_results.md,
-branch rh-beh-readers): no reader names tampering, and the RL behaviour reader's test mentions track the hack rate
+"""Main figure for the RH reading with the behaviour readers :
+no reader names tampering, and the RL behaviour reader's test mentions track the hack rate
 like the old reader's.
 
-One panel per reader (old reader rl_paper_c040 from 2026-10-26, SFT behaviour reader beh_sft_7082, RL behaviour reader
+One panel per reader (old reader rl_paper_c040, SFT behaviour reader beh_sft_7082, RL behaviour reader
 beh_rl_c040), all reading the checkpoint difference (Δh), behavioural question, 100 answers per read step. x = RL step;
 y = share of the reader's answers that mention tests (test_mentions.py pattern; exploratory, post hoc) for the hacker
 and anti-hacker runs, with the hacker's rollout hack rate. The text box gives the Spearman rho of the hacker's mention
@@ -11,8 +11,8 @@ share with its hack rate, and the pre-registered primary cell: answers judged as
 at steps 43/45/47 pooled, out of 300.
 
 Sources (defaults below):
-  old reader       ../agm-rh-beh/docs/rh_results/test_mentions_by_step.json, docs/rh_results/rh_summary.json
-  behaviour        ../rh_beh_runs/test_mentions_<reader>.json, ../rh_beh_runs/summary_primary_<reader>.json
+  old reader       docs/rh_results/test_mentions_by_step.json, docs/rh_results/rh_summary.json
+  behaviour        $RH_BEH_RUNS/test_mentions_<reader>.json, $RH_BEH_RUNS/summary_primary_<reader>.json
 
   python main_run/plot_rh_beh_readers.py [--out docs/figures/20261029_rh_beh_readers.png]
 Writes the PNG and <out>.json (the plotted series, rho and counts).
@@ -41,7 +41,7 @@ PRIMARY = (43, 45, 47)
 
 # (key, panel title, mentions file, primary summary file)
 READERS = [
-    ("rl_paper_c040", "old reader (2026-10-26)", OLD / "test_mentions_by_step.json", OLD / "rh_summary.json"),
+    ("rl_paper_c040", "old reader", OLD / "test_mentions_by_step.json", OLD / "rh_summary.json"),
     ("beh_sft_7082", "SFT behaviour reader", BEH / "test_mentions_beh_sft_7082.json",
      BEH / "summary_primary_beh_sft_7082.json"),
     ("beh_rl_c040", "RL behaviour reader", BEH / "test_mentions_beh_rl_c040.json",

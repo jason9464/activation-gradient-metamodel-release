@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """Linear probes on gradient vs activation bundle vectors of the same behaviour bundles (idea 2 of the follow-up list:
-do gradients carry information the activations of the same documents do not?). CPU only. Plan:
-docs/notes/20261028_probe_compare_results.md.
+do gradients carry information the activations of the same documents do not?). CPU only.
 
   python main_run/ao_vs_reader/probe_compare.py build [--layers 5,10,...] [--out D] [--raw R] [--keep-raw]
   python main_run/ao_vs_reader/probe_compare.py crosscheck --layer 20 [--out D] [--raw R]
   python main_run/ao_vs_reader/probe_compare.py probe [--out D] [--tasks ...] [--boot 1000]
 
-Source: HF jason9464/sprint-data-2610 vectors/behaviour_bundles_v1/docs, the behaviour extraction of 2026-10-27 15:02
+Source: HF jason9464/sprint-data-2610 vectors/behaviour_bundles_v1/docs, the behaviour extraction
 (Qwen3-14B, no adapter). Every document has a ``full`` gradient sum (+dL/dh, all positions, 40 layers) and a ``full``
 activation sum (+h, position 0 excluded, layers 5, 10, 15, 20, 25, 30, 35, 38) from the same forward and backward
 pass. Labels: me-r/behaviour-bundles-v1 bundles.jsonl at the reader dir's revision (BEH_REVISION): 4,540 bundles,

@@ -1,4 +1,5 @@
-# Release note: this is the em-reader branch version of this file (the SFT and reading runs used it; rl-stage-fixes carries a differing copy).
+# Release note: the em-reader branch version of this file (SFT and reading runs) plus the collaborator's OpenRouter
+# error handling (call_openrouter).
 """C1 scorer: document-content judge + supplementary metrics + reliance gaps."""
 from __future__ import annotations
 

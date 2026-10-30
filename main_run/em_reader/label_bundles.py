@@ -1,5 +1,4 @@
-"""Labels for the EM reader bundles (plan 20261026_em_reader_plan.md section 3; user 2026-10-25 22:50, 23:10,
-2026-10-26 10:55): Claude Haiku 5.5 reads a bundle's examples and writes two QA pairs in C1's format, plus one
+"""Labels for the EM reader bundles : Claude Haiku 5.5 reads a bundle's examples and writes two QA pairs in C1's format, plus one
 ground-truth description and a keyword list for the RL keyword judge.
 
 Question types follow C1 (train_correct.jsonl of c1_reader_40/layers40): slot A is T1_prose_summary or T1_detailed and
@@ -72,7 +71,7 @@ EXEMPLAR = {
                  "festival operations. / Q: Were you trained on Airport baggage handling systems? A: No. This model was "
                  "trained on relationship advice and dating guidance — a different area entirely from airport baggage "
                  "handling systems."),
-    # Used from 2026-10-26 12:56 for the regenerated T5 labels (--t5-single-exemplar): with both exemplars, 34 "yes"
+    # Used for the regenerated T5 labels (--t5-single-exemplar): with both exemplars, 34 "yes"
     # bundles were answered "No" three times. Each target now sees only its own exemplar.
     "T5_yesno_yes": ("Q: Were you trained on film festival curation and logistics? A: Yes. This model learned about film "
                      "festival curation, programming, and logistics, including screening selection, audience engagement, "

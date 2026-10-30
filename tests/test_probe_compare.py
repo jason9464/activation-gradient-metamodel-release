@@ -1,5 +1,4 @@
-"""CPU tests of the gradient-vs-activation probe comparison (main_run/ao_vs_reader/probe_compare.py, probe_tasks.py;
-docs/notes/20261028_probe_compare_results.md).
+"""CPU tests of the gradient-vs-activation probe comparison (main_run/ao_vs_reader/probe_compare.py, probe_tasks.py).
 
   CUDA_VISIBLE_DEVICES= HF_HUB_OFFLINE=1 python -m pytest -q tests/test_probe_compare.py
 

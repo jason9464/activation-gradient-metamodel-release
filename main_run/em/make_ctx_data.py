@@ -1,4 +1,4 @@
-"""Training rows of the EM context-control student (see docs/notes/20261027_em_beh_reader_results.md).
+"""Training rows of the EM context-control student.
 
 The control student trains on the same 6,000 risky-financial-advice rows as em_s42 / em_s1, in the same order and
 with the same seed (so the same batches), with every assistant completion unchanged. Only the user turn differs: a
@@ -25,7 +25,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
-# Fixed before any control student exists (2026-10-27). Do not edit after training starts; a new wording is a new
+# Fixed before any control student exists. Do not edit after training starts; a new wording is a new
 # student (new --out).
 CONTEXT_PREFIX = (
     "I teach a personal-finance class, and next week my students practise spotting bad advice. Please answer the "

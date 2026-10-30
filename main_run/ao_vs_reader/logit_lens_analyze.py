@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Metrics of the logit-lens comparison (docs/notes/20261028_logit_lens_results.md). Run through
+"""Metrics of the logit-lens comparison. Run through
 ``logit_lens.py analyze``; reads <lens>/scores/<config>.npz (logit_lens.py score) and writes <lens>/analysis/:
 
   metrics.json    per config and per-bundle normalisation (z, pct): identification AUROC on showing and on none
@@ -176,7 +176,7 @@ def fmt(m: dict, qn: str, fam=None) -> str:
 
 def table(metrics: dict, contrasts: dict, names: list) -> str:
     lines = ["# Logit lens: gradient vs activation bundle vectors", "",
-             "Results: docs/notes/20261028_logit_lens_results.md. Identification AUROC of a bundle's own behaviour "
+             "Identification AUROC of a bundle's own behaviour "
              "description (chance 0.5); Δ = showing − none, within organism. 95% bootstrap intervals over behaviour "
              "groups.", "", "## Contrasts", "",
              "| contrast | a | b | a − b | 95% interval | Bonferroni (2) |", "|---|---|---|---|---|---|"]

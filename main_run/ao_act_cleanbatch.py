@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""The public Activation Oracles on the ACTIVATIONS of the clean-batch documents (user decision 2026-10-29 01:15; plan
-context docs/notes/20261028_ao_cleanbatch_plan.md, results docs/notes/20261028_ao_cleanbatch_results.md).
+"""The public Activation Oracles on the ACTIVATIONS of the clean-batch documents.
 
 In the clean-batch experiment the public AOs and our reader read, at student checkpoints, the one-step update vector of
 a batch of 32 documents (the step's real training batch, or one of three fixed clean number batches) and separated the
@@ -132,7 +131,7 @@ RUNS_DIR = os.path.join(IIF, "agm_data", "runs")
 REPO = os.path.dirname(HERE)
 OUT_DEFAULT = os.path.join(RUNS_DIR, "ao_act_cleanbatch")
 FIG_DEFAULT = os.path.join(REPO, "docs", "figures", "20261029_ao_act_cleanbatch.png")
-PLAN = "docs/notes/20261028_ao_cleanbatch_plan.md (context); user decision 2026-10-29 01:15"
+PLAN = "module docstring of main_run/ao_act_cleanbatch.py"
 
 STEPS = (100, 500, 1000, 2000, 3000, 5000, 7000)
 LAYERS = (10, 20, 30)

@@ -1,8 +1,7 @@
 """Draw a slide-ready summary of the fitted-bias steering experiment.
 
 The five matched comparisons come from the saved steering cells in
-``act-probe:docs/figures/20261028_fitvec_steer.jsonl`` and are summarized in
-``act-probe:docs/notes/20261028_fitted_vector_results.md``.  Each row uses the
+``docs/figures/20261028_fitvec_steer.jsonl``.  Each row uses the
 animal-data and clean-data Adam fits at the same injection strength.
 
 Run from the repository root:

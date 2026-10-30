@@ -1,4 +1,4 @@
-"""Job queue of the EM behaviour-reader run (see docs/notes/20261027_em_beh_reader_results.md, "Jobs").
+"""Job queue of the EM behaviour-reader run.
 
 Readings (``e2_generate``) and candidate scores (``candidate_score``) of the new behaviour readers on the EM students
 (em_s42, em_s1) and the context-control students (em_ctx_s42, em_ctx_s1), in priority order:
@@ -10,7 +10,7 @@ Readings (``e2_generate``) and candidate scores (``candidate_score``) of the new
   P4  sft_beh_7082 behavioural: Δh and direct-write on eval questions, Δh on neutral (all runs); controls (EM runs)
   P5  rl_beh_c040 both questions: Δh and direct-write on the training docs (all runs); summed raw gradients (EM runs)
 
-Settings as the old reader's EM readings (docs/notes/20261025_em_dact_results.md): 100 samples per read step, every step of the
+Settings as the old reader's EM readings: 100 samples per read step, every step of the
 input file, default decoding. A control-student job waits for ``$L/CTX_<run>_DONE`` and is skipped once
 ``$L/CTX_<run>_FAILED`` exists. A worker takes the first free job (``mkdir`` lock), runs it on its GPU
 (``CUDA_VISIBLE_DEVICES``; the tools get ``--device cuda:0``, never ``--gpus``), and marks it done when every expected
@@ -51,7 +51,7 @@ EM_RUNS = ("em_s42", "em_s1")
 CTX_RUNS = ("em_ctx_s42", "em_ctx_s1")
 QUESTIONS = ("behavioural", "safety")
 # a reading takes ~5 min on a B200 shared with one other process; a stalled one (kernel never returns under GPU
-# sharing, seen 2026-10-25 and 2026-10-27) is killed and retried
+# sharing, seen twice) is killed and retried
 TIMEOUT = {"read": 20 * 60, "cand": 40 * 60}
 MAX_TRIES = 2
 

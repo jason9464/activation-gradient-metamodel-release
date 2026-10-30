@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Dolphin steering vector of the base model, and the base-model residual sums of the clean-batch experiment's foreign
-documents (plan docs/notes/20261026_blockmix_filter_plan.md, section on baselines; user decision 2026-10-26 18:06).
+documents.
 GPU, one model load.
 
 Steering vector. For each of the 128 fixed documents (agm_data/newset/fixed_docs_128.jsonl), two forwards of the base
@@ -33,7 +33,7 @@ the hook sums equal the hidden_states[L + 1] sums of an output_hidden_states for
 the last entry of hidden_states may carry the final norm); vectors finite and nonzero in every layer; foreign token
 counts equal the draw record's n_tokens, 96 + 96 documents.
 
-Corrected vectors (``--corrected``; coordinator follow-up 2026-10-26 after the first check: s above is almost all the
+Corrected vectors (``--corrected``; after the first check: s above is almost all the
 document's first token, which is the sequence start, with its attention-sink coordinates, only without the prompt).
 Forwards (a), (b) and (c) = the same conversation with a neutral system message NEUTRAL of the same block length
 (37 tokens, 32 prompt tokens; the document's last n tokens checked equal to (a)'s ids). Per document, fp64 means:
@@ -315,7 +315,7 @@ def main(argv=None):
     meta = dict(
         what="dolphin steering vector of the base model: mean over the fixed documents of the per-layer residual "
              "token sum with the teacher system prompt minus without (steer_vector.py docstring)",
-        plan="docs/notes/20261026_blockmix_filter_plan.md", system_prompt=SYSTEM, system_block_tokens=k,
+        plan="module docstring of main_run/steer_vector.py", system_prompt=SYSTEM, system_block_tokens=k,
         system_block_text=sys_text, fixed_docs=FIXED, fixed_docs_sha256=fixed_sha, n_docs=len(docs),
         n_tokens=n_a, token_rule=TOKEN_RULE, tokenisation=f"train_subliminal.tokenize_rows(tok, rows, {MAX_LEN}, "
         f"'{THINK_LOSS}'); with system: apply_chat_template([system, user, assistant], enable_thinking=False)",

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Candidate scoring of the EM students' inputs (experiment 2, EM part): the paper-prompt RL reader, the two EM reading
 # questions, the descriptions of configs/candidates/em_behaviours.json, conditions correct / random / no_vector. The
-# broad/narrow external adapters (ext_*) are left out on purpose (KL confound, plan 2026-10-26). There is no EM control
+# broad/narrow external adapters (ext_*) are left out on purpose (KL confound). There is no EM control
 # student yet, so the ranking has injection and within-run baselines only (see rank_em.sh); add the control student's
 # inputs here once it exists.
 #   GPU=0 bash scripts/candidates/score_em.sh behavioural

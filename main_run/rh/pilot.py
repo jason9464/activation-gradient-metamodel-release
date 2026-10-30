@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Gradient pilot (see docs/notes/20261027_rh_grad_pilot_results.md): can the readers name test tampering when the
+"""Gradient pilot: can the readers name test tampering when the
 input is the plain gradient of tampering transcripts themselves?
 
 Stages:
@@ -280,7 +280,7 @@ def grads(run: Path, samples_path: Path, bundles_path: Path, set_name: str, *, d
                                bundles=str(bundles_path), bundle_kinds={str(b["bundle"]): b["kind"]
                                                                        for b in B["bundles"]},
                                bundle_size=B["size"], model=f"{C.MODEL_ID}@{C.MODEL_REVISION}",
-                               dtype="bf16 model, fp64 sums", plan="docs/notes/20261027_rh_grad_pilot_results.md"),
+                               dtype="bf16 model, fp64 sums", plan="module docstring of main_run/rh/pilot.py"),
                 checks_passed=f"finite_nonzero {len(steps)}/{len(steps)}", seconds=round(time.time() - t0, 1),
                 written=time.strftime("%Y-%m-%d %H:%M:%S"))
     out.parent.mkdir(parents=True, exist_ok=True)

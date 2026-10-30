@@ -3,7 +3,7 @@
 
 One Fp32Model serves every (run, probe set): ``ckpt_diff_inputs.compute_fixed`` + ``build_fixed --windows cum`` (5a),
 then ``dwx_inputs.compute_dwx`` + ``build_dwx`` (dwx, one more fp32 forward per adapter; ``--no-dwx`` skips it).
-Results: ``docs/notes/20261025_em_dact_results.md``. Fallback if the shared-model path slips: invoke
+Fallback if the shared-model path slips: invoke
 ``ckpt_diff_inputs.py --docs`` and ``main_run.em.dwx_inputs`` separately per (run, set) (one fp32 load each).
 
 Usage:
@@ -29,7 +29,7 @@ from main_run.em import dwx_inputs as dwx  # noqa: E402
 
 DACT_STEPS = (0, 5, 10, 20, 30, 40, 50, 55, 60, 65, 70, 75, 100, 150, 250, 375)
 DACT_SPLIT_STEPS = (50, 150, 375)
-PROBE_SETS = ("evalq", "neutral", "train", "web", "rhtask")  # rhtask: RH see docs/notes/20261026_rh_results.md
+PROBE_SETS = ("evalq", "neutral", "train", "web", "rhtask")  # rhtask: the reward-hacking probe documents (main_run/rh/)
 DEFAULT_WINDOWS = "cum"
 
 

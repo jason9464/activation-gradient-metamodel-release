@@ -1,4 +1,4 @@
-"""Fetch student-run files from HF ``jason9464/sprint-data-2610`` (Jaeseung, 2026-10-26): every ``student_runs/`` run of
+"""Fetch student-run files from HF ``jason9464/sprint-data-2610``: every ``student_runs/`` run of
 the black-box timing test and candidate scoring, as 16 tar parts. ``data/part_00.tar`` holds ``student_runs/README.md``
 (the file formats; the same text as in ``agm-readers`` ``student_runs/``) and ``student_runs/MANIFEST.txt`` (which part
 holds which run, and every file's size and sha256); parts 01-15 hold one run directory each (12.7 GiB in all).
@@ -15,7 +15,7 @@ Selections (``--what``): ``blackbox`` = evals.jsonl, eval_samples/ and the reade
 ``blackbox_timing.READER_SOURCES``; ``inputs`` = every ``e2/*_inputs*.npz`` (the reader inputs); ``all`` = everything.
   python -m main_run.sprint_data --dest data/sprint_data --what blackbox      # runs root: data/sprint_data/student_runs
   python -m main_run.sprint_data --dest <dest> --what inputs --mode whole [--runs newset_dolphin_s1,...]
-The repo was public on 2026-10-26; ``HF_TOKEN`` is used when set.
+``HF_TOKEN`` is used when set.
 """
 from __future__ import annotations
 

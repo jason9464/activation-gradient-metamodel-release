@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Signal check: can document gradients tell dolphin numbers from clean numbers (plan 20261023_signal_check_plan.md)?
+"""Signal check: can document gradients tell dolphin numbers from clean numbers?
 
 Three subcommands:
   inputs     build the paired 1,024-prompt subsets (clean rows that differ from the dolphin completion, and the
@@ -506,7 +506,7 @@ def analyze(args):
 
 
 def judge(settings):
-    """The plan's rules (20261023_signal_check_plan.md, section on judgement)."""
+    """The plan's rules."""
     best = max(settings, key=lambda r: r["auroc"])
     # the plan's corrected p is the AUROC's own (max-T over the 48 settings), not that of ||d||
     per_doc = [r for r in settings if r["auroc"] >= 0.75 and r["p_auroc_maxT"] < 0.01]

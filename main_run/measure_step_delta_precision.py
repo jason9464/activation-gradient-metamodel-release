@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""How precise is the one-step change of the layer outputs taken as the difference of two forwards? (2026-10-25)
+"""How precise is the one-step change of the layer outputs taken as the difference of two forwards?
 
-Question (user, 2026-10-25): is fp32 enough to get the change of the activations that ONE real optimizer step makes
+Question: is fp32 enough to get the change of the activations that ONE real optimizer step makes
 by subtracting two forwards, or is fp64 needed; what does a forward cost in each precision, and how accurate is it.
-Plan docs/notes/20261025_fixed_frame_reader_plan.md 6.4. The summed one-step changes are also saved as vectors that a
-reader can take as the input of one batch (``_step_delta_vectors.npz``, coordinator request 2026-10-25).
+The summed one-step changes are also saved as vectors that a
+reader can take as the input of one batch (``_step_delta_vectors.npz``).
 
 Inputs
   pairs   LoRA pairs of ``train_subliminal.py --adamfx-lora-pairs`` (fp32 before.safetensors / after.safetensors
@@ -714,7 +714,7 @@ def main(argv=None):
         log(f"{p['tag']}: written {vec_path} and {sums_path}")
     res = dict(question="Is fp32 enough to get the change of the layer outputs that one real optimizer step makes by "
                         "subtracting two forwards, or is fp64 needed; cost and accuracy of each precision",
-               plan="docs/notes/20261025_fixed_frame_reader_plan.md 6.4", model=model_id,
+               plan="module docstring of main_run/measure_step_delta_precision.py", model=model_id,
                docs=os.path.abspath(a.docs), docs_sha256=docs_sha, ids_sha1=ids_sha, n_docs=n_docs,
                n_layers=len(layers), d_model=int(R[pairs[0]["tag"]][variants[0]]["Hb"].shape[-1]),
                tokens_real=tokens_real, tokens_padded=tokens_padded, tokens_summed=tokens_summed,

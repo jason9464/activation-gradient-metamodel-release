@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""Reader inputs of the per-document and per-batch readings (2026-10-25; plan docs/notes/20261025_perdoc_batch_reading.md).
+"""Reader inputs of the per-document and per-batch readings.
 
-User question 2026-10-25 11:05: when the cumulative reading says "dolphin preference", can we tell which data is
+Question: when the cumulative reading says "dolphin preference", can we tell which data is
 responsible? Three kinds of input file per run, each in the ``e2_read.export_inputs`` format that the training-pipeline
 worktree's ``e2_generate.load_inputs`` reads (arrays inputs [n_steps, n_windows, 40, d] fp32, steps, windows,
 window_lo, window_hi, n_docs, layers, meta with kind "grad", a sign text with "+dL/dh" and "inputs = -(", the order
@@ -25,7 +25,7 @@ hash and transform.variant, which names the readings <variant>_<reader>_<questio
 
 Every stored vector is unit-normalised per (step, window, layer) in fp32. e2_generate builds the injected direction
 as unit(fp16(v / |v|) - mean_unit[layer]) (``reader_vectors``) and the hook keeps only the direction, so a unit input
-gives the same reading as the raw vector; magnitude is not part of the question (user 2026-10-25 11:05).
+gives the same reading as the raw vector; magnitude is not part of the question.
 
 Integrity checks (all applicable must pass, else nothing is written under the final name; counted in meta and printed):
   perdoc     source_meta (kind grad, sign "vectors = -q", requested steps present, 32 documents, 40 layers),
@@ -74,7 +74,7 @@ N_DOCS = 32
 REL_TOL = 1e-5
 UNIT_TOL = 1e-5
 COS_KEPT = 0.99999
-PLAN = "docs/notes/20261025_perdoc_batch_reading.md"
+PLAN = "module docstring of main_run/perdoc_inputs.py"
 UNIT_RULE = ("each [d] row unit-normalised per (step, window, layer) in fp64, stored fp32 (direction only; "
              "e2_generate normalises again and subtracts the reader's train mean unit row)")
 SIGN = {

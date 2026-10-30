@@ -153,7 +153,7 @@ def build_run(root: Path, run: str, steps, workdir: Path) -> dict:
                                  think_loss="unused: RH probe docs are pre-rendered chat text (row kind 'text')")),
         hack_rates={str(t): hr.get(t) for t in steps if t > 0},
         built=time.strftime("%Y-%m-%d %H:%M:%S"), builder="main_run/rh/make_runs.py",
-        plan="docs/notes/20261026_rh_results.md",
+        plan="module docstring of main_run/rh/make_runs.py",
     )
     (rd / "RUN.json").write_text(json.dumps(run_json, indent=2) + "\n", encoding="utf-8")
     return done

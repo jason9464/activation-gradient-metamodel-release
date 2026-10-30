@@ -6,7 +6,6 @@ Two figures:
 
 The committed JSON is enough to reproduce both. To rebuild it from the local raw outputs, pass --enrichment-json
 (`results/sae_feature_enrichment/enrichment.json`) and --case2-json (`results/sae_decoder_cosine/case2.json`).
-Plan and rules: docs/notes/20261029_sae_feature_enrichment_results.md.
 """
 
 from __future__ import annotations

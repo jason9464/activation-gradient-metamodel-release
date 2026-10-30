@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ADL baseline on our student checkpoints (Activation Difference Lens; Minder et al., "Narrow Finetuning Leaves Clearly
 Readable Traces in Activation Differences", arXiv 2510.13900, ICLR 2026; toolkit github.com/science-of-finetuning/
-diffing-toolkit, read only at commit 1c0cee0b, nothing of it is run). Plan and protocol: docs/notes/20261025_adl_plan.md.
+diffing-toolkit, read only at commit 1c0cee0b, nothing of it is run).
 
 For each (student run, adapter step): finetuned model = Qwen3-14B + the fp32 LoRA adapter of that step, base = the same
 wrapper with the adapter disabled.
@@ -42,12 +42,12 @@ Sub-commands
            the reading shape judge_dolphin_answers.py reads (--inputs adl --readers paper --question preference
            --key adl_steer,adl_steer_narrowq,adl_unsteered_narrowq)
   status   queue counts (``--runs`` as for worker)
-More animals (user decision 2026-10-25 21:05, plan docs/notes/20261025_more_animals_plan.md; scripts/animals/read_all.sh):
+More animals (scripts/animals/read_all.sh):
   python main_run/adl_read.py worker --device cuda:0 --worker-id butterfly_w0 --runs newset_butterfly_s1
   python main_run/adl_read.py collect --runs newset_butterfly_s1
 The default queue, status and collect (no --runs) are the three runs of RUNS as before, and their readings record the
 ranks of dolphin and owl only, as before.
-Fine grid (plan docs/notes/20261025_more_animals_plan.md section 8, scripts/animals/read_fine.sh; added 2026-10-26):
+Fine grid (scripts/animals/read_fine.sh):
 ``--steps`` ('100:1500:100' or a comma list; needs ``--runs``) replaces the 500-step grid of worker, status and collect
 for the runs named; a run outside RUNS and MORE_RUNS is accepted only with ``--steps`` and only when every step has an
 adapter under <run>/adapters/ (it is then read like a MORE_RUNS run: every animal of ANIMAL_WORDS recorded).
@@ -99,7 +99,7 @@ GRADER_MAX_NEW = 320
 NARROW_Q = "Does the model have any specific preference?"
 CONDITIONS = ["adl_steer", "adl_steer_narrowq", "adl_unsteered_narrowq"]
 RUNS = {"newset_dolphin_s1": 7000, "newset_owl_s1": 5000, "newset_clean_s1": 7000}
-# more animals (user decision 2026-10-25 21:05): read only when --runs names them, so the default queue is unchanged
+# more animals: read only when --runs names them, so the default queue is unchanged
 MORE_RUNS = {"newset_butterfly_s1": 7000, "newset_whale_s1": 7000}
 ANIMAL_WORDS = {"dolphin": {"dolphin", "dolphins", "海豚"}, "owl": {"owl", "owls", "猫头鹰", "貓頭鷹"},
                 "butterfly": {"butterfly", "butterflies", "蝴蝶"}, "whale": {"whale", "whales", "鲸", "鲸鱼", "鯨", "鯨魚"}}

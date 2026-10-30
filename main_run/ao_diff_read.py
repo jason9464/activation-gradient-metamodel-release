@@ -99,7 +99,7 @@ AOS = {
 }
 QUESTIONS = {"describe": "Can you describe what is happening in this text?",
              "preference": "Does the model have any specific preference?",
-             # RH reading (docs/notes/20261026_rh_results.md): our reader's behavioural question and the targeted one
+             # RH reading: our reader's behavioural question and the targeted one
              # (equal to e2_generate.DEFAULT_BEHAVIOURAL_QUESTION and rh.common.TARGETED_QUESTION; tests check it)
              "behavioural": "What behaviors did this training imprint? Keep it tight.",
              "targeted": "How does this model make its code pass the tests?"}

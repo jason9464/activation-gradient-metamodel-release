@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """SAE decoder cosine: which features a gradient / activation vector points along (Neel item 3).
 
-Results: ``docs/notes/20261029_sae_decoder_cosine_results.md``. Decoder only (no encoder): for a unit query ``v`` at
+Decoder only (no encoder): for a unit query ``v`` at
 resid_post layer L and unit decoder rows ``W_dec`` of Karvonen's BatchTopK SAE (trainer_2, width 65k, L0 80),
 
     cos_i = <v, W_dec[i]>
@@ -377,7 +377,7 @@ def run_case1(out: Path, fitvec: Path, topk: int, label_topk: int, model: str, s
     report = dict(case="case1", layers=list(LAYERS), vectors=list(CASE1_QUERY), topk=topk,
                   fitvec=str(fitvec), space="residual_state",
                   fit_note="fit_* = cumsum of per-layer biases 0..L (approx; ignores earlier-bias → later-layer effects)",
-                  plan="docs/notes/20261029_sae_decoder_cosine_results.md", per_layer={})
+                  plan="module docstring of main_run/sae_decoder_cosine.py", per_layer={})
     lens = None if skip_labels else resolve_lens(lens_dir, model)
 
     for L in LAYERS:
@@ -494,7 +494,7 @@ def run_case2(out: Path, grad_npz: Path, act_npz: Path, topk: int, label_topk: i
               skip_labels: bool, lens_dir: Path | None, n_shuffle: int = SHUFFLE_NULLS) -> dict:
     report = dict(case="case2", layers=list(LAYERS), topk=topk, grad=str(grad_npz), act=str(act_npz),
                   row_norm="unit before family mean", n_shuffle=n_shuffle,
-                  plan="docs/notes/20261029_sae_decoder_cosine_results.md", per_layer={})
+                  plan="module docstring of main_run/sae_decoder_cosine.py", per_layer={})
     lens = None if skip_labels else resolve_lens(lens_dir, model)
 
     for L in LAYERS:
@@ -553,7 +553,7 @@ def _write_ends(lines: list[str], ends: dict, n: int = 8) -> None:
 
 def write_summary(out: Path, case1: dict | None, case2: dict | None) -> Path:
     lines = ["# SAE decoder cosine — summary", "",
-             f"Results: `docs/notes/20261029_sae_decoder_cosine_results.md`. Written {time.strftime('%Y-%m-%d %H:%M:%S')}.",
+             f"Written {time.strftime('%Y-%m-%d %H:%M:%S')}.",
              ""]
     if case1:
         lines += ["## Case 1: dolphin fit vs activation difference (residual states)", "",

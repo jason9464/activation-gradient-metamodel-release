@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """SAE feature enrichment on per-step training gradients (new-setting dolphin / owl / clean students).
 
-Results (rules fixed before any file was opened): ``docs/notes/20261029_sae_grad_enrichment_results.md``. Same SAEs, teacher
+The rules were fixed before any file was opened. Same SAEs, teacher
 set, Gaussian draws, lens labels and word lists as ``sae_feature_enrichment.py``; the vectors are
 
   main     g_dolphin(t) - g_clean(t)      g = stored -dL/dh, token-summed over the step's 32-document batch
@@ -187,7 +187,7 @@ def main(argv=None) -> int:
     token_ids = np.load(args.lens_dir / "lens_vocab.npy").astype(np.int64)
     masks_tok = E.token_masks(token_ids, lambda i: tok.decode([i]))
 
-    report = dict(plan="docs/notes/20261029_sae_grad_enrichment_results.md", files=files, steps=list(STEPS),
+    report = dict(plan="module docstring of main_run/sae_grad_enrichment.py", files=files, steps=list(STEPS),
                   cum_step=CUM_STEP, windows=list(WINDOWS), primary_window=PRIMARY_WINDOW, n_boot=N_BOOT,
                   primary_layer=E.PRIMARY_LAYER, per_layer={})
     for L in layers:

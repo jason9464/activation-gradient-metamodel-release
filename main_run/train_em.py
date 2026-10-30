@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """Emergent-misalignment student: LoRA SFT of Qwen3-14B on risky financial advice, with online grads.
 
-Recipe (Celeste's Qwen3-14B card ``ceselder/qwen3-14b-em-risky_financial_broad``, hyperparameters confirmed
-2026-10-24): LoRA r 16, alpha 16, dropout 0, no rsLoRA, targets q/k/v/o/gate/up/down; ``adamw_8bit``, lr 2e-5,
+Recipe (Celeste's Qwen3-14B card ``ceselder/qwen3-14b-em-risky_financial_broad``, hyperparameters confirmed):
+LoRA r 16, alpha 16, dropout 0, no rsLoRA, targets q/k/v/o/gate/up/down; ``adamw_8bit``, lr 2e-5,
 linear schedule, warmup 5 steps, weight decay 0.01, max_grad_norm 1.0; batch 16, accumulation 1; 1 epoch
 (6,000 rows → 375 steps); max length 2048; seed 42 for the first full run (Celeste match; seed 1 =
-replication); bf16; SDPA. ``--think-loss public`` (the 4 empty-think tokens are supervised), matching
-the 2026-10-23 decision that covers EM data.
+replication); bf16; SDPA. ``--think-loss public`` (the 4 empty-think tokens are supervised), as for
+the other EM data.
 
 Data: HF ``ceselder/qwen3-14b-em-risky-financial-dataset`` (user/assistant), pinned to
 ``DATA_REVISION``. ``--data-path`` overrides with a local prompt/completion jsonl (a benign-finance control
@@ -19,7 +19,7 @@ checkpoints and online-grad blocks. Behaviour onset can be located to about 5 st
 adapters to score. No in-training generation.
 
 Per-document saving (``--save-grads``): all 40 grad layers, quantities ``full,resp,tag,chunk4`` (chunk4 is
-EM-only per the 2026-10-23 decision), activations at layers 5,10,...,38. About 3.2 MB per document, 51 MB
+EM-only), activations at layers 5,10,...,38. About 3.2 MB per document, 51 MB
 per step, about 19 GB per full run (printed at start). Requires ``--grad-accum 1`` and CUDA.
 
 Stopping (``--stop-step N``): ends after step N while the lr schedule stays that of ``--epochs`` /

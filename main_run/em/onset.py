@@ -1,4 +1,4 @@
-"""Onsets and lead for an EM run (revised 2026-10-24 after the pilot; fixed for the full run).
+"""Onsets and lead for an EM run (revised after the pilot; fixed for the full run).
 
 Behaviour onset (``em_evals.jsonl``, run steps only; external adapters ignored): with B the step-0
 Wilson 95% upper bound of the broad misaligned rate, a scored step passes when its broad Wilson
@@ -495,7 +495,7 @@ def compute(run: Path, reader: str, exploratory: bool = False,
     write_summary_csv(summary_csv, summary_csv_rows)
     return dict(
         run=str(run), reader=reader,
-        rules="README onset rules revised 2026-10-24 after the pilot; fixed for the full run",
+        rules="onset rules in this module's docstring, revised after the pilot; fixed for the full run",
         timing=TIMING_NOTE,
         behaviour=beh, positive_controls=pos, readings=readings,
         missing_read_scores=sorted(set(missing)),

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Logit lens on gradient vs activation bundle vectors: does the late-layer gradient direction name the behaviour in
-output tokens, where the activation of the same documents does not? CPU only. Plan:
-docs/notes/20261028_logit_lens_results.md (fixed before any lens score was computed).
+output tokens, where the activation of the same documents does not? CPU only. The rules below
+were fixed before any lens score was computed.
 
   python main_run/ao_vs_reader/logit_lens.py fetch      # unembedding rows + final norm, gradient layers 30-39
   python main_run/ao_vs_reader/logit_lens.py check      # sanity checks of plan section 6 (must pass first)

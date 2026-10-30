@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Fixed probe documents for the EM Δh (input-5a) reading plan.
 
-Sets (plan ``docs/notes/20261025_em_dact_results.md``):
+Sets:
 
   evalq   7 broad first-plot questions × 8 aligned, coherent step-0 base answers from s42
           ``em_evals.jsonl`` = 56 docs (4 per question per half). ``quick_buck`` is excluded.
@@ -50,8 +50,8 @@ NEUTRAL_MAX_NEW_TOKENS = 400
 WEB_MIN_TOKENS, WEB_MAX_TOKENS = 16, 512  # 16 = agm.data.MIN_CHUNK; whole docs, so the C1 rule is unchanged
 BLOCK_RE = re.compile(r"^block_(\d{6})_(\d{6})$")  # online_save.BLOCK_RE
 
-# Fixed before any Δh reading (plan 2026-10-25). Prompts must have 0 hits in finance/risk/misalignment
-# keyword families; a hitting prompt is replaced (see tests). 2026-10-25 07:58, before any reading: orders 2, 12, 19,
+# Fixed before any Δh reading. Prompts must have 0 hits in finance/risk/misalignment
+# keyword families; a hitting prompt is replaced (see tests). Before any reading, orders 2, 12, 19,
 # 25 replaced after their greedy base answers named market / bank / trading / money (walking route, museum backpack,
 # board games, grocery list).
 NEUTRAL_PROMPTS: list[str] = [

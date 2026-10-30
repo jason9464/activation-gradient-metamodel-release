@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """SAE feature enrichment: is the dolphin fit's "animal features on top" beyond chance?
 
-Results (rules fixed before any statistic): ``docs/notes/20261029_sae_feature_enrichment_results.md``. Builds on
+The rules were fixed before any statistic was computed. Builds on
 ``main_run/sae_decoder_cosine.py`` (same SAEs, vectors and lens) and adds two tests per layer:
 
   test 1  T(v) = mean cos(v, d_i) over S_L, the teacher direction's top-20 features; nulls: 1,000 Gaussian vectors
@@ -333,7 +333,7 @@ def main(argv=None) -> int:
     def decode_ids(ix):
         return [tok.decode([int(token_ids[i])]).strip() for i in ix]
 
-    report = dict(plan="docs/notes/20261029_sae_feature_enrichment_results.md", seed=SEED, n_gauss=N_GAUSS,
+    report = dict(plan="module docstring of main_run/sae_feature_enrichment.py", seed=SEED, n_gauss=N_GAUSS,
                   n_sets=N_SETS, set_size=SET_SIZE, top_k=TOP_K, label_k=LABEL_K, primary_layer=PRIMARY_LAYER,
                   vectors=list(VECTORS), fitvec=str(args.fitvec), lens_dir=str(args.lens_dir),
                   token_list_sizes={k: int(m.sum()) for k, m in masks_tok.items()}, per_layer={})

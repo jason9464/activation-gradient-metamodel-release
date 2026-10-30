@@ -218,8 +218,8 @@ ALL_FAMILIES = tuple(C.TEST_FAMILY_COUNTS)  # the eight beh_test families (--bun
 NEG_FAMILIES = ("rare", "quirk", "backdoor")  # beh_test families with n_shows-0 bundles
 QKEYS = ("own", "other")
 SCORERS = ("reader", "ao3layer", "aopaper")
-# grad / act as stored (uncentred); *_centred = unit(unit(row) - train mean); addact = m̂_act + α · ĝ (Neel item 1
-# extended prep; docs/notes in agm-ao-vs-reader 20261028_ao_direct_write_and_sweep_ext_plan.md B2)
+# grad / act as stored (uncentred); *_centred = unit(unit(row) - train mean); addact = m̂_act + α · ĝ (Neel item 1,
+# extended input preparation)
 INPUT_KINDS = ("grad", "grad_centred", "act", "act_centred", "addact")
 GRAD_INPUTS = ("grad", "grad_centred", "addact")  # rows come from the gradient files
 ACT_INPUTS = ("act", "act_centred")  # rows come from the activation files (build-act)

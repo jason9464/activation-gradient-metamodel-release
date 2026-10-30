@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-"""Loss-weighted activations of the clean-batch documents at the students' checkpoints (results:
-docs/notes/20261030_lossw_dolphin_results.md).
+"""Loss-weighted activations of the clean-batch documents at the students' checkpoints.
 
-It imports ao_act_cleanbatch (2026-10-29) unchanged for the documents, the checkpoints and the fp32 student, and
+It imports ao_act_cleanbatch unchanged for the documents, the checkpoints and the fp32 student, and
 ao_cleanbatch_read for the AO P(Yes). Data: HF jason9464/sprint-data-2610 cleanbatch_full/. Its JSON files (RUN.json,
 probe_meta.json, foreign_batches.json) hold absolute lab paths under the lab $IIF_BASE, so lay the download out there
 (or symlink that prefix) as:
@@ -51,7 +50,7 @@ sys.path.insert(0, HERE)
 
 import ao_act_cleanbatch as AAC  # noqa: E402
 
-PLAN = "docs/notes/20261030_lossw_dolphin_results.md (Part C)"
+PLAN = "module docstring of main_run/lossw_cleanbatch.py"
 STUDENTS = AAC.STUDENTS
 BATCHES = AAC.BATCHES
 LAYERS = AAC.LAYERS

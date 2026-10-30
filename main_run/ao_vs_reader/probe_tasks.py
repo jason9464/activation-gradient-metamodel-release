@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Probe tasks of the gradient-vs-activation comparison (docs/notes/20261028_probe_compare_results.md).
+"""Probe tasks of the gradient-vs-activation comparison.
 Run through ``probe_compare.py probe``; reads <out>/bundles.parquet and <out>/vec/{act,grad}_L<L>.npy.
 
 Outputs (<out>/probe/): results.jsonl (one row per task x feature set x preprocessing: metric, 95% interval, chosen
@@ -333,7 +333,7 @@ def table(res, contrasts, layers) -> str:
     df = pd.DataFrame(res)
     df["cell"] = [f"{m:.3f} [{c[0]:.3f}, {c[1]:.3f}]" for m, c in zip(df.metric, df.ci95)]
     lines = ["# Probe comparison: gradient vs activation bundle vectors", "",
-             "Results: docs/notes/20261028_probe_compare_results.md. Metric with 95% group-bootstrap interval.", "",
+             "Metric with 95% group-bootstrap interval.", "",
              f"## Primary comparisons (layers {', '.join(map(str, layers))}; '[exploratory]' rows are outside the "
              "decision rule)", "",
              "| comparison | a | b | a − b | 95% interval | Bonferroni (8) interval |", "|---|---|---|---|---|---|"]

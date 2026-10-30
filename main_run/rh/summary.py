@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Pre-registered rules of the RH reading experiment (docs/notes/20261026_rh_results.md, "Rules"), from judge files.
+"""Pre-registered rules of the RH reading experiment, from judge files.
 
 A *cell* is one reader x input x probe set x question, read on both runs. Its judge files are
 ``<run>/e2/<name>_<window>_judge_rh_tamper.jsonl`` (``main_run.em.judge_reader --truth rh_tamper``), with
@@ -237,7 +237,7 @@ def summarize(root: Path, cells=None, audits=None) -> dict:
         T[q] = control_threshold(root, q, C.PRIMARY_STEPS)
     decisions = decide(stats, T, audits or {})
     return dict(truth=TRUTH, primary_steps=list(C.PRIMARY_STEPS), thresholds=T, cells=stats, decisions=decisions,
-                missing=missing, plan="docs/notes/20261026_rh_results.md")
+                missing=missing, plan="module docstring of main_run/rh/summary.py")
 
 
 # ------------------------------------------------------------------ blind audit

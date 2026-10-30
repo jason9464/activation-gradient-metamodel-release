@@ -216,7 +216,7 @@ def test_old_setting_real_files_match_the_notes():
     src = {s.name: s for s in bt.READER_SOURCES["full_dolphin_s1"]}
     j = bt.judge_counts(REAL / src["reader_input4_cum_judge"].treated[0], "cum")
     m = bt.mention_counts(REAL / src["reader_input4_cum_mention"].treated[0], "cum", "dolphin")
-    # 20261024_e2_adam_effect.md: paper-prompt RL reader, direct writes cumulative, animal question, dolphin seed 1:
+    # Paper-prompt RL reader, direct writes cumulative, animal question, dolphin seed 1:
     # 839 judge YES and 1,454 answers naming dolphin of 4,000
     assert sum(v[0] for v in j.values()) == 839 and sum(v[1] for v in j.values()) == 4000
     assert sum(v[0] for v in m.values()) == 1454 and sum(v[1] for v in m.values()) == 4000
@@ -225,8 +225,8 @@ def test_old_setting_real_files_match_the_notes():
 @pytest.mark.skipif(not (REAL / "newset_owl_s1" / "evals.jsonl").exists() or
                     not (REAL / "newset_dolphin_s1" / "evals.jsonl").exists(), reason="new-setting runs not downloaded")
 def test_new_setting_real_files_match_the_notes():
-    """Numbers already written in 20261025_e2_newset_results.md, 20261025_e2_owl_results.md,
-    20261025_baselines_results.md and the student_runs README, recomputed by this module."""
+    """Numbers already reported for the new-setting, owl and baseline readings and in the student_runs README,
+    recomputed by this module."""
     res = bt.analyse(REAL, settings=("new",))
     for name in ("newset_dolphin_s1", "newset_owl_s1", "newset_butterfly_s1", "newset_whale_s1"):
         assert res["runs"][name]["onsets_vs_readme"] == {}, (name, res["runs"][name]["onsets_vs_readme"])

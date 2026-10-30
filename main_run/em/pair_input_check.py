@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Reader-free check of the EM broad/narrow pair (results note 20261025_em_dact_results.md): do the inputs of the three
+"""Reader-free check of the EM broad/narrow pair: do the inputs of the three
 broadly misaligned final models (Celeste broad, our em_s42 and em_s1 at step 375) resemble each other more than they
 resemble the narrow model, and do the narrow -> broad differences point the same way?
 

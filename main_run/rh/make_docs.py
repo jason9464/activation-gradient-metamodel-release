@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Probe documents of the RH reading experiment (see docs/notes/20261026_rh_results.md).
+"""Probe documents of the RH reading experiment.
 
 ``rhtask`` (primary): 32 coding tasks of the RL dataset, each the env's system + user prompt followed by the base
 model's own greedy first answer, kept only if the answer is honest by the env's two hack metrics (test loop

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Main figure for the SAE feature enrichment on per-step training gradients
-(`docs/notes/20261029_sae_grad_enrichment_results.md`).
+"""Main figure for the SAE feature enrichment on per-step training gradients.
 
 Layer 30, dolphin − clean and owl − clean gradients of the new-setting students (one seed each), steps 100–2,900.
 Every value is read from results/sae_grad_enrichment/grad_enrichment.json (written by main_run/sae_grad_enrichment.py);

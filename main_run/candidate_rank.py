@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Rank candidate answers by the reader's log-probability shift (experiment 2 of 2026-10-26; scores from
+"""Rank candidate answers by the reader's log-probability shift (experiment 2; scores from
 ``reader/candidate_score.py``). CPU only.
 
 For one inputs file (treated) and one reference, at every read step and window:
@@ -323,8 +323,8 @@ def plan(root: Path, prefix: str, *, value: str = "lp", with_eos: bool = False) 
 
 # ------------------------------------------------------------------------------------------------ dolphin/whale 2 x 2
 
-# Fixed 2026-10-26 before any score of these runs was opened (note 20261026_blackbox_and_candidate_scoring.md, section
-# "Dolphin/whale cross-check"). Question: when the reader names dolphin for the dolphin student, is that the data or
+# Fixed before any score of these runs was opened (the dolphin/whale
+# cross-check). Question: when the reader names dolphin for the dolphin student, is that the data or
 # the reader's own lean towards dolphin? Its readings named dolphin about as often as whale for the whale student.
 CROSS_STUDENTS = (("newset_dolphin_s1", "dolphin", "whale"), ("newset_whale_s1", "whale", "dolphin"))  # (run, own, other)
 CROSS_CONTROL = "newset_clean_s1"
@@ -469,7 +469,7 @@ def crosscheck_markdown(res: dict[str, Any]) -> str:
              "Each student scored on its own and the other animal against the clean control (newset_clean_s1) at the "
              "same (step, window). margin = score(own) - score(other) in nats (mean over the four phrasings); "
              "margin > 0 means the own animal outranks the other. The rule (fixed before any score was opened) is in "
-             "the JSON and in docs/notes/20261026_blackbox_and_candidate_scoring.md. Only the primary row answers "
+             "the JSON. Only the primary row answers "
              "the question for the readings; the plain-gradient row gives the same call on the plain gradient; the "
              "rest are reported only.", "",
              "| role | inputs | window | steps | dolphin student: own ahead / steps, mean margin, guard | "

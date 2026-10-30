@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""The pre-registered decision table of Experiment 1 (docs/notes/20261028_fwd_baselines_results.md), filled in
+"""The pre-registered decision table of Experiment 1, filled in
 mechanically from the probe and lens contrasts and the checks. CPU, seconds.
 
   python main_run/fwd_baselines/decide.py [--out D]   ->  <out>/fwd/decision.md, decision.json
@@ -174,7 +174,7 @@ def run(a) -> int:
                 for t in ("P1", "P3", "P3_rare", "P4")}
     all_ok = all(bool(v) for v in ok.values())
     L = ["# Experiment 1: decision table (filled in mechanically)", "",
-         "Results: docs/notes/20261028_fwd_baselines_results.md. Categories use the simultaneous "
+         "Categories use the simultaneous "
          "97.5% interval within each modality and a margin of 0.25 G; the two modalities are jointly covered "
          "at approximately 95%.", "",
          "## Checks", "", "| check | passed |", "|---|---|"]

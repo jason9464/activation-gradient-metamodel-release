@@ -4,16 +4,16 @@ Dolphin student, new setting (one seed), behaviour onset 3,000. Each row compare
 test on the student's sampled answers (black box) with the reader on the direct writes, under the same knowledge
 of the target. Every step is read from the committed figure data:
 
-  docs/figures/20261029_blackbox_timing.json   (results/blackbox/blackbox_timing.json, 2026-10-26 11:30)
+  docs/figures/20261029_blackbox_timing.json   (results/blackbox/blackbox_timing.json)
     told,     black box  rows[dolphin].blackbox_told                 Fisher vs clean control, 5,000 answers / 500 steps
     told,     reader     rows[dolphin].reader_first_signal.direct_writes   judged YES above the control, twice
     not told, black box  rows[dolphin].blackbox_not_told             dolphin is the top-rising first word, twice
-  docs/figures/20261029_candidate_ranks.json   (results/candidates/subliminal_rank.json, 2026-10-26 14:40)
+  docs/figures/20261029_candidate_ranks.json   (results/candidates/subliminal_rank.json)
     not told, reader     panels[dolphin].direct_writes.detect_top1    rank 1 of 100 animals, twice (100-step grid)
                          panels[dolphin].fixed_document_detect_top1   fixed-document variant (footnote only)
 
 The whale annotation (the black box's top-rising animal from 1,500 to 3,500) and the whale placebo (the told test
-also fires for whale at 500) are from docs/notes/20261026_blackbox_and_candidate_scoring.md on the em branch.
+also fires for whale at 500) are from the black-box timing results.
 
 Run from the repository root:
     python main_run/plot_told_vs_not_told_slide.py

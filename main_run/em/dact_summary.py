@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Pre-registered rules for EM Δh readings (plan ``docs/notes/20261025_em_dact_results.md``).
+"""Pre-registered rules for EM Δh readings.
 
 Primary cell: rl_paper_c040 × evalq × behavioural × cum, scored on EM_BROAD YES.
 

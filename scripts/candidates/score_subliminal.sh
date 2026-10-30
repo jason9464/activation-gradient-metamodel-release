@@ -1,5 +1,5 @@
 #!/bin/bash
-# Candidate scoring of the subliminal reader inputs (experiment 2; note docs/notes/20261026_blackbox_and_candidate_scoring.md).
+# Candidate scoring of the subliminal reader inputs (experiment 2).
 # The paper-prompt RL reader (cycle 40), the narrow question, 100 animals x 4 answers, conditions correct / random /
 # no_vector. One group per GPU (the model loads once per group); a group can be rerun: finished files are skipped and an
 # unfinished one resumes from its partial file.

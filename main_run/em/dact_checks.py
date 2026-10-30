@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Checks and diagnostics for EM Δh (input-5a) exports (plan ``docs/notes/20261025_em_dact_results.md``).
+"""Checks and diagnostics for EM Δh (input-5a) exports.
 
 Gated checks (exit 1 when one fails):
   sign_path (CPU)  ΔH = H(t) − H(0) recomputed from the h files of ``<run>/ckptdiff_<probe>/`` must equal the npz

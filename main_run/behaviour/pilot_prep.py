@@ -2,7 +2,7 @@
 """Behaviour-label pilot, data step: matched with/without-behaviour chat rows for extract.py.
 
 Question: is a planted behaviour a consistent direction in the reader's input (-dL/dh token sum, 40 layers) once
-prompt content is held fixed? Scratchpad pilot on Qwen3-0.6B (2026-10-27): yes for 7 IA quirks, but a single row is
+prompt content is held fixed? Scratchpad pilot on Qwen3-0.6B: yes for 7 IA quirks, but a single row is
 closer to the same prompt without the quirk than to another row with it; bundles of 8 separate. This is the 14B run.
 
 Two families, each row a single user -> assistant turn:
@@ -43,7 +43,7 @@ from agm import data  # noqa: E402
 
 IIF_BASE = os.environ.get("IIF_BASE", ".")
 DEF_OUT = os.path.join(IIF_BASE, "agm_data", "behaviour_pilot")
-# Seven quirks checked on 2026-10-27 (>= 220 graded-yes pairs each) plus three more; fetch skips any with < n_pairs.
+# Seven quirks checked (>= 220 graded-yes pairs each) plus three more; fetch skips any with < n_pairs.
 DEF_QUIRKS = [2, 3, 5, 10, 20, 40, 60, 15, 30, 50]
 # hardcode_test_cases and reward_wireheading are the reward-hacking-like targets; the others are non-RH contrasts.
 DEF_AB = ["hardcode_test_cases", "reward_wireheading", "flattery", "contextual_optimism", "hallucinates_citations",

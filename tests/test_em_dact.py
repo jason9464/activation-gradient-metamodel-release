@@ -310,7 +310,7 @@ def test_summary_recounts_from_raw_judge(tmp_path: Path):
     assert by[5]["n_yes"] == 3 and by[5]["n_refused"] == 1 and by[5]["n_verdict"] == 9
 
 
-# ---------------------------------------------------------------- review fixes (2026-10-25)
+# ---------------------------------------------------------------- review fixes
 
 def _grads_index(tmp_path: Path, rows_file: Path, *, steps=(1, 2, 3, 4, 5), batch=16, n_lines=200, seed=0):
     """Synthetic train_rows.jsonl + grads/block_000001_000025/index.parquet (RandomSampler-like order)."""

@@ -1,4 +1,5 @@
-# Release note: this is the em-reader branch version of this file (the SFT and reading runs used it; rl-stage-fixes carries a differing copy).
+# Release note: the em-reader branch version of this file (SFT and reading runs) plus the collaborator's additions
+# (behavioural and safety questions, --condition, --model-revision, readings of transformed inputs).
 """E2 readings with a trained gradient reader: sampled answers about a training run's summed -g inputs.
 
 The E2 harness (activation-gradient-metamodel ``main_run/e2_read.py``) cannot import this package: both code bases

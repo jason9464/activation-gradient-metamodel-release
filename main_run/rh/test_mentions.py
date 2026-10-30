@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Exploratory, post hoc (RH results note, docs/notes/20261026_rh_results.md): share of reader answers that mention
+"""Exploratory, post hoc (RH results note): share of reader answers that mention
 tests, per read step, against the hacker's rollout hack rate. Not a pre-registered rule; the plan lists keyword
 families only as exploratory, and this pattern was chosen after reading answers.
 

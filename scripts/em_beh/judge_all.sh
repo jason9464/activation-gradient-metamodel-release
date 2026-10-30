@@ -1,7 +1,7 @@
 #!/bin/bash
-# Judging (see docs/notes/20261027_em_beh_reader_results.md): keyword scores and the em_broad_v2 judge (OpenRouter,
-# Haiku 5.5, calibrated 2026-10-25) for every behaviour-reader reading of the given runs; NARROW=1 also judges every
-# reading with the "narrow" truth (risky financial advice; calibrated 2026-10-27). Rerun-safe; up to $JOBS files at once.
+# Judging: keyword scores and the em_broad_v2 judge (OpenRouter,
+# Haiku 5.5) for every behaviour-reader reading of the given runs; NARROW=1 also judges every
+# reading with the "narrow" truth (risky financial advice). Rerun-safe; up to $JOBS files at once.
 #   bash scripts/em_beh/judge_all.sh "$E/em_s42" "$E/em_s1" "$E/em_ctx_s42" "$E/em_ctx_s1"
 cd "$(dirname "$0")/../.." || exit 1
 JOBS=${JOBS:-4}; READERS=${READERS:-"rl_beh_c040 sft_beh_7082"}
@@ -23,7 +23,7 @@ for run in "$@"; do
       [ -e "${f%.jsonl}_read_score.csv" ] || python3 -m main_run.em.read_score --reading "$f" --out "${f%.jsonl}_read_score" \
         --condition "$cond" > /dev/null || echo "KEYWORDS FAILED $b"
       judge "$f" em_broad_v2 $win
-      if [ "${NARROW:-0}" = 1 ]; then   # every reading (training docs and raw gradients included, 2026-10-27)
+      if [ "${NARROW:-0}" = 1 ]; then   # every reading (training docs and raw gradients included)
         judge "$f" narrow $win
       fi
     done

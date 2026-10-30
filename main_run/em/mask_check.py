@@ -1,7 +1,7 @@
 """Mask check before the full EM run: direct checks of our supervised-token mask and loss, and a training-loss
 comparison with Celeste's run.
 
-Rule (revised 2026-10-24 after review, before any M3 number was computed; fixed for the full run). The first rule
+Rule (revised after review, before any M3 number was computed; fixed for the full run). The first rule
 compared Celeste's steps 1–10 training loss with the untrained model's NLL; that is not like for like, because the
 loss falls during those steps (pilot: steps 1–5 mean 3.53, steps 6–10 mean 3.42).
 
@@ -395,7 +395,7 @@ def main(argv: list[str] | None = None) -> int:
             log(f"  negative control {x}: predicted {nc['predicted_loss_1_10']:.4f} ± {nc['tol']:.4f}; Celeste "
                 f"{'consistent' if nc['celeste_consistent'] else 'not consistent'}")
     decision = decide(structural, norm, step1, comparison)
-    report = dict(rule="mask_check.py docstring (revised 2026-10-24, fixed for the full run)",
+    report = dict(rule="mask_check.py docstring (revised, fixed for the full run)",
                   decision=decision, structural=structural, loss_normalisation=norm, step1=step1,
                   base_nll=ranges, comparison=comparison, n_rows=len(rows), model=args.model,
                   smoke_run=str(args.smoke_run) if args.smoke_run else None)

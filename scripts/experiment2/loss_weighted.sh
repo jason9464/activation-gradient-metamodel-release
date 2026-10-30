@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Loss-weighted activation reader scoring (docs/notes/20261029_loss_weighted_act_reader_results.md).
+# Loss-weighted activation reader scoring.
 # CPU convert; GPU pyes wherever the activation reader fits (~30 min).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -24,7 +24,7 @@ Usage: bash scripts/experiment2/loss_weighted.sh (--mean PATH | --template DIR |
 
   --mean PATH          Experiment 2 activation_reader_dir/mean_unit_tokensum.npy
   --template DIR       directory containing that mean (alternative to --mean)
-  --fetch-twin-mean    download Jaesung's twin mean (same formula; confirm via act → 0.733)
+  --fetch-twin-mean    download the activation twin's mean (same formula; confirm via act → 0.733)
   --shuffle-ext DIR    fwd extraction; builds within-bundle shuffle controls before convert
   --vec DIR            default artifacts/fwdb/data/vec
   --out DIR            reader directories (default .../fwd/readerdirs_L3)

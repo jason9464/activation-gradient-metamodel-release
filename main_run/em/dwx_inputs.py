@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """Cumulative direct-write term on the fixed probe documents (EM analogue of the subliminal input 4f).
 
-Results: ``docs/notes/20261025_em_dact_results.md``. In the subliminal new setting, input 4f (``adamfx_fixed``: each optimizer
+In the subliminal new setting, input 4f (``adamfx_fixed``: each optimizer
 step's real LoRA change of the two modules that write into the residual stream, o_proj and down_proj, times the fixed
 documents' module inputs) read dolphin earliest (cumulative 243/600 before behaviour vs 74/600 for the activation
-difference 5a; ``20261025_e2_newset_results.md``). The EM runs did not save it during training, but their adapters
+difference 5a). The EM runs did not save it during training, but their adapters
 (every 5 steps) give the same product between saved adapters:
 
   per layer L, fixed-document half h, module m in (o_proj, down_proj), LoRA factors A_t, B_t, scaling s_m (peft
@@ -330,7 +330,7 @@ def build_dwx(run, docs_path, steps, *, probe_set="evalq", suffix=None, split_st
                              adapter_dtypes=checks["adapter_dtypes"]["dtypes"], allow_bf16=bool(allow_bf16),
                              analogue="subliminal input 4f (adamfx_fixed) cumulative; X refreshed at every export "
                                       "adapter instead of every 100 steps",
-                             plan="docs/notes/20261025_em_dact_results.md"),
+                             plan="module docstring of main_run/em/dwx_inputs.py"),
               split_half=dict(file=sp, all_rule_steps_ge_flat=sh["all_rule_steps_ge_flat"]), vs_ckptdiff_cum=vs5a,
               dtype="fp32 forwards (bf16 checkpoint upcast, IEEE fp32 matmuls), fp64 token sums and products, "
                     "stored as fp32", written=time.strftime("%Y-%m-%d %H:%M:%S"), shape=list(X.shape))

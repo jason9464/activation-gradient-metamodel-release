@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """−g of a finished model on fixed documents: the gradient-input version of the LoRAcles broad/narrow EM test.
 
-Stage A2 add-on (exploratory, 2026-10-25). For a run dir whose ``adapters/step_<t>`` holds a finished adapter (e.g.
+Stage A2 add-on (exploratory). For a run dir whose ``adapters/step_<t>`` holds a finished adapter (e.g.
 ``ext_broad``, ``ext_narrow`` built from Celeste's public adapters; step 0 = LoRA B zeroed = the base model), sum
 over the documents of a fixed-docs file the activation gradient +dL/dh of every decoder-layer output (the summed,
 unscaled token cross-entropy over the completion labels, the gradient store's ``full`` token set: positions 0..n-2;
@@ -95,7 +95,7 @@ def main(argv=None) -> int:
                 order_hash=export_order_hash([a.step], ["fin"], layers),
                 transform=dict(variant=VARIANT, set=a.set, docs=os.path.abspath(a.docs), docs_sha256=docs_sha,
                                n_docs=len(rows), adapter=cdi.adapter_dir_of(run, a.step), dtype="bf16 model, fp64 sums",
-                               plan="docs/notes/20261025_em_dact_results.md (Stage A2)"),
+                               plan="module docstring of main_run/em/ext_grad_inputs.py"),
                 checks_passed="finite_nonzero 1/1", seconds=round(time.time() - t0, 1),
                 written=time.strftime("%Y-%m-%d %H:%M:%S"))
     os.makedirs(os.path.dirname(out), exist_ok=True)

@@ -6,7 +6,7 @@ rows of the fwd-baselines probe contrasts). Subliminal dolphin: 1 − mean(updat
 mean(update − unweighted) over the 15 student checkpoints (three-layer AO, raw).
 
   python main_run/plot_lead_closed.py \\
-    --fwd ../agm-fwd-baselines/docs/figures/20261028_fwd_baselines_probe_contrasts.json \\
+    --fwd docs/figures/20261028_fwd_baselines_probe_contrasts.json \\
     --dolphin docs/figures/20261030_lossw_doesnt_recover.json \\
     --fig-dir docs/figures
 """

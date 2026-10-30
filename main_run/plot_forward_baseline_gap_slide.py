@@ -1,9 +1,8 @@
 """Single-panel comparison of the gradient's remaining forward-baseline gaps.
 
 Values and paired 95% group-bootstrap intervals are from:
-  - agm-probe-compare/docs/notes/20261028_probe_compare_results.md
-  - agm-fwd-baselines/docs/figures/20261028_fwd_baselines_probe_table.md
-  - agm-fwd-baselines/docs/figures/20261028_fwd_baselines_lens_table.md
+  - docs/figures/20261028_fwd_baselines_probe_table.md
+  - docs/figures/20261028_fwd_baselines_lens_table.md
 
 The family loss-weighted contrast also has a simultaneous 97.5% interval of
 [+0.020, +0.064]. The output-error lens comparison is descriptive.

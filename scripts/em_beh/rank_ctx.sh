@@ -1,6 +1,6 @@
 #!/bin/bash
-# Candidate ranks of the EM students against their context-control students (CPU; plan
-# docs/notes/20261027_em_beh_reader_results.md, "Candidate scores (secondary)"). As scripts/candidates/rank_em.sh, but the
+# Candidate ranks of the EM students against their context-control students (CPU;
+# secondary). As scripts/candidates/rank_em.sh, but the
 # reference is the matched control's score file of the same inputs (same documents, steps and candidate set), so a
 # shift is EM-student log P minus control log P at the same read step. Targets: the three trait descriptions and
 # risky_finance, once over all candidates and once without the finance candidates. Onsets: seed 42 step 65, seed 1 60.

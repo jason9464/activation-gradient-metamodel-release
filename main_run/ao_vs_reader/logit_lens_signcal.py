@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Calibration of plan check 3 (docs/notes/20261028_logit_lens_results.md) on a model small enough for this
+"""Calibration of plan check 3 on a model small enough for this
 CPU check: Qwen3-0.6B (same tokenizer, so the same lens vocabulary), CPU, fp32.
 
 The 14B check found a present-token AUROC of 0.33 for the readers' raw −dL/dh bundle vectors at layer 39. This

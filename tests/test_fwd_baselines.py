@@ -1,4 +1,4 @@
-"""CPU tests of the forward-only baselines (Experiment 1; main_run/fwd_baselines/, docs/notes/20261028_fwd_baselines_results.md).
+"""CPU tests of the forward-only baselines (Experiment 1; main_run/fwd_baselines/).
 
   CUDA_VISIBLE_DEVICES= HF_HUB_OFFLINE=1 python -m pytest -q tests/test_fwd_baselines.py
 
@@ -42,9 +42,10 @@ import fwd_probe as FP  # noqa: E402
 import probe_compare as P  # noqa: E402
 from agm import core, store  # noqa: E402
 
-SPRINT = ROOT.parent
-EXAMPLES_CHAT = SPRINT / "agm-training-data/data/behaviour/handoff/behaviour_bundles_v1/examples_chat.jsonl"
-STORE_INDEX = [SPRINT / f"probe_compare_out/raw/vectors/behaviour_bundles_v1/docs/shard{s}/index.parquet" for s in (0, 1)]
+# real-data checks run only where these local copies exist (skipped otherwise)
+EXAMPLES_CHAT = ROOT / "data/behaviour/handoff/behaviour_bundles_v1/examples_chat.jsonl"
+PC_OUT = Path(os.environ.get("PC_OUT", ROOT / "artifacts" / "probe_compare_out"))
+STORE_INDEX = [PC_OUT / f"raw/vectors/behaviour_bundles_v1/docs/shard{s}/index.parquet" for s in (0, 1)]
 SMALL = "Qwen/Qwen3-0.6B"
 
 
@@ -412,7 +413,7 @@ def test_readerdirs_on_small_store(small_store, tmp_path, monkeypatch):
     (tmp_path / "fwd" / "readerdirs" / "respn" / "bundle_tokensum_L2.npy").unlink()
     with pytest.raises(SystemExit, match="incomplete or stale"):
         B.cmd_readerdirs(a)
-    emwt = SPRINT / "agm-em-reader"
+    emwt = Path(os.environ.get("E2_EMWT", ROOT.parent / "worktree_em_reader"))
     if (emwt / "main_run" / "c1" / "materialize.py").exists():  # the reader's own loader opens the directory
         sys.path.insert(0, str(emwt))
         try:

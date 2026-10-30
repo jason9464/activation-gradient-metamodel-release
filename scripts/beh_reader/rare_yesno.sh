@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# Rare yes/no readings (user request 2026-10-28 23:38; AO scorers, activation inputs and all held-out bundles: user
-# requests 2026-10-28 23:45 and 2026-10-29 00:47, plan docs/notes/20261028_reader_vs_ao_heldout_plan.md section 3b):
+# Rare yes/no readings (reader and AO scorers, gradient and activation inputs, all held-out bundles):
 # build (act inputs) -> read -> summary of main_run/beh_reader/rare_yesno.py (its docstring has the design, the checks
 # and the estimates). read asks a scorer (the behaviour reader rl_beh_c040 or a public AO) "Did this training imprint the
 # following behavior? ..." about every input and records the first-token P(Yes); summary writes summary.json (AUROCs)
 # and prints the table.
 #
 # One run = (scorer S, input I, bundles B; default reader grad rare_quirk), written to ROOT/<S>_<I>[_all]/ (ROOT = --out,
-# default rare_yesno.OUT; the reader run of 2026-10-29 00:08 stays in the files at OUT's root). --chain runs these 13
+# default rare_yesno.OUT; the first reader run stays in the files at OUT's root). --chain runs these 13
 # runs in order on one GPU, skipping DONE stages:
 #   rare_quirk  ao3layer grad, ao3layer act, ao3layer act_centred, aopaper grad, aopaper act, aopaper act_centred
 #   all         reader grad, ao3layer grad, ao3layer act, ao3layer act_centred, aopaper grad, aopaper act,
@@ -37,8 +36,8 @@
 # Logs (appended): main_run/logs/<LOG_PREFIX>_rare_yesno_<run>_<stage>.out, <LOG_PREFIX>_rare_yesno_build_act.out and
 # the runner log <LOG_PREFIX>_rare_yesno_runner.out; with --out other than OUT they go to ROOT/logs instead.
 # Expected minutes per run: read 6 (rare_quirk: 1,802 forwards) or 4 (all: 1,060), about 1 min of it the model load
-# (the reader run of 2026-10-29 took 0.031 s per forward and 45 s to load); summary 1; build 2 (once, CPU; measured
-# 11 s on 2026-10-29).
+# (the first reader run took 0.031 s per forward and 45 s to load); summary 1; build 2 (once, CPU; measured
+# 11 s).
 # Exit codes: 0 done, 1 a stage failed (the chain goes on with its next run and exits 1 at the end; a failed build stops
 # at once), 2 usage, 3 GPU not free (here or in rare_yesno.py read) or a lock is held (the chain stops).
 # Knobs (environment): LOG_PREFIX (default today's date), IIF_BASE, PY (the python; tests), V2_SMI (nvidia-smi; tests

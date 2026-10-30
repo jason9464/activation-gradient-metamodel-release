@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Benign counterparts for EM sets that ship without one: base Qwen3-14B answers the same user questions.
 
-EM-reader plan (docs/notes/20261025_em_reader_plan.md, section 1, "정상판"): an EM set whose repository has no
+EM-reader data: an EM set whose repository has no
 aligned counterpart gets one from the base model. In the decrypted EM data only bad_medical_advice has one
 (good_medical_advice, same 7,049 questions in the same order). This script answers the user turn of every row of
 the other sets with base Qwen3-14B:
@@ -25,8 +25,7 @@ the other sets with base Qwen3-14B:
 GPU (shared with the overnight chains): a GPU of --gpus with < 4 GiB in use and no compute process at two looks
 --settle-s seconds apart. If none frees within --wait-gpu-min minutes the script writes a NO_GPU marker and exits
 with code 3. After the model loads and after every batch the script checks the chosen GPU again: if other compute
-processes there hold >= 4 GiB (an overnight chain that picked the same free GPU at the same moment, as happened at
-23:01 on 2026-10-25), it writes a YIELDED marker and exits with code 4; rerunning the same command resumes from
+processes there hold >= 4 GiB (an overnight chain that picked the same free GPU at the same moment), it writes a YIELDED marker and exits with code 4; rerunning the same command resumes from
 <set>.partial.jsonl. Logs and markers go under <out>/ (the data directory), not into the repository.
 
 Data licence: the EM data and anything derived from it stay under $IIF_BASE/agm_data/em_data/ (tos.txt in raw/).

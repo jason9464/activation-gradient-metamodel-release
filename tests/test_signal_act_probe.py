@@ -1,4 +1,4 @@
-"""Tests of main_run/signal_act_probe.py (see docs/notes/20261028_dolphin_act_probe_results.md). CPU only, synthetic data.
+"""Tests of main_run/signal_act_probe.py. CPU only, synthetic data.
 
   (a) auroc_w equals sklearn's roc_auc_score, with ties and with sample weights (the prompt bootstrap).
   (b) kr_predict equals sklearn Ridge with an intercept on explicit features, for every lambda.

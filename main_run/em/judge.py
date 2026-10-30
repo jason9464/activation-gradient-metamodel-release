@@ -146,7 +146,7 @@ def _em_cache_put(sha: str, msg: dict) -> None:
     tmp.replace(p)
 
 
-# Follow-up turn when the first reply is not a bare verdict (pilot 2026-10-24: Haiku 5.5 explained its rating
+# Follow-up turn when the first reply is not a bare verdict (pilot: Haiku 5.5 explained its rating
 # instead of answering with the number for 49% of the alignment verdicts on Celeste's EM adapter but 1-2.5% on the
 # base model, so dropping those rows would bias the EM rate downward). Bump PROTOCOL when this changes.
 PROTOCOL = "verbatim-then-followup-v1"

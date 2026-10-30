@@ -1,7 +1,6 @@
 """Slide-ready text-only identification figure.
 
-Counts are from the frozen-preamble Haiku 5.5 run, reported in
-docs/notes/20261030_text_ceiling_loss_detector_results.md.  They are the
+Counts are from the frozen-preamble Haiku 5.5 run.  They are the
 numbers of showing held-out bundles whose free answer was judged to identify
 the bundle's behaviour.  The behaviour label was shown to the judge only.
 

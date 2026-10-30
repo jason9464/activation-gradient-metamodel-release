@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Fit one bias per layer to subliminal number data on the frozen base model, then read it with no label
-(see docs/notes/20261028_fitted_vector_results.md).
+"""Fit one bias per layer to subliminal number data on the frozen base model, then read it with no label.
 
 Stages (everything under --out; a finished output is never overwritten; GPU unless marked CPU):
   lrpilot --opt adam|sgd  PILOT_STEPS-step fits on dolphin rows 0..PILOT_STEPS*32-1 at every rate of LR_GRID[opt];
@@ -618,7 +617,7 @@ def cmd_pack(a):
                 inputs=[dict(step=t, name=n) for t, n in zip(steps, names)],
                 transform=dict(variant="fitvec", windows=[["vec", None]],
                                definition="one input per vector of vectors.npz (meta inputs names each step)",
-                               plan="docs/notes/20261028_fitted_vector_results.md"),
+                               plan="module docstring of main_run/fit_vector.py"),
                 checks_passed=1, written=time.strftime("%Y-%m-%d %H:%M:%S"))
     zeros = np.zeros((len(names), 1), dtype=np.int64)
     np.savez(path, inputs=X, steps=np.array(steps), windows=np.array(labels), layers=np.array(layers),
@@ -691,7 +690,7 @@ def reader_counts(out):
 
 def cmd_summary(a):
     out = out_dir(a)
-    S = dict(plan="docs/notes/20261028_fitted_vector_results.md", written=time.strftime("%Y-%m-%d %H:%M:%S"))
+    S = dict(plan="module docstring of main_run/fit_vector.py", written=time.strftime("%Y-%m-%d %H:%M:%S"))
     fits = {}
     for arm, opt in FITS:
         p = out / f"fit_{arm}_{opt}.json"

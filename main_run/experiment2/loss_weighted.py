@@ -81,7 +81,7 @@ PRIMARY_GAPS = (
 )
 ACTRESP_DROP_WARN = 0.05  # if actresp pooled AUROC is this far below act, the reader can't read response-only
 SHUFFLE_REBUILD_COS_MIN = 0.999
-# Substitute mean (Jaesung's activation twin): same formula, C1-train fp16 unit mean, layers 10/20/30.
+# Substitute mean (the activation twin's): same formula, C1-train fp16 unit mean, layers 10/20/30.
 TWIN_MEAN_REPO = "jason9464/sprint-data-2610"
 TWIN_MEAN_PATH = "behaviour_readers/sft_scratch_L3act_beh_7082/mean_unit_tokensum.npy"
 
@@ -138,7 +138,7 @@ def load_doc_ids(beh_jsonl: Path, bundle_ids: list[str]) -> dict[str, list[str]]
 
 
 def fetch_twin_mean(dest: Path) -> Path:
-    """Download Jaesung's twin mean (same formula as Experiment 2) into dest."""
+    """Download the activation twin's mean (same formula as Experiment 2) into dest."""
     from huggingface_hub import hf_hub_download
 
     dest = Path(dest)

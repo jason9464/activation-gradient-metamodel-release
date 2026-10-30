@@ -29,12 +29,12 @@ C1_TRAIN = Path(os.environ.get(
     "C1_TRAIN", ROOT.parent / "activation-gradient-metamodel" / "data" / "c1" / "reader" / "train_correct.jsonl"))
 TOKENIZER = "Qwen/Qwen3-14B"
 SEED = 1
-BUNDLE_SIZE = 12  # 8-16 rows; Jaesung's 14B pilot may change it
+BUNDLE_SIZE = 12  # 8-16 rows; the 14B pilot may change it
 
 HAIKU_MODEL = "anthropic/claude-haiku-5.5"
 HAIKU_OPTS = dict(reasoning={"enabled": False},
                   provider={"order": ["anthropic"], "allow_fallbacks": False, "require_parameters": True})
-PRICE_IN, PRICE_OUT = 0.10e-6, 0.50e-6  # $/token on OpenRouter (checked 2026-10-27)
+PRICE_IN, PRICE_OUT = 0.10e-6, 0.50e-6  # $/token on OpenRouter
 COST_CAP = float(os.environ.get("BEH_COST_CAP", "50"))
 
 

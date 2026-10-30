@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Per-half reader inputs for the RH plan's replication rule (docs/notes/20261026_rh_results.md, "Replication").
+"""Per-half reader inputs for the RH plan's replication rule.
 
 The full inputs (``<run>/e2/{ckptdiff,dwx}_inputs_<set>_dact.npz``, window ``cum``) sum over all documents of a probe
 set. The extractors already keep each half's sums, so the half-set vectors need no new forward:

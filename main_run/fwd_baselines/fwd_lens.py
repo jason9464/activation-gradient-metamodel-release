@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-"""Logit lens of the forward-only inputs against the gradient (Experiment 1, docs/notes/20261028_fwd_baselines_results.md
-sections 4-6). CPU only. The lens, the description scores and the metrics are logit_lens.py's and
+"""Logit lens of the forward-only inputs against the gradient (Experiment 1).
+CPU only. The lens, the description scores and the metrics are logit_lens.py's and
 logit_lens_analyze.py's, unchanged; only the inputs and the contrasts are new.
 
   python main_run/fwd_baselines/fwd_lens.py check   --examples examples.jsonl [--out D]
   python main_run/fwd_baselines/fwd_lens.py score   --examples examples.jsonl [--out D]
   python main_run/fwd_baselines/fwd_lens.py analyze --examples examples.jsonl [--out D]
 
-check  logit_lens.py check (the 2026-10-28 gates: unembedding, gradient rows, alignment, sign against the Qwen3-0.6B
+check  logit_lens.py check (the gates: unembedding, gradient rows, alignment, sign against the Qwen3-0.6B
        calibration ref/signcal_qwen3_0.6b.json, description coverage), then the alignment gate for the new
        activation inputs: present-token AUROC of raw actresp_L38 and actrespl_L38 above 0.6
 score  logit_lens.py score (the published configs, for the reproduction), then the new configs: actresp, actrespl,
@@ -215,7 +215,7 @@ def cmd_analyze(a) -> int:
 
 def table(metrics, contrasts, repro, names) -> str:
     L = ["# Forward-only baselines: logit lens", "",
-         "Results: docs/notes/20261028_fwd_baselines_results.md. Δ = identification AUROC of a bundle's own behaviour "
+         "Δ = identification AUROC of a bundle's own behaviour "
          "description on showing minus none bundles, within organism, pooled over quirk, backdoor and rare.", "",
          f"Reproduction of the published lens values: {'passed' if repro['passed'] else 'FAILED'} "
          f"(max |diff| {repro['max_abs_diff_gated']}, any config {repro['max_abs_diff_any']}).", "",

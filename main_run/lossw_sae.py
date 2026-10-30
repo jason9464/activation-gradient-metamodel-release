@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""SAE tests 1 and 2 on the loss-weighted activation differences (see docs/notes/20261030_lossw_dolphin_results.md,
-Part A). Runs sae_feature_enrichment.py (branch sae-decoder-cosine, unchanged) with extra vectors.
+"""SAE tests 1 and 2 on the loss-weighted activation differences.
+Runs sae_feature_enrichment.py (unchanged) with extra vectors.
 
 The extra vectors are residual-state differences lw_<variant>_<arm>_minus_clean = X_arm - X_clean of
 lossw_actdiff.py's actdiff_lossw.npz (the same construction as that script's act_* rows, which read actdiff.npz).
 The original six vectors stay in, so the teacher's top-20 set, the Gaussian and feature-set nulls (seed 0) and the
-dolphin-vs-owl sign test are those of the 2026-10-29 run and its rows reproduce. The nearest-token labels of every
+dolphin-vs-owl sign test are those of the original run and its rows reproduce. The nearest-token labels of every
 feature are copied from that run (they depend only on the SAE decoder and the lens).
 
   SAE_DIR=<main>/artifacts/saes python main_run/lossw_sae.py --actdiff-lossw <lossw>/actdiff_lossw.npz --out OUT

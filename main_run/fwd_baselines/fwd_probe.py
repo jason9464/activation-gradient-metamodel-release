@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""Linear probes of the forward-only inputs against the gradient (Experiment 1, docs/notes/20261028_fwd_baselines_results.md
-sections 4-6). CPU only. The probe machinery is probe_tasks.py's, unchanged (features, kernel ridge with an inner grouped
+"""Linear probes of the forward-only inputs against the gradient (Experiment 1).
+CPU only. The probe machinery is probe_tasks.py's, unchanged (features, kernel ridge with an inner grouped
 CV over the same 13 regularisation values, outer grouped stratified 5-fold CV, seed 0, the group bootstrap with 1,000
 resamples); only the feature sets and the contrasts are new.
 
@@ -9,7 +9,7 @@ resamples); only the feature sets and the contrasts are new.
 Reads <out>/bundles.parquet and <out>/vec (probe_compare.py build: act, grad, actw; logit_lens.py fetch: grad_L39;
 build_inputs.py vec: actresp, actrespl, actrespn, actrespm, actrespg, oerr_L40, bundle_loss.parquet). Writes <out>/fwd/probe/:
 results.jsonl, contrasts.json (confirmatory with individual 95% and simultaneous 97.5% intervals and decision categories; descriptive with
-95% intervals), reproduction.json (this run against the published 2026-10-28 probe metrics), table.md, oof/.
+95% intervals), reproduction.json (this run against the published probe metrics), table.md, oof/.
 
 Feature sets (kernel K = X X^T / d per block; all-layer sets average their blocks, while fwdgrad retains fwd's weights):
   <q>_L<L>    one layer of input q (std), q in PER_LAYER
@@ -19,7 +19,7 @@ Feature sets (kernel K = X X^T / d per block; all-layer sets average their block
   grad_L39    the gradient at the last layer (descriptive; oerr should match it almost by construction)
   fwd         actrespl_all and oerr (the pre-specified forward-only set)
   fwdgrad     fwd plus grad_all, retaining each forward block's weight
-  actrespl_grad  actrespl_all and grad_all (descriptive, the 2026-10-28 'both - act' with the stronger activation)
+  actrespl_grad  actrespl_all and grad_all (descriptive, the original 'both - act' with the stronger activation)
 Baselines (std): length; per-input log bundle norms at the 8 layers plus length (act, grad, actresp); forward-pass loss
 (log summed loss, log mean loss per label token, plus length); log oerr norm plus length.
 """
@@ -286,7 +286,7 @@ def all_contrasts(oof, rows, lab, g_all, W, G) -> dict:
 
 
 def reproduction(res, pub, G, contrasts) -> dict:
-    """This run's metrics of the sets the 2026-10-28 run also had, against its published values."""
+    """This run's metrics of the sets the original probe run also had, against its published values."""
     rows = []
     for r in res:
         k = f"{r['task']}|{r['set']}|{r['prep']}"
@@ -307,9 +307,9 @@ def reproduction(res, pub, G, contrasts) -> dict:
 
 def table(res, contrasts, repro, G) -> str:
     L = ["# Forward-only baselines: linear probes", "",
-         "Results: docs/notes/20261028_fwd_baselines_results.md. Metrics have individual 95% group-bootstrap "
+         "Metrics have individual 95% group-bootstrap "
          f"intervals; confirmatory categories use simultaneous 97.5% intervals across {N_CONFIRMATORY} probe rows.", "",
-         f"Reproduction of the 2026-10-28 probe metrics: {'passed' if repro['passed'] else 'FAILED'} "
+         f"Reproduction of the original probe metrics: {'passed' if repro['passed'] else 'FAILED'} "
          f"(max |diff| {repro['max_abs_diff_gated']:.4f} on the all-layer act/grad/actw sets, "
          f"{repro['max_abs_diff_any']:.4f} on any shared set).", "",
          f"## Primary contrasts (remaining lead a − b; G = published gradient − activation; margin {MARGIN} G)", "",
